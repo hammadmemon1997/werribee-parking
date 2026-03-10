@@ -1,4 +1,4 @@
-const CACHE = "werribee-parking-v1";
+const CACHE = "werribee-parking-v4";
 const ASSETS = ["/", "/index.html"];
 
 self.addEventListener("install", e => {
