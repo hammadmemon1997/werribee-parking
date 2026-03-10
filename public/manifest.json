@@ -1,0 +1,14 @@
+{
+  "name": "Werribee Station Parking",
+  "short_name": "W. Parking",
+  "description": "Live parking advisor for Werribee Station",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0f172a",
+  "theme_color": "#1c2b3a",
+  "orientation": "portrait",
+  "icons": [
+    { "src": "/parking-icon.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/parking-icon.png", "sizes": "512x512", "type": "image/png" }
+  ]
+}

@@ -41,6 +41,14 @@ const generateSpots = (occupancyPct) => {
 const ZONE_COLORS = { A: "#6366f1", B: "#0ea5e9", C: "#10b981", D: "#f59e0b" };
 const ZONE_DESC = { A: "Near Entrance / Manly St", B: "Central Bay", C: "Mid Car Park", D: "Closest to Platform" };
 
+// Walking time from each zone to the platform
+const ZONE_WALK = {
+  A: { mins: "5-7", steps: "~380", path: "Exit via Manly St gate → walk along southern path → platform entry", color: "#ef4444" },
+  B: { mins: "4-5", steps: "~300", path: "Head south through central walkway → platform gates", color: "#f59e0b" },
+  C: { mins: "2-4", steps: "~200", path: "Short cut through mid path → straight to platform", color: "#16a34a" },
+  D: { mins: "1-2", steps: "~80",  path: "Zone D is adjacent to platform — 30 sec walk!", color: "#0284c7" },
+};
+
 const TYPE_INFO = {
   standard:   { label: "Standard",   icon: "🚗", color: "#64748b" },
   accessible: { label: "Accessible", icon: "♿", color: "#8b5cf6" },
@@ -312,6 +320,17 @@ export default function ParkingMap({ onBack }) {
                 <div style={{ fontSize: 11, color: "#475569", fontFamily: "monospace" }}>
                   Status changed: {timeAgo(selectedSpot.lastChanged)}
                 </div>
+                {/* Walking path to platform */}
+                {ZONE_WALK[selectedSpot.zone] && (
+                  <div style={{ marginTop: 10, background: "rgba(255,255,255,0.05)", borderRadius: 8, padding: "10px 12px" }}>
+                    <div style={{ fontSize: 10, color: "#475569", letterSpacing: 2, fontFamily: "monospace", marginBottom: 4 }}>🚶 WALK TO PLATFORM</div>
+                    <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 4 }}>
+                      <span style={{ fontSize: 18, fontWeight: 800, color: ZONE_WALK[selectedSpot.zone].color }}>{ZONE_WALK[selectedSpot.zone].mins} min</span>
+                      <span style={{ fontSize: 11, color: "#64748b" }}>{ZONE_WALK[selectedSpot.zone].steps} steps</span>
+                    </div>
+                    <div style={{ fontSize: 11, color: "#64748b", lineHeight: 1.4 }}>{ZONE_WALK[selectedSpot.zone].path}</div>
+                  </div>
+                )}
               </div>
               <div style={{ display: "flex", gap: 8, alignItems: "center" }}>
                 {!selectedSpot.occupied && (
