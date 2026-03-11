@@ -7,7 +7,7 @@
   <meta name="theme-color" content="#1c2b3a"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
-    body{background:#f8f5f0;font-family:Georgia,serif;min-height:100vh}
+    body{background:#f0ece6;font-family:Georgia,serif;min-height:100vh}
     .header{background:#1c2b3a;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
     .header-title{color:#f0e6d3;font-size:15px;font-weight:700}
     .header-sub{color:#5d7a8a;font-size:10px;letter-spacing:3px;font-family:monospace}
@@ -25,16 +25,28 @@
     .mini-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 8px rgba(0,0,0,0.05)}
     .mini-label{font-size:9px;color:#94a3b8;letter-spacing:2px;font-family:monospace;margin-bottom:4px}
     .mini-val{font-size:18px;font-weight:800}
-    .signal-row{display:flex;align-items:center;gap:8px;font-size:12px}
-    .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
     .action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-    .action-btn{padding:12px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;text-align:center}
+    .action-btn{padding:12px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;text-align:center;transition:all 0.15s}
+    .action-btn:active{transform:scale(0.96)}
     .footer{text-align:center;font-size:10px;color:#94a3b8;font-family:monospace;padding:20px 16px;letter-spacing:1px}
     .loading{text-align:center;padding:40px;color:#94a3b8;font-size:14px}
-    .tag{font-size:10px;color:#475569;letter-spacing:3px;font-family:monospace;margin-bottom:4px}
+    .tag{font-size:10px;color:#475569;letter-spacing:3px;font-family:monospace;margin-bottom:6px}
+    .timer-banner{background:linear-gradient(135deg,#1e3a5f,#1c2b3a);border-radius:16px;padding:18px 20px;margin-bottom:12px;color:#fff}
+    .timer-big{font-size:48px;font-weight:900;font-family:monospace;letter-spacing:-2px;line-height:1}
+    .timer-label{font-size:11px;color:#7dd3fc;letter-spacing:2px;font-family:monospace;margin-bottom:8px}
+    .timer-sub{font-size:12px;color:#94a3b8;margin-top:6px}
+    .timer-urgent{animation:pulse 1s infinite}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+    .rain-alert{background:linear-gradient(135deg,rgba(30,64,175,0.1),rgba(14,165,233,0.07));border:1px solid #3b82f666;border-radius:12px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
+    .streak-banner{background:linear-gradient(135deg,#7c2d12,#b45309);border-radius:14px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+    .alt-spot{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9}
+    .alt-spot:last-child{border-bottom:none}
+    .time-input{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:8px;color:#fff;font-size:24px;font-family:monospace;font-weight:700;width:100px;padding:4px 8px;text-align:center}
+    .time-input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.6}
   </style>
 </head>
 <body>
+
 <div class="header">
   <div>
     <div class="header-title">🚉 Werribee Station Parking</div>
@@ -47,15 +59,62 @@
 </div>
 
 <div class="wrap">
-  <div id="alerts"></div>
-  <div id="verdict-wrap" class="loading">Loading parking data...</div>
-  <div class="grid2" id="mini-cards"></div>
-  <div class="action-row">
-    <button class="action-btn" onclick="window.open('https://maps.google.com/?q=Werribee+Station+Car+Park,+Werribee+VIC','_blank')">🗺️ Google Maps</button>
-    <button class="action-btn" onclick="toggleHourly()">📊 Hourly Chart</button>
-    <button class="action-btn" onclick="submitReport()">👥 Report</button>
-    <button class="action-btn" onclick="showForecast()">🌤️ 7-Day</button>
+
+  <!-- STREAK -->
+  <div class="streak-banner" id="streak-banner" style="display:none">
+    <div>
+      <div style="font-size:10px;color:#fcd34d;letter-spacing:2px;font-family:monospace">COMMUTE STREAK</div>
+      <div style="font-size:28px;font-weight:900;color:#fff;margin-top:2px"><span id="streak-num">0</span> 🔥</div>
+      <div style="font-size:11px;color:#fbbf24;margin-top:2px" id="streak-sub">Days checking before commute</div>
+    </div>
+    <div style="text-align:right">
+      <div style="font-size:10px;color:#fcd34d;letter-spacing:1px;font-family:monospace">BEST</div>
+      <div style="font-size:22px;font-weight:800;color:#fbbf24"><span id="streak-best">0</span> 🏆</div>
+      <div style="font-size:11px;color:#92400e;margin-top:4px" id="streak-savings"></div>
+    </div>
   </div>
+
+  <!-- LEAVE NOW TIMER -->
+  <div class="timer-banner">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+      <div class="timer-label">⏱ LEAVE NOW TIMER</div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <span style="font-size:11px;color:#94a3b8">Train:</span>
+        <input type="time" id="train-time" class="time-input" value="07:52" onchange="saveAndUpdateTimer()"/>
+      </div>
+    </div>
+    <div class="timer-big" id="timer-display">--:--</div>
+    <div class="timer-sub" id="timer-sub">Loading...</div>
+  </div>
+
+  <!-- RAIN ALERT -->
+  <div id="rain-alert-wrap"></div>
+
+  <!-- ALERTS -->
+  <div id="alerts"></div>
+
+  <!-- VERDICT -->
+  <div id="verdict-wrap" class="loading">Loading parking data...</div>
+
+  <!-- MINI CARDS -->
+  <div class="grid2" id="mini-cards"></div>
+
+  <!-- ACTIONS -->
+  <div class="action-row">
+    <button class="action-btn" onclick="toggle('alt-panel')">🅿️ Alt Parking</button>
+    <button class="action-btn" onclick="toggle('hourly-chart')">📊 Hourly</button>
+    <button class="action-btn" onclick="toggle('report-panel')">👥 Report</button>
+    <button class="action-btn" onclick="toggle('forecast-panel')">🌤️ 7-Day</button>
+  </div>
+
+  <!-- ALT PARKING -->
+  <div id="alt-panel" style="display:none" class="card">
+    <div class="tag">🅿️ ALTERNATIVE PARKING NEARBY</div>
+    <div style="font-size:11px;color:#94a3b8;margin-bottom:12px">When the station car park is full — tap any to open in Maps:</div>
+    <div id="alt-list"></div>
+  </div>
+
+  <!-- HOURLY CHART -->
   <div id="hourly-chart" style="display:none" class="card">
     <div class="tag">TODAY'S HOURLY FORECAST</div>
     <div id="chart-bars" style="display:flex;align-items:flex-end;gap:2px;height:80px;margin-top:8px"></div>
@@ -63,10 +122,14 @@
       <span>12AM</span><span>6AM</span><span>12PM</span><span>6PM</span><span>11PM</span>
     </div>
   </div>
+
+  <!-- FORECAST -->
   <div id="forecast-panel" style="display:none" class="card">
     <div class="tag">7-DAY OUTLOOK</div>
     <div id="forecast-content" style="margin-top:8px"></div>
   </div>
+
+  <!-- REPORT -->
   <div id="report-panel" style="display:none" class="card">
     <div class="tag">SUBMIT REPORT</div>
     <div style="margin-top:10px">
@@ -86,210 +149,234 @@
       <button onclick="confirmReport()" class="btn" style="background:#8b5cf6;color:#fff">Submit Report</button>
     </div>
   </div>
+
   <div class="footer">WERRIBEE STATION PARKING ADVISOR · DATA: OPEN-METEO + PTV<br>INDIVIDUAL SPOT DATA IS ESTIMATED — NOT REAL SENSORS</div>
 </div>
 
 <script>
-const BASE = [2,2,2,2,3,5,18,72,91,80,62,55,50,52,58,65,80,88,74,50,30,18,10,5];
-const WKND = [2,2,2,2,2,3,5,15,28,32,28,24,20,22,24,26,28,25,20,14,10,6,4,2];
-const DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const WICONS = {0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',53:'🌧️',55:'🌧️',61:'🌦️',63:'🌧️',65:'⛈️',80:'🌦️',81:'🌧️',95:'⛈️'};
-const WCODES = {0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',51:'Drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Showers',81:'Heavy showers',95:'Thunderstorm'};
+const BASE=[2,2,2,2,3,5,18,72,91,80,62,55,50,52,58,65,80,88,74,50,30,18,10,5];
+const WKND=[2,2,2,2,2,3,5,15,28,32,28,24,20,22,24,26,28,25,20,14,10,6,4,2];
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+const WICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',53:'🌧️',55:'🌧️',61:'🌦️',63:'🌧️',65:'⛈️',80:'🌦️',81:'🌧️',95:'⛈️'};
+const WCODES={0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',51:'Drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Showers',81:'Heavy showers',95:'Thunderstorm'};
 
-let weather = null, disruptions = [], reports = [], selZone = 'A', selType = 'full';
+const ALT=[
+  {name:'Watton St (north side)', walk:'3 min',steps:'~200',type:'Street',note:'Free, no time limit',maps:'https://maps.google.com/?q=-37.9005,144.6610'},
+  {name:'Comben Drive',           walk:'5 min',steps:'~350',type:'Street',note:'Free, quiet street',  maps:'https://maps.google.com/?q=-37.9015,144.6595'},
+  {name:'Synnot Street',          walk:'7 min',steps:'~500',type:'Street',note:'Free, residential',   maps:'https://maps.google.com/?q=-37.9022,144.6585'},
+  {name:'Werribee Plaza (west)',   walk:'9 min',steps:'~650',type:'Car park',note:'Free, ~400 spots, rarely full',maps:'https://maps.google.com/?q=-37.8988,144.6568'},
+  {name:'Heaths Road',            walk:'11 min',steps:'~800',type:'Street',note:'Free, last resort',  maps:'https://maps.google.com/?q=-37.9035,144.6560'},
+];
 
-function fmt12(h){ return h===0?'12AM':h<12?h+'AM':h===12?'12PM':(h-12)+'PM'; }
+let weather=null,disruptions=[],reports=[],selZone='A',selType='full',currentPct=50;
+let timerInterval=null;
+
+function fmt12(h){return h===0?'12AM':h<12?h+'AM':h===12?'12PM':(h-12)+'PM';}
 function getVerdict(p){
-  if(p>=90) return {text:'STAY HOME',sub:'Car park is full — leave 40+ min early.',color:'#dc2626',bg:'rgba(220,38,38,0.1)',emoji:'🛑'};
-  if(p>=75) return {text:'RISKY',    sub:'Very busy — leave right now.',           color:'#ea580c',bg:'rgba(234,88,12,0.1)',emoji:'⚠️'};
-  if(p>=55) return {text:'MODERATE', sub:'Filling up — leave soon.',               color:'#d97706',bg:'rgba(217,119,6,0.1)',emoji:'🟡'};
-  if(p>=30) return {text:'GOOD',     sub:'Decent availability. Normal timing fine.',color:'#16a34a',bg:'rgba(22,163,74,0.1)',emoji:'✅'};
-  return           {text:'EASY',     sub:'Plenty of spaces. No rush!',              color:'#0284c7',bg:'rgba(2,132,199,0.1)',emoji:'🅿️'};
+  if(p>=90)return{text:'STAY HOME',sub:'Car park is full — leave 40+ min early.',color:'#dc2626',bg:'rgba(220,38,38,0.1)',emoji:'🛑'};
+  if(p>=75)return{text:'RISKY',sub:'Very busy — leave right now.',color:'#ea580c',bg:'rgba(234,88,12,0.1)',emoji:'⚠️'};
+  if(p>=55)return{text:'MODERATE',sub:'Filling up — leave soon.',color:'#d97706',bg:'rgba(217,119,6,0.1)',emoji:'🟡'};
+  if(p>=30)return{text:'GOOD',sub:'Decent availability. Normal timing fine.',color:'#16a34a',bg:'rgba(22,163,74,0.1)',emoji:'✅'};
+  return{text:'EASY',sub:'Plenty of spaces. No rush!',color:'#0284c7',bg:'rgba(2,132,199,0.1)',emoji:'🅿️'};
 }
-function weatherDelta(code, precip){
-  if(code>=61||precip>2) return {d:+14,label:'Rain → more drivers',icon:'🌧️'};
-  if(code>=51||precip>0.5) return {d:+8,label:'Drizzle → extra cars',icon:'🌦️'};
-  if(code===3) return {d:+3,label:'Overcast',icon:'☁️'};
-  if(code===0||code===1) return {d:-4,label:'Fine → some walk/cycle',icon:'☀️'};
-  return {d:0,label:'Neutral',icon:'🌤️'};
+function wDelta(code,precip){
+  if(code>=61||precip>2)return{d:+14,label:'Rain → more drivers',icon:'🌧️'};
+  if(code>=51||precip>0.5)return{d:+8,label:'Drizzle → extra cars',icon:'🌦️'};
+  if(code===3)return{d:+3,label:'Overcast',icon:'☁️'};
+  if(code===0||code===1)return{d:-4,label:'Fine → some walk/cycle',icon:'☀️'};
+  return{d:0,label:'Neutral',icon:'🌤️'};
+}
+function ls(k,d=null){try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}}
+function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+
+// ── STREAK ──────────────────────────────────────────────────
+function updateStreak(){
+  const today=new Date().toDateString();
+  const h=new Date().getHours(),dow=new Date().getDay();
+  const isCommute=h>=5&&h<=10&&dow>=1&&dow<=5;
+  let s=ls('streak',{count:0,best:0,lastDate:'',totalMins:0});
+  if(isCommute&&s.lastDate!==today){
+    const yest=new Date();yest.setDate(yest.getDate()-1);
+    const gap=(new Date(today)-new Date(s.lastDate||0))/(1000*60*60*24);
+    s.count=(gap<=3)?s.count+1:1;
+    s.best=Math.max(s.best,s.count);
+    s.lastDate=today;
+    s.totalMins=(s.totalMins||0)+8;
+    lsSet('streak',s);
+  }
+  if(s.count>0){
+    document.getElementById('streak-banner').style.display='flex';
+    document.getElementById('streak-num').textContent=s.count;
+    document.getElementById('streak-best').textContent=s.best;
+    document.getElementById('streak-savings').textContent=s.totalMins>0?`~${s.totalMins} mins saved`:'Keep it up!';
+    document.getElementById('streak-sub').textContent=s.count===1?'Day 1 — great start! 💪':s.count<5?`${s.count} days — building momentum!`:s.count<10?`${s.count} days — you're on fire! 🔥`:`${s.count} days — absolute legend! 🏆`;
+  }
 }
 
+// ── TIMER ───────────────────────────────────────────────────
+function saveAndUpdateTimer(){
+  lsSet('trainTime',document.getElementById('train-time').value);
+  startTimer();
+}
+function startTimer(){
+  if(timerInterval)clearInterval(timerInterval);
+  timerInterval=setInterval(tickTimer,1000);
+  tickTimer();
+}
+function tickTimer(){
+  const val=document.getElementById('train-time').value||'07:52';
+  const[tH,tM]=val.split(':').map(Number);
+  const now=new Date();
+  const train=new Date(now);train.setHours(tH,tM,0,0);
+  if(train<=now)train.setDate(train.getDate()+1);
+  const diffMs=train-now;
+  const diffMins=Math.floor(diffMs/60000);
+  const diffSecs=Math.floor((diffMs%60000)/1000);
+  const findMins=currentPct>=95?20:currentPct>=85?11:currentPct>=70?5:currentPct>=45?2:1;
+  const leaveInMins=diffMins-(8+findMins+5);
+  const disp=document.getElementById('timer-display');
+  const sub=document.getElementById('timer-sub');
+  if(diffMins>120){
+    disp.textContent=`${Math.floor(diffMins/60)}h ${diffMins%60}m`;
+    disp.className='timer-big';
+    sub.textContent=`Until ${val} train · Leave in ~${leaveInMins} mins`;
+  }else if(leaveInMins<=0){
+    disp.textContent='LEAVE NOW';disp.style.fontSize='28px';
+    disp.className='timer-big timer-urgent';
+    sub.textContent=Math.abs(leaveInMins)>0?`${Math.abs(leaveInMins)} min${Math.abs(leaveInMins)>1?'s':''} behind — go! 🏃`:'Right on time — head out!';
+  }else{
+    const mm=String(diffMins).padStart(2,'0'),ss=String(diffSecs).padStart(2,'0');
+    disp.textContent=`${mm}:${ss}`;disp.style.fontSize='';
+    disp.className=leaveInMins<=10?'timer-big timer-urgent':'timer-big';
+    sub.textContent=`Leave in ~${leaveInMins} min${leaveInMins!==1?'s':''} · ${findMins}m to park + 5m walk to platform`;
+  }
+}
+
+// ── RAIN ALERT ──────────────────────────────────────────────
+function checkRain(){
+  if(!weather?.hourlyPrecipProb)return;
+  const h=new Date().getHours();
+  const next3=weather.hourlyPrecipProb.slice(h,h+3);
+  const maxP=Math.max(...next3);
+  const rainIn=next3.findIndex(p=>p>=50);
+  const wrap=document.getElementById('rain-alert-wrap');
+  if(maxP>=50){
+    const when=rainIn===0?'Rain likely now':rainIn===1?'Rain in ~1 hour':`Rain in ~${rainIn} hours`;
+    wrap.innerHTML=`<div class="rain-alert"><span style="font-size:26px;flex-shrink:0">🌧️</span><div><div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:3px">${when} — expect ${Math.round(maxP/7)}% more cars</div><div style="font-size:11px;color:#3b82f6">${maxP}% chance of rain · Consider leaving earlier than usual</div></div></div>`;
+  }else{wrap.innerHTML='';}
+}
+
+// ── ALT PARKING ─────────────────────────────────────────────
+function renderAlt(pct){
+  document.getElementById('alt-list').innerHTML=ALT.map((s,i)=>{
+    const hot=pct>=75&&i<2;
+    return`<div class="alt-spot" style="${hot?'background:rgba(22,163,74,0.04);padding:10px 6px;margin:0 -6px;border-radius:8px;':''}">
+      <div><div style="font-weight:700;color:${hot?'#15803d':'#1e293b'};font-size:13px">${hot?'⭐ ':''}${s.name}</div>
+      <div style="font-size:11px;color:#64748b;margin-top:2px">${s.type} · ${s.note}</div></div>
+      <div style="text-align:right;flex-shrink:0;margin-left:10px;cursor:pointer" onclick="window.open('${s.maps}','_blank')">
+        <div style="font-size:14px;font-weight:700;color:#0284c7">🗺️ ${s.walk}</div>
+        <div style="font-size:10px;color:#94a3b8">${s.steps} steps</div>
+      </div></div>`;
+  }).join('');
+  if(pct>=90)document.getElementById('alt-panel').style.display='block';
+}
+
+// ── MAIN REFRESH ────────────────────────────────────────────
 async function refresh(){
-  const now = new Date();
-  const h = now.getHours();
-  const dow = now.getDay();
-  const isWknd = dow===0||dow===6;
-  const base = isWknd ? WKND : BASE;
+  const now=new Date(),h=now.getHours(),dow=now.getDay(),isWknd=dow===0||dow===6;
+  const base=isWknd?WKND:BASE;
+  document.getElementById('refresh-btn').textContent='⏳';
+  document.getElementById('header-sub').textContent='SYNCING...';
 
-  document.getElementById('refresh-btn').textContent = '⏳';
-  document.getElementById('header-sub').textContent = 'SYNCING...';
+  try{
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=-37.9027&longitude=144.6627&current=temperature_2m,precipitation,weathercode,windspeed_10m&hourly=precipitation_probability&timezone=Australia%2FSydney&forecast_days=7');
+    const d=await r.json(),c=d.current;
+    weather={temp:Math.round(c.temperature_2m),precip:c.precipitation,code:c.weathercode,wind:Math.round(c.windspeed_10m),daily:d.daily,hourlyPrecipProb:d.hourly?.precipitation_probability};
+  }catch{weather=null;}
 
-  // Fetch weather
-  try {
-    const r = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=-37.9027&longitude=144.6627&current=temperature_2m,precipitation,weathercode,windspeed_10m&hourly=precipitation_probability&timezone=Australia%2FSydney&forecast_days=7`);
-    const d = await r.json();
-    const c = d.current;
-    weather = {temp:Math.round(c.temperature_2m),precip:c.precipitation,code:c.weathercode,wind:Math.round(c.windspeed_10m),daily:d.daily,hourlyPrecipProb:d.hourly?.precipitation_probability};
-  } catch(e){ weather = null; }
+  disruptions=[];
+  try{
+    const r=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://www.ptv.vic.gov.au/disruptions/werribee-line-disruptions/nochrome'));
+    const d=await r.json(),html=d.contents||'';
+    if(html.toLowerCase().includes('replacement bus'))disruptions.push({type:'warning',text:'Bus replacements on Werribee line — MORE parking demand today'});
+    if(html.toLowerCase().includes('altered timetable'))disruptions.push({type:'info',text:'Altered timetable in effect'});
+  }catch{}
 
-  // Fetch PTV
-  disruptions = [];
-  try {
-    const r = await fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://www.ptv.vic.gov.au/disruptions/werribee-line-disruptions/nochrome'));
-    const d = await r.json();
-    const html = d.contents||'';
-    if(html.toLowerCase().includes('replacement bus')) disruptions.push({type:'warning',text:'Bus replacements on Werribee line — MORE parking demand today'});
-    if(html.toLowerCase().includes('altered timetable')) disruptions.push({type:'info',text:'Altered timetable in effect'});
-  } catch(e){}
+  try{reports=JSON.parse(localStorage.getItem('crowd_reports')||'[]');}catch{reports=[];}
+  const rec=reports.filter(r=>Date.now()-r.ts<30*60*1000);
+  const cd=rec.reduce((a,r)=>a+(r.type==='full'?6:r.type==='spaces'?-5:0),0);
+  const wd=weather?wDelta(weather.code,weather.precip):{d:0,label:'Loading',icon:'⏳'};
+  const dd=disruptions.some(d=>d.text.includes('MORE'))?12:0;
+  const pct=Math.min(99,Math.max(1,(base[h]??50)+wd.d+dd+cd));
+  currentPct=pct;
+  const v=getVerdict(pct),free=Math.round(120*(1-pct/100));
 
-  // Crowd reports (localStorage)
-  try { reports = JSON.parse(localStorage.getItem('crowd_reports')||'[]'); } catch{ reports=[]; }
-  const recentReports = reports.filter(r=>Date.now()-r.ts<30*60*1000);
-  const crowdDelta = recentReports.reduce((a,r)=>a+(r.type==='full'?6:r.type==='spaces'?-5:0),0);
+  document.getElementById('header-sub').textContent=`${DAYS[dow].toUpperCase()} ${fmt12(h)} · LIVE`;
+  if(weather)document.getElementById('weather-badge').innerHTML=`<div style="color:#f0e6d3;font-size:15px">${WICONS[weather.code]||'🌤️'} ${weather.temp}°C</div><div style="color:#5d7a8a;font-size:9px;font-family:monospace">${(WCODES[weather.code]||'').slice(0,12)}</div>`;
 
-  const wd = weather ? weatherDelta(weather.code, weather.precip) : {d:0,label:'Loading',icon:'⏳'};
-  const dd = disruptions.some(d=>d.text.includes('MORE'))?12:0;
-  const pct = Math.min(99,Math.max(1,(base[h]??50)+wd.d+dd+crowdDelta));
-  const v = getVerdict(pct);
-  const free = Math.round(120*(1-pct/100));
+  checkRain();
 
-  // Update header
-  document.getElementById('header-sub').textContent = `${DAYS[dow].toUpperCase()} ${fmt12(h)} · LIVE`;
-  if(weather){
-    document.getElementById('weather-badge').innerHTML = `<div style="color:#f0e6d3;font-size:15px">${WICONS[weather.code]||'🌤️'} ${weather.temp}°C</div><div style="color:#5d7a8a;font-size:9px;font-family:monospace">${(WCODES[weather.code]||'').slice(0,12)}</div>`;
-  }
+  let ah='';
+  disruptions.forEach(d=>{const bg=d.type==='warning'?'rgba(220,38,38,0.08)':'rgba(2,132,199,0.08)',col=d.type==='warning'?'#dc2626':'#0284c7';ah+=`<div style="background:${bg};border:1px solid ${col}44;border-radius:8px;padding:10px 14px;margin-bottom:10px;color:${col};font-size:12px">${d.type==='warning'?'⚠️':'ℹ️'} <strong>PTV Alert:</strong> ${d.text}</div>`;});
+  if(rec.length>0)ah+=`<div style="background:rgba(139,92,246,0.08);border:1px solid #8b5cf633;border-radius:8px;padding:10px 14px;margin-bottom:10px;color:#7c3aed;font-size:12px">👥 <strong>${rec.length} community report${rec.length>1?'s':''}</strong> in last 30 min — adjusted ${cd>0?'+':''}${cd}%</div>`;
+  document.getElementById('alerts').innerHTML=ah;
 
-  // Alerts
-  let alertHtml = '';
-  disruptions.forEach(d=>{
-    const bg = d.type==='warning'?'rgba(220,38,38,0.08)':'rgba(2,132,199,0.08)';
-    const col = d.type==='warning'?'#dc2626':'#0284c7';
-    alertHtml += `<div style="background:${bg};border:1px solid ${col}44;border-radius:8px;padding:10px 14px;margin-bottom:10px;color:${col};font-size:12px">${d.type==='warning'?'⚠️':'ℹ️'} <strong>PTV Alert:</strong> ${d.text}</div>`;
-  });
-  if(recentReports.length>0){
-    alertHtml += `<div style="background:rgba(139,92,246,0.08);border:1px solid #8b5cf633;border-radius:8px;padding:10px 14px;margin-bottom:10px;color:#7c3aed;font-size:12px">👥 <strong>${recentReports.length} community report${recentReports.length>1?'s':''}</strong> in last 30 min — adjusted ${crowdDelta>0?'+':''}${crowdDelta}%</div>`;
-  }
-  document.getElementById('alerts').innerHTML = alertHtml;
-
-  // Verdict card
-  const findMins = pct>=95?'15-25':pct>=85?'8-15':pct>=70?'3-8':pct>=45?'1-3':'<1';
-  document.getElementById('verdict-wrap').innerHTML = `
+  const fm=pct>=95?'15-25':pct>=85?'8-15':pct>=70?'3-8':pct>=45?'1-3':'<1';
+  document.getElementById('verdict-wrap').innerHTML=`
     <div class="verdict-card" style="background:${v.bg};border:2px solid ${v.color}44;position:relative;overflow:hidden">
       <div style="position:absolute;right:-10px;top:-10px;font-size:90px;opacity:0.06;user-select:none">${v.emoji}</div>
       <div class="tag">RIGHT NOW · ${DAYS[dow].toUpperCase()} ${fmt12(h)}</div>
       <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
-        <div>
-          <div class="verdict-text" style="color:${v.color}">${v.text}</div>
-          <div class="verdict-sub">${v.sub}</div>
-        </div>
-        <div style="text-align:center">
-          <div class="pct" style="color:${v.color}">${pct}%</div>
-          <div style="font-size:9px;color:#94a3b8;font-family:monospace">FULL</div>
-          <div style="font-size:14px;font-weight:700;color:${v.color};margin-top:2px">${free} free</div>
-        </div>
+        <div><div class="verdict-text" style="color:${v.color}">${v.text}</div><div class="verdict-sub">${v.sub}</div></div>
+        <div style="text-align:center"><div class="pct" style="color:${v.color}">${pct}%</div><div style="font-size:9px;color:#94a3b8;font-family:monospace">FULL</div><div style="font-size:14px;font-weight:700;color:${v.color};margin-top:2px">${free} free</div></div>
       </div>
       <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,#22c55e,${v.color})"></div></div>
       <div style="margin-bottom:14px">
         <span class="pill" style="background:rgba(255,255,255,0.6);color:#475569">${wd.icon} ${wd.label} <span style="font-family:monospace;font-size:9px;color:#94a3b8">${wd.d>0?'+'+wd.d:wd.d}%</span></span>
         ${dd>0?`<span class="pill" style="background:rgba(220,38,38,0.1);color:#dc2626">🚌 Bus replace +${dd}%</span>`:''}
-        ${crowdDelta!==0?`<span class="pill" style="background:rgba(139,92,246,0.1);color:#7c3aed">👥 Reports ${crowdDelta>0?'+':''}${crowdDelta}%</span>`:''}
+        ${cd!==0?`<span class="pill" style="background:rgba(139,92,246,0.1);color:#7c3aed">👥 Reports ${cd>0?'+':''}${cd}%</span>`:''}
       </div>
-      <div style="background:rgba(255,255,255,0.5);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between">
-        <div>
-          <div style="font-size:10px;color:#64748b;letter-spacing:2px;font-family:monospace">⏱ EST. TIME TO FIND A SPOT</div>
-          <div style="font-size:20px;font-weight:800;color:${v.color};margin-top:2px">${findMins} mins</div>
-        </div>
+      <div style="background:rgba(255,255,255,0.5);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:10px;color:#64748b;letter-spacing:2px;font-family:monospace">⏱ EST. TIME TO FIND A SPOT</div><div style="font-size:20px;font-weight:800;color:${v.color};margin-top:2px">${fm} mins</div></div>
+        ${pct>=75?`<div style="font-size:11px;color:#dc2626;font-weight:700;text-align:right;cursor:pointer" onclick="toggle('alt-panel')">⬇️ Alt parking<br>available →</div>`:''}
       </div>
       <button class="btn" onclick="window.open('https://maps.google.com/?q=Werribee+Station+Car+Park,+Werribee+VIC','_blank')" style="background:${v.color};color:#fff;box-shadow:0 4px 20px ${v.color}55">
-        🅿️ Open Google Maps → ${free} estimated free
+        🅿️ Open in Google Maps → ~${free} spots free
       </button>
     </div>`;
 
-  // Mini cards
-  const todayBase = base.map(b=>Math.min(99,b+wd.d));
-  const bestHour = todayBase.slice(5,11).reduce((best,v,i)=>v<todayBase[best+5]?i+5:best,5)+5;
-  document.getElementById('mini-cards').innerHTML = `
-    <div class="mini-card"><div class="mini-label">BEST LEAVE TIME</div><div class="mini-val" style="color:#16a34a">${fmt12(bestHour)}</div><div style="font-size:11px;color:#64748b">${todayBase[bestHour]}% predicted</div></div>
+  const tb=base.map(b=>Math.min(99,b+wd.d));
+  const bh=tb.slice(5,11).reduce((best,val,i)=>val<tb[best+5]?i+5:best,5)+5;
+  document.getElementById('mini-cards').innerHTML=`
+    <div class="mini-card"><div class="mini-label">BEST LEAVE TIME</div><div class="mini-val" style="color:#16a34a">${fmt12(bh)}</div><div style="font-size:11px;color:#64748b">${tb[bh]}% predicted</div></div>
     <div class="mini-card"><div class="mini-label">WEATHER</div><div class="mini-val">${weather?`${WICONS[weather.code]||'🌤️'} ${weather.temp}°C`:'–'}</div><div style="font-size:11px;color:#64748b">${weather?`${weather.wind}km/h wind`:'Loading...'}</div></div>
     <div class="mini-card"><div class="mini-label">FREE SPOTS</div><div class="mini-val" style="color:${v.color}">${free}</div><div style="font-size:11px;color:#64748b">of 120 total</div></div>
     <div class="mini-card"><div class="mini-label">PTV STATUS</div><div class="mini-val">${disruptions.length>0?'⚠️':'✅'}</div><div style="font-size:11px;color:#64748b">${disruptions.length>0?'Disruptions':'Normal service'}</div></div>`;
 
-  // Hourly chart
-  const bars = BASE.map((b,i)=>{
-    const p = Math.min(99,b+wd.d);
-    const col = p>=75?'#ef4444':p>=55?'#f97316':p>=30?'#16a34a':'#0284c7';
-    const isNow = i===h;
-    return `<div style="flex:1;background:${col}${isNow?'':'88'};border-radius:2px 2px 0 0;height:${p}%;position:relative;min-height:4px" title="${fmt12(i)}: ${p}%">${isNow?'<div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:8px;color:#1c2b3a;font-weight:700;white-space:nowrap">NOW</div>':''}</div>`;
-  }).join('');
-  document.getElementById('chart-bars').innerHTML = bars;
+  document.getElementById('chart-bars').innerHTML=BASE.map((b,i)=>{const p=Math.min(99,b+wd.d),col=p>=75?'#ef4444':p>=55?'#f97316':p>=30?'#16a34a':'#0284c7',isN=i===h;return`<div style="flex:1;background:${col}${isN?'':'88'};border-radius:2px 2px 0 0;height:${p}%;position:relative;min-height:4px">${isN?'<div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:8px;color:#1c2b3a;font-weight:700;white-space:nowrap">NOW</div>':''}</div>`;}).join('');
 
-  // 7-day forecast
-  if(weather?.daily){
-    const d = weather.daily;
-    let fc = '';
-    for(let i=0;i<Math.min(7,d.time?.length||0);i++){
-      const date = new Date(d.time[i]);
-      const dayName = DAYS[date.getDay()];
-      const maxT = d.temperature_2m_max?.[i]||'–';
-      const minT = d.temperature_2m_min?.[i]||'–';
-      const code = d.weathercode?.[i]||0;
-      const isWknd2 = date.getDay()===0||date.getDay()===6;
-      const mornPct = Math.round((isWknd2?WKND[8]:BASE[8]));
-      const stars = mornPct>=80?'⭐':mornPct>=60?'⭐⭐':'⭐⭐⭐';
-      fc += `<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:12px">
-        <div style="width:80px;font-weight:${i===0?700:400};color:${i===0?'#1c2b3a':'#475569'}">${i===0?'Today':dayName}</div>
-        <div>${WICONS[code]||'🌤️'} ${Math.round(maxT)}°/${Math.round(minT)}°</div>
-        <div style="color:#64748b">8AM: ~${mornPct}% ${stars}</div>
-      </div>`;
-    }
-    document.getElementById('forecast-content').innerHTML = fc || '<div style="color:#94a3b8;font-size:12px">No forecast data</div>';
-  }
+  if(weather?.daily){const d=weather.daily;let fc='';for(let i=0;i<Math.min(7,d.time?.length||0);i++){const dt=new Date(d.time[i]),dn=DAYS[dt.getDay()],mxT=d.temperature_2m_max?.[i]||'–',mnT=d.temperature_2m_min?.[i]||'–',cd2=d.weathercode?.[i]||0,iW=dt.getDay()===0||dt.getDay()===6,mp=Math.round(iW?WKND[8]:BASE[8]),st=mp>=80?'⭐':mp>=60?'⭐⭐':'⭐⭐⭐';fc+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:12px"><div style="width:80px;font-weight:${i===0?700:400};color:${i===0?'#1c2b3a':'#475569'}">${i===0?'Today':dn}</div><div>${WICONS[cd2]||'🌤️'} ${Math.round(mxT)}°/${Math.round(mnT)}°</div><div style="color:#64748b">8AM: ~${mp}% ${st}</div></div>`;}document.getElementById('forecast-content').innerHTML=fc||'<div style="color:#94a3b8">No forecast data</div>';}
 
-  document.getElementById('refresh-btn').textContent = '🔄';
-  document.getElementById('header-sub').textContent = `${DAYS[dow].toUpperCase()} ${fmt12(h)} · UPDATED ${new Date().toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'})}`;
+  renderAlt(pct);
+  updateStreak();
+
+  const saved=ls('trainTime','07:52');
+  document.getElementById('train-time').value=saved;
+  startTimer();
+
+  document.getElementById('refresh-btn').textContent='🔄';
+  document.getElementById('header-sub').textContent=`${DAYS[dow].toUpperCase()} ${fmt12(h)} · UPDATED ${now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'})}`;
 }
 
-function toggleHourly(){
-  const el = document.getElementById('hourly-chart');
-  el.style.display = el.style.display==='none'?'block':'none';
-}
-function showForecast(){
-  const el = document.getElementById('forecast-panel');
-  el.style.display = el.style.display==='none'?'block':'none';
-}
-function submitReport(){
-  const el = document.getElementById('report-panel');
-  el.style.display = el.style.display==='none'?'block':'none';
-}
-function setZone(z){
-  selZone=z;
-  ['A','B','C','D'].forEach(x=>{
-    document.getElementById('zone-'+x).style.background=x===z?'#3b82f6':'#fff';
-    document.getElementById('zone-'+x).style.color=x===z?'#fff':'inherit';
-  });
-}
-function setType(t){
-  selType=t;
-  ['full','busy','spaces'].forEach(x=>{
-    document.getElementById('type-'+x).style.background=x===t?'#8b5cf6':'#fff';
-    document.getElementById('type-'+x).style.color=x===t?'#fff':'inherit';
-  });
-}
-function confirmReport(){
-  try{
-    let r = JSON.parse(localStorage.getItem('crowd_reports')||'[]');
-    r.push({zone:selZone,type:selType,ts:Date.now()});
-    r = r.slice(-20);
-    localStorage.setItem('crowd_reports',JSON.stringify(r));
-  }catch(e){}
-  document.getElementById('report-panel').style.display='none';
-  alert(`Report submitted: Zone ${selZone} is ${selType}. Thanks!`);
-  refresh();
-}
+function toggle(id){const el=document.getElementById(id);el.style.display=el.style.display==='none'?'block':'none';}
+function setZone(z){selZone=z;['A','B','C','D'].forEach(x=>{const b=document.getElementById('zone-'+x);b.style.background=x===z?'#3b82f6':'#fff';b.style.color=x===z?'#fff':'inherit';});}
+function setType(t){selType=t;['full','busy','spaces'].forEach(x=>{const b=document.getElementById('type-'+x);b.style.background=x===t?'#8b5cf6':'#fff';b.style.color=x===t?'#fff':'inherit';});}
+function confirmReport(){try{let r=JSON.parse(localStorage.getItem('crowd_reports')||'[]');r.push({zone:selZone,type:selType,ts:Date.now()});r=r.slice(-20);localStorage.setItem('crowd_reports',JSON.stringify(r));}catch{}document.getElementById('report-panel').style.display='none';alert(`Report submitted: Zone ${selZone} is ${selType}. Thanks!`);refresh();}
 
-// Auto-refresh every 10 min
+if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
+
 refresh();
-setInterval(refresh, 10*60*1000);
+setInterval(refresh,10*60*1000);
 </script>
 </body>
 </html>
