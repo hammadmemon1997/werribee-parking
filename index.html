@@ -48,6 +48,32 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .pfill{height:100%;border-radius:3px;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
 .pills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
 .pill{padding:3px 9px;border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+/* SCORE CARD */
+.score-card{border-radius:20px;padding:20px 18px;margin-bottom:12px;border:1.5px solid var(--border);background:var(--surface);box-shadow:0 2px 16px rgba(0,0,0,.06);animation:fu .4s ease both}
+.score-ring-wrap{display:flex;align-items:center;gap:18px;margin-bottom:14px}
+.score-ring{position:relative;width:90px;height:90px;flex-shrink:0}
+.score-ring svg{transform:rotate(-90deg)}
+.score-ring-num{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center}
+.score-num{font-family:'Syne',sans-serif;font-size:26px;font-weight:800;line-height:1}
+.score-of{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted)}
+.score-right{flex:1;min-width:0}
+.score-headline{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;line-height:1.2;margin-bottom:4px}
+.score-advice{font-size:12px;color:var(--muted);line-height:1.5}
+.score-factors{display:flex;flex-wrap:wrap;gap:5px;margin-top:12px}
+.sfact{padding:4px 9px;border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);display:flex;align-items:center;gap:4px}
+.sfact.bad{background:#fef2f2;border-color:rgba(220,38,38,.2);color:#dc2626}
+.sfact.warn{background:#fffbeb;border-color:rgba(217,119,6,.2);color:#b45309}
+.sfact.good{background:#f0fdf4;border-color:rgba(22,163,74,.2);color:#16a34a}
+/* WFH CARD */
+.wfh-card{border-radius:16px;padding:14px 16px;margin-bottom:12px;display:flex;align-items:center;gap:12px;border:1.5px solid;animation:fu .35s .1s ease both;opacity:0;animation-fill-mode:forwards}
+.wfh-icon{font-size:28px;flex-shrink:0}
+.wfh-text strong{font-size:13px;font-weight:700;display:block;margin-bottom:2px}
+.wfh-text span{font-size:11px;line-height:1.4;display:block}
+/* SHARE */
+.share-row{display:flex;gap:8px;margin-bottom:12px}
+.share-btn{flex:1;border-radius:12px;padding:11px;border:1.5px solid var(--border);background:var(--surface);font-size:12px;font-family:'DM Sans',sans-serif;font-weight:600;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px;transition:.15s;color:var(--text)}
+.share-btn:active{transform:scale(.96)}
+.share-btn.primary{background:var(--accent);color:#fff;border-color:var(--accent)}
 .find-row{background:var(--surface2);border-radius:12px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between}
 .mapbtn{padding:9px 13px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;transition:.2s}
 .mapbtn:active{transform:scale(.96)}
@@ -231,6 +257,18 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <!-- STATION CHIPS -->
   <div class="lbl">WERRIBEE LINE</div>
   <div class="chips" id="chips"></div>
+
+  <!-- COMMUTE SCORE -->
+  <div id="score-wrap"></div>
+
+  <!-- WFH RECOMMENDATION -->
+  <div id="wfh-wrap"></div>
+
+  <!-- SHARE ROW -->
+  <div class="share-row">
+    <button class="share-btn primary" onclick="shareApp()">📤 Share ParkWest</button>
+    <button class="share-btn" onclick="copyStatus()">📋 Copy Status</button>
+  </div>
 
   <!-- HERO VERDICT -->
   <div id="verdict-wrap"><div style="text-align:center;padding:40px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px">LOADING...</div></div>
@@ -632,7 +670,166 @@ function renderWeekly(st,wd){
 }
 
 // ── STATION RENDER ────────────────────────────────────────────────────────────
-function renderStation(wd,dd){
+// ── COMMUTE SCORE ENGINE ──────────────────────────────────────────────────────
+function commuteScore(pct, wd, dd, ri) {
+  // Score = 0 (easy) to 100 (nightmare). Higher = worse commute.
+  let score = 0;
+  const factors = [];
+
+  // Parking pressure (40 points max)
+  const parkPoints = Math.round(pct * 0.4);
+  score += parkPoints;
+  if (pct >= 90) factors.push({cls:'bad', icon:'🅿️', text:`Lot ${pct}% full`});
+  else if (pct >= 70) factors.push({cls:'warn', icon:'🅿️', text:`Lot ${pct}% full`});
+  else factors.push({cls:'good', icon:'🅿️', text:`Parking OK (${pct}%)`});
+
+  // Disruptions (25 points)
+  if (dd >= 14) { score += 25; factors.push({cls:'bad', icon:'🚌', text:'Bus replacements'}); }
+  else if (dd > 0) { score += 12; factors.push({cls:'warn', icon:'⚠️', text:'Service disruption'}); }
+  else factors.push({cls:'good', icon:'🚂', text:'Trains running normal'});
+
+  // Weather (20 points)
+  if (wd && wd.d >= 14) { score += 20; factors.push({cls:'bad', icon:'🌧️', text:`Heavy rain (${weather?.precip||0}mm)`}); }
+  else if (wd && wd.d >= 8) { score += 12; factors.push({cls:'warn', icon:'🌦️', text:'Rain expected'}); }
+  else if (wd && wd.d <= -4) { score += 0; factors.push({cls:'good', icon:'☀️', text:'Fine weather'}); }
+  else if (wd) factors.push({cls:'good', icon:'🌤', text:'Mild conditions'});
+
+  // Road incidents (10 points)
+  if (ri >= 8) { score += 10; factors.push({cls:'bad', icon:'🚗', text:'Road incidents nearby'}); }
+  else if (ri >= 4) { score += 5; factors.push({cls:'warn', icon:'🚗', text:'Minor road incident'}); }
+
+  // Wind (5 points)
+  if (weather && weather.windGusts > 50) { score += 5; factors.push({cls:'warn', icon:'💨', text:`Gusts ${weather.windGusts}km/h`}); }
+
+  score = Math.min(100, Math.round(score));
+  return {score, factors};
+}
+
+function getScoreLabel(score) {
+  if (score >= 85) return {headline:'Stay Home 🏠', advice:'Seriously rough one today. WFH if you can — parking full, disruptions active.', color:'#dc2626'};
+  if (score >= 70) return {headline:'Risky Morning ⚠️', advice:'Leave early or expect delays. Consider alternatives.', color:'#ea580c'};
+  if (score >= 50) return {headline:'Moderate Commute 🟡', advice:'Manageable but not great. Leave a bit earlier than usual.', color:'#d97706'};
+  if (score >= 30) return {headline:'Good to Go ✅', advice:'Pretty smooth this morning. Normal leave time should be fine.', color:'#16a34a'};
+  return {headline:'Easy Commute 🎉', advice:'Great conditions today! Plenty of parking, no disruptions.', color:'#2563eb'};
+}
+
+function renderScore(pct, wd, dd, ri) {
+  const {score, factors} = commuteScore(pct, wd, dd, ri);
+  const {headline, advice, color} = getScoreLabel(score);
+  const r = 38, circ = 2 * Math.PI * r;
+  const dash = circ - (score / 100) * circ;
+
+  document.getElementById('score-wrap').innerHTML = `
+    <div class="score-card" style="border-color:${color}22">
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:11px">COMMUTE SCORE · TODAY</div>
+      <div class="score-ring-wrap">
+        <div class="score-ring">
+          <svg width="90" height="90" viewBox="0 0 90 90">
+            <circle cx="45" cy="45" r="${r}" fill="none" stroke="rgba(0,0,0,.07)" stroke-width="8"/>
+            <circle cx="45" cy="45" r="${r}" fill="none" stroke="${color}" stroke-width="8"
+              stroke-dasharray="${circ}" stroke-dashoffset="${dash}" stroke-linecap="round"
+              style="transition:stroke-dashoffset 1.5s cubic-bezier(.4,0,.2,1)"/>
+          </svg>
+          <div class="score-ring-num">
+            <div class="score-num" style="color:${color}">${score}</div>
+            <div class="score-of">/ 100</div>
+          </div>
+        </div>
+        <div class="score-right">
+          <div class="score-headline" style="color:${color}">${headline}</div>
+          <div class="score-advice">${advice}</div>
+        </div>
+      </div>
+      <div class="score-factors">
+        ${factors.map(f=>`<div class="sfact ${f.cls}">${f.icon} ${f.text}</div>`).join('')}
+      </div>
+    </div>`;
+
+  // Store for share
+  window._lastScore = {score, headline, pct};
+}
+
+function renderWFH(pct, wd, dd) {
+  const isRain = wd && wd.d >= 8;
+  const hasDisruption = dd >= 14;
+  const lotFull = pct >= 80;
+  const wfhScore = (isRain?1:0) + (hasDisruption?1:0) + (lotFull?1:0);
+
+  let card = '';
+  if (wfhScore >= 2) {
+    const reasons = [];
+    if (lotFull) reasons.push('lot nearly full');
+    if (hasDisruption) reasons.push('bus replacements');
+    if (isRain) reasons.push('rain expected');
+    card = `<div class="wfh-card" style="background:#fef2f2;border-color:rgba(220,38,38,.2)">
+      <div class="wfh-icon">🏠</div>
+      <div class="wfh-text">
+        <strong style="color:#dc2626">WFH Day? Might be worth it.</strong>
+        <span style="color:#b91c1c">Today has ${reasons.join(' + ')}. If you can work from home, today's a good day.</span>
+      </div>
+    </div>`;
+  } else if (wfhScore === 1 && pct >= 65) {
+    card = `<div class="wfh-card" style="background:#fffbeb;border-color:rgba(217,119,6,.2)">
+      <div class="wfh-icon">🤔</div>
+      <div class="wfh-text">
+        <strong style="color:#b45309">Borderline morning.</strong>
+        <span style="color:#92400e">Not terrible but not great. Leave 10–15 min early if you're driving.</span>
+      </div>
+    </div>`;
+  } else {
+    card = `<div class="wfh-card" style="background:#f0fdf4;border-color:rgba(22,163,74,.2)">
+      <div class="wfh-icon">🚗</div>
+      <div class="wfh-text">
+        <strong style="color:#15803d">Good commute day.</strong>
+        <span style="color:#166534">Conditions look normal. Drive in with confidence.</span>
+      </div>
+    </div>`;
+  }
+  document.getElementById('wfh-wrap').innerHTML = card;
+}
+
+// ── SHARE / COPY ──────────────────────────────────────────────────────────────
+function shareApp() {
+  const st = STATIONS.find(s=>s.id===selStation)||STATIONS[0];
+  const score = window._lastScore;
+  const txt = score
+    ? `🚂 ParkWest — ${st.name} commute score: ${score.score}/100 (${score.headline.replace(/[^a-zA-Z ]/g,'').trim()})\n${st.name} parking is ${score.pct}% full right now.\nFree commute app: https://werribee-parking.vercel.app`
+    : `🚂 ParkWest — free Melbourne commuter parking app\nReal-time parking levels for Werribee line stations\nhttps://werribee-parking.vercel.app`;
+
+  if (navigator.share) {
+    navigator.share({title:'ParkWest — Commuter Score', text:txt, url:'https://werribee-parking.vercel.app'}).catch(()=>{});
+  } else {
+    navigator.clipboard.writeText(txt).then(()=>showToast('Copied to clipboard!')).catch(()=>showToast('https://werribee-parking.vercel.app'));
+  }
+}
+
+function copyStatus() {
+  const st = STATIONS.find(s=>s.id===selStation)||STATIONS[0];
+  const score = window._lastScore;
+  const pct = score?.pct ?? currentPct ?? 0;
+  const v = verdict(pct);
+  const now = new Date();
+  const timeStr = now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+  const emoji = pct>=90?'🔴':pct>=70?'🟠':pct>=50?'🟡':'🟢';
+  const txt = `${emoji} ${st.name} parking update (${timeStr})\n${v.t} — ${pct}% full\n${score?`Commute score: ${score.score}/100`:''}\nvia ParkWest: https://werribee-parking.vercel.app`;
+  navigator.clipboard.writeText(txt).then(()=>showToast('Status copied! Paste into your group chat 👍')).catch(()=>{});
+}
+
+function showToast(msg) {
+  let t = document.getElementById('toast');
+  if (!t) {
+    t = document.createElement('div');
+    t.id = 'toast';
+    t.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);background:#1e3a5f;color:#fff;padding:10px 18px;border-radius:12px;font-size:12px;font-family:DM Sans,sans-serif;font-weight:600;z-index:9999;opacity:0;transition:.3s;pointer-events:none;white-space:nowrap;max-width:300px;text-align:center';
+    document.body.appendChild(t);
+  }
+  t.textContent = msg;
+  t.style.opacity = '1';
+  t.style.transform = 'translateX(-50%) translateY(0)';
+  setTimeout(()=>{ t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(10px)'; }, 2800);
+}
+
+function renderStation(wd,dd,ri=0){
   const now=new Date(),h=now.getHours(),dow=now.getDay(),isW=dow===0||dow===6;
   const st=STATIONS.find(s=>s.id===selStation)||STATIONS[0];
   const base=isW?st.wknd:st.base;
@@ -641,6 +838,10 @@ function renderStation(wd,dd){
   const pct=Math.min(99,Math.max(1,(base[h]??50)+wd.d+dd+cd));
   currentPct=pct;
   const v=verdict(pct),c=v.c;
+
+  // Commute Score + WFH card
+  renderScore(pct, wd, dd, ri||0);
+  renderWFH(pct, wd, dd);
   const closure = KNOWN_CLOSURES[st.id];
   const effectiveSpots = st.spots > 0 ? Math.max(0, st.spots - (closure?.closed||0)) : 0;
   const free=effectiveSpots>0?Math.round(effectiveSpots*(1-pct/100)):null;
@@ -956,7 +1157,7 @@ async function refresh(){
 
   checkRain();
   renderChips(wd, dd + ri);
-  renderStation(wd, dd + ri);
+  renderStation(wd, dd + ri, ri);
   updateStreak();
 
   document.getElementById('train-time').value=ls('trainTime','07:52');
