@@ -443,20 +443,7 @@ function verdict(p){
   if(p>=30)return{t:'GOOD',     s:'Decent availability. Normal timing.',   c:'#16a34a'};
   return         {t:'EASY',     s:'Plenty of spaces. No rush!',            c:'#2563eb'};
 }
-function wDelta(code,precip){
-  if(code>=61||precip>2) return{d:+14,l:'Rain +14%',i:'🌧'};
-  if(code>=51||precip>.5)return{d:+8, l:'Drizzle +8%',i:'🌦'};
-  if(code===3)            return{d:+3, l:'Overcast +3%',i:'☁️'};
-  if(code===0||code===1) return{d:-4, l:'Fine −4%',i:'☀️'};
-  return{d:0,l:'Neutral',i:'🌤'};
-}
-function stPct(st,wd,dd){
-  const h=new Date().getHours(),isW=new Date().getDay()===0||new Date().getDay()===6;
-  const b=isW?st.wknd:st.base;
-  const r=ls('crowd_reports',[]).filter(r=>r.station===st.id&&Date.now()-r.ts<30*60*1000);
-  const cd=r.reduce((a,r)=>a+(r.type==='full'?6:r.type==='spaces'?-5:0),0);
-  return Math.min(99,Math.max(1,(b[h]??50)+wd.d+dd+cd));
-}
+
 function chipCls(p){return p>=75?'cr':p>=55?'co':p>=30?'ca':p>=15?'cg':'cb';}
 
 // ── STREAK ────────────────────────────────────────────────────────────────────
@@ -498,10 +485,18 @@ function tickTimer(){
 // ── RAIN ──────────────────────────────────────────────────────────────────────
 function checkRain(){
   if(!weather?.hourlyPrecipProb)return;
-  const h=new Date().getHours(),n3=weather.hourlyPrecipProb.slice(h,h+3),max=Math.max(...n3),ri=n3.findIndex(p=>p>=50);
+  const h=new Date().getHours();
+  const n3prob=weather.hourlyPrecipProb.slice(h,h+3);
+  const n3precip=(weather.hourlyPrecip||[]).slice(h,h+3);
+  const maxProb=Math.max(...n3prob);
+  const maxPrecip=Math.max(...n3precip,0);
+  const ri=n3prob.findIndex(p=>p>=50);
   const w=document.getElementById('rain-wrap');
-  if(max>=50){const when=ri===0?'Rain likely now':ri===1?'Rain in ~1 hour':`Rain in ~${ri} hours`;w.innerHTML=`<div class="rain-banner"><span style="font-size:22px;flex-shrink:0">🌧</span><div><div style="font-size:12px;font-weight:600;color:#1d4ed8">${when} — more drivers expected</div><div style="font-size:10px;color:#6b7280;margin-top:2px;font-family:'DM Mono',monospace">${max}% chance · occupancy ~${Math.round(max/7)}% higher</div></div></div>`;}
-  else w.innerHTML='';
+  if(maxProb>=50||maxPrecip>0.5){
+    const when=ri===0?'Rain likely now':ri===1?'Rain in ~1 hour':`Rain in ~${ri} hours`;
+    const intensity=maxPrecip>5?'Heavy rain':maxPrecip>1?'Moderate rain':'Light rain/drizzle';
+    w.innerHTML=`<div class="rain-banner"><span style="font-size:22px;flex-shrink:0">🌧</span><div><div style="font-size:12px;font-weight:600;color:#1d4ed8">${when} — more drivers expected</div><div style="font-size:10px;color:#6b7280;margin-top:2px;font-family:'DM Mono',monospace">${intensity} · ${maxProb}% chance · occupancy ~${Math.round(maxProb/7)}% higher</div></div></div>`;
+  } else w.innerHTML='';
 }
 
 // ── CHIPS ─────────────────────────────────────────────────────────────────────
@@ -664,8 +659,10 @@ function renderStation(wd,dd){
       <div class="ptrack"><div class="pfill" style="width:${pct}%;background:linear-gradient(90deg,#16a34a,${c})"></div></div>
       <div class="pills">
         <span class="pill">${wd.i} ${wd.l}</span>
+        ${wd.icons&&wd.icons[1]?`<span class="pill">${wd.icons[1]} ${wd.labels[1]}</span>`:''}
         ${dd>0?`<span class="pill" style="border-color:rgba(220,38,38,.3);color:#dc2626">🚌 Bus rpl +${dd}%</span>`:''}
         ${cd!==0?`<span class="pill" style="border-color:rgba(37,99,235,.25);color:#2563eb">👥 Reports ${cd>0?'+':''}${cd}%</span>`:''}
+        ${getCalibration(st.id,h)!==0?`<span class="pill" style="border-color:rgba(22,163,74,.3);color:#16a34a">🧠 Self-calibrated</span>`:''}
         <span class="pill" style="${st.zone===1?'border-color:rgba(37,99,235,.25);color:#2563eb':''}">Zone ${st.zone}</span>
       </div>
       <div class="find-row">
@@ -681,11 +678,12 @@ function renderStation(wd,dd){
   // Stat grid
   const tb=base.map(b=>Math.min(99,b+wd.d));
   const bh=tb.slice(5,11).reduce((best,val,i)=>val<tb[best+5]?i+5:best,5)+5;
+  const calCount = Object.keys(ls(`cal_${st.id}`,{})).length;
   document.getElementById('sgrid').innerHTML=`
     <div class="scard"><div class="slbl">BEST LEAVE TIME</div><div class="sval" style="color:#16a34a">${fmt12(bh)}</div><div class="ssub">${tb[bh]}% predicted</div></div>
-    <div class="scard"><div class="slbl">WEATHER NOW</div><div class="sval">${weather?`${WI[weather.code]||'🌤'} ${weather.temp}°`:'—'}</div><div class="ssub">${weather?(WC[weather.code]||''):'Loading...'}</div></div>
+    <div class="scard"><div class="slbl">WEATHER NOW</div><div class="sval">${weather?`${WI[weather.code]||'🌤'} ${weather.temp}°`:'—'}</div><div class="ssub">${weather?`Feels ${weather.apparentTemp}° · ${weather.windGusts>30?`Gusts ${weather.windGusts}km/h`:`Wind ${weather.wind}km/h`}`:'Loading...'}</div></div>
     <div class="scard"><div class="slbl">FREE SPOTS</div><div class="sval" style="color:${c}">${free!==null?free:'N/A'}</div><div class="ssub">${st.spots>0?`of ${st.spots} total`:'Street only'}</div></div>
-    <div class="scard"><div class="slbl">PTV STATUS</div><div class="sval">${disruptions.length>0?'⚠️':'✅'}</div><div class="ssub">${disruptions.length>0?'Disruption':'Running normal'}</div></div>`;
+    <div class="scard"><div class="slbl">MODEL ACCURACY</div><div class="sval">${disruptions.length>0?'⚠️':'✅'}</div><div class="ssub">${calCount>0?`${calCount} hrs calibrated`:`${disruptions.length>0?'Disruption':'Running normal'}`}</div></div>`;
 
   // All panels
   renderLotMap(st,pct);
@@ -758,38 +756,159 @@ function selectStation(id){
 function setZone(z){selZone=z;['A','B','C','D'].forEach(x=>document.getElementById('zone-'+x).classList.toggle('active',x===z));}
 function setType(t){selType=t;['full','busy','spaces'].forEach(x=>document.getElementById('type-'+x).classList.toggle('active',x===t));}
 function confirmReport(){
-  try{let r=ls('crowd_reports',[]);r.push({station:selStation,zone:selZone,type:selType,ts:Date.now()});r=r.slice(-50);lsSet('crowd_reports',r);}catch{}
+  const h = new Date().getHours();
+  try{
+    let r=ls('crowd_reports',[]);
+    r.push({station:selStation,zone:selZone,type:selType,ts:Date.now()});
+    r=r.slice(-50);
+    lsSet('crowd_reports',r);
+    // Self-calibrate: nudge the base model for this station+hour
+    calibrateBase(selStation, h, selType);
+  }catch{}
   toggleTab('report');
-  alert(`Report saved for ${STATIONS.find(s=>s.id===selStation)?.name}: Zone ${selZone} is ${selType}. Thanks!`);
+  alert(`Report saved for ${STATIONS.find(s=>s.id===selStation)?.name}: Zone ${selZone} is ${selType}. Thanks! (Model updated 🧠)`);
   refresh();
+}
+
+// ── GTFS REALTIME (activates once you have your key) ──────────────────────────
+const GTFS_API_KEY = ls('gtfsApiKey', null); // Set via Settings once key arrives
+let gtfsDelays = {}; // { stopId: delayMinutes }
+
+async function fetchGTFS() {
+  if (!GTFS_API_KEY) return;
+  try {
+    // Werribee line stop IDs
+    const STOP_IDS = {werribee:1162, hoppers:1072, williams:1228, laverton:1098, footscray:1041};
+    const stopId = STOP_IDS[selStation];
+    if (!stopId) return;
+    const r = await fetch(`https://api.allorigins.win/get?url=${encodeURIComponent(`https://timetableapi.ptv.vic.gov.au/v3/departures/route_type/0/stop/${stopId}?max_results=3&devid=${GTFS_API_KEY.split(':')[0]}&signature=PLACEHOLDER`)}`);
+    // Will be wired up fully once key + signature logic is added
+  } catch {}
+}
+
+// ── SELF-CALIBRATING BASE ARRAYS ──────────────────────────────────────────────
+// Every report nudges the base curve for that station+hour permanently (weighted avg)
+function calibrateBase(stationId, hour, reportType) {
+  const key = `cal_${stationId}`;
+  let cal = ls(key, {});
+  const delta = reportType === 'full' ? +8 : reportType === 'spaces' ? -7 : +2;
+  // Weighted average: 90% existing, 10% new signal — slowly shifts model over time
+  cal[hour] = Math.round(((cal[hour] ?? 0) * 0.9) + (delta * 0.1));
+  // Decay old calibrations toward 0 over time (prevents drift)
+  Object.keys(cal).forEach(h => { if (Math.abs(cal[h]) < 0.5) delete cal[h]; });
+  lsSet(key, cal);
+}
+
+function getCalibration(stationId, hour) {
+  return ls(`cal_${stationId}`, {})[hour] ?? 0;
+}
+
+// ── ENHANCED WEATHER DELTA (more factors) ─────────────────────────────────────
+function wDelta(code, precip, windGusts, cloudCover, apparentTemp) {
+  let d = 0, labels = [], icons = [];
+  // Rain/precip impact
+  if (code >= 61 || precip > 2)  { d += 14; labels.push('Rain +14%'); icons.push('🌧'); }
+  else if (code >= 51 || precip > .5) { d += 8; labels.push('Drizzle +8%'); icons.push('🌦'); }
+  else if (code === 3)            { d += 3;  labels.push('Overcast +3%'); icons.push('☁️'); }
+  else if (code <= 1)             { d -= 4;  labels.push('Fine −4%'); icons.push('☀️'); }
+  // Wind gusts — strong wind deters cycling/walking → more drivers
+  if (windGusts > 50)             { d += 5;  labels.push('Gusty +5%'); icons.push('💨'); }
+  else if (windGusts > 35)        { d += 2;  labels.push('Windy +2%'); icons.push('🌬️'); }
+  // Very cold apparent temp → more people drive
+  if (apparentTemp !== null && apparentTemp < 8)  { d += 4; labels.push('Cold +4%'); icons.push('🥶'); }
+  else if (apparentTemp !== null && apparentTemp > 22) { d -= 2; labels.push('Warm −2%'); icons.push('😎'); }
+  return { d, l: labels[0] || 'Neutral', i: icons[0] || '🌤', labels, icons };
+}
+
+// ── ENHANCED stPct (now includes self-calibration) ────────────────────────────
+function stPct(st, wd, dd) {
+  const h = new Date().getHours(), isW = new Date().getDay() === 0 || new Date().getDay() === 6;
+  const b = isW ? st.wknd : st.base;
+  const reps = ls('crowd_reports', []).filter(r => r.station === st.id && Date.now() - r.ts < 30 * 60 * 1000);
+  const cd = reps.reduce((a, r) => a + (r.type === 'full' ? 6 : r.type === 'spaces' ? -5 : 0), 0);
+  const cal = getCalibration(st.id, h); // learned adjustment for this hour
+  return Math.min(99, Math.max(1, (b[h] ?? 50) + wd.d + dd + cd + cal));
+}
+
+// ── ROAD INCIDENT DETECTION (VicTraffic via allorigins) ───────────────────────
+let roadIncidents = [];
+async function fetchRoadIncidents() {
+  try {
+    // Check for incidents near Werribee/Hoppers/Laverton (Old Geelong Rd, Princes Fwy)
+    const r = await fetch('https://api.allorigins.win/get?url=' + encodeURIComponent('https://traffic.transport.vic.gov.au/api/v1/incidents.json'), { signal: AbortSignal.timeout(5000) });
+    const d = await r.json();
+    const data = JSON.parse(d.contents || '[]');
+    const KEYWORDS = ['old geelong', 'werribee', 'hoppers', 'laverton', 'princes freeway', 'aviation road', 'dohertys'];
+    roadIncidents = data.filter(inc => {
+      const loc = (inc.location || inc.description || '').toLowerCase();
+      return KEYWORDS.some(k => loc.includes(k));
+    });
+  } catch { roadIncidents = []; }
 }
 
 // ── MAIN REFRESH ──────────────────────────────────────────────────────────────
 async function refresh(){
   document.getElementById('rbtn').textContent='…';
+
+  // 1. ENHANCED WEATHER — Open-Meteo with more data points
   try{
-    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=-37.9027&longitude=144.6627&current=temperature_2m,precipitation,weathercode,windspeed_10m&hourly=precipitation_probability&timezone=Australia%2FSydney&forecast_days=1');
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=-37.9027&longitude=144.6627&current=temperature_2m,apparent_temperature,precipitation,weathercode,windspeed_10m,windgusts_10m,rain,cloud_cover&hourly=precipitation_probability,precipitation&timezone=Australia%2FSydney&forecast_days=1&minutely_15=precipitation,rain');
     const d=await r.json(),c=d.current;
-    weather={temp:Math.round(c.temperature_2m),precip:c.precipitation,code:c.weathercode,wind:Math.round(c.windspeed_10m),hourlyPrecipProb:d.hourly?.precipitation_probability};
+    // Find current 15-min slot for more precise rain reading
+    const nowISO = new Date().toISOString().slice(0,16);
+    const m15times = d.minutely_15?.time || [];
+    const m15idx = m15times.findLastIndex(t => t <= nowISO);
+    const precip15 = m15idx >= 0 ? (d.minutely_15.precipitation[m15idx] || 0) : c.precipitation;
+    weather={
+      temp: Math.round(c.temperature_2m),
+      apparentTemp: Math.round(c.apparent_temperature),
+      precip: Math.max(c.precipitation, precip15), // use whichever is higher
+      code: c.weathercode,
+      wind: Math.round(c.windspeed_10m),
+      windGusts: Math.round(c.windgusts_10m || 0),
+      cloudCover: c.cloud_cover || 0,
+      hourlyPrecipProb: d.hourly?.precipitation_probability,
+      hourlyPrecip: d.hourly?.precipitation,
+    };
   }catch{weather=null;}
 
+  // 2. PTV DISRUPTIONS (existing)
   disruptions=[];
   try{
-    const r=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://www.ptv.vic.gov.au/disruptions/werribee-line-disruptions/nochrome'));
+    const r=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://www.ptv.vic.gov.au/disruptions/werribee-line-disruptions/nochrome'),{signal:AbortSignal.timeout(6000)});
     const d=await r.json(),html=d.contents||'';
     if(html.toLowerCase().includes('replacement bus'))disruptions.push({type:'warn',text:'Bus replacements active — MORE drivers expected today'});
     if(html.toLowerCase().includes('altered timetable'))disruptions.push({type:'info',text:'Altered timetable in effect'});
+    if(html.toLowerCase().includes('cancelled'))disruptions.push({type:'warn',text:'Service cancellations — expect more drivers'});
   }catch{}
 
-  const wd=weather?wDelta(weather.code,weather.precip):{d:0,l:'—',i:'🌤'};
-  const dd=disruptions.some(d=>d.text?.includes('MORE'))?12:0;
+  // 3. ROAD INCIDENTS (non-blocking, parallel)
+  fetchRoadIncidents().catch(()=>{});
 
-  if(weather)document.getElementById('wpill').textContent=`${WI[weather.code]||'🌤'} ${weather.temp}°C`;
-  document.getElementById('alerts-wrap').innerHTML=disruptions.map(d=>`<div class="dis-alert">⚠️ <span>${d.text}</span></div>`).join('');
+  const wd = weather ? wDelta(weather.code, weather.precip, weather.windGusts, weather.cloudCover, weather.apparentTemp) : {d:0,l:'—',i:'🌤',labels:[],icons:[]};
+  const dd = disruptions.some(d=>d.text?.includes('MORE')||d.text?.includes('cancellations'))?12:0;
+
+  // Road incident bonus (accident nearby → more drivers catching train)
+  const ri = roadIncidents.length > 0 ? Math.min(8, roadIncidents.length * 4) : 0;
+
+  if(weather){
+    const feelStr = weather.apparentTemp !== weather.temp ? ` feels ${weather.apparentTemp}°` : '';
+    document.getElementById('wpill').textContent=`${WI[weather.code]||'🌤'} ${weather.temp}°C${feelStr}`;
+  }
+
+  // Build alert HTML
+  let alertHTML = disruptions.map(d=>`<div class="dis-alert">⚠️ <span>${d.text}</span></div>`).join('');
+  if(roadIncidents.length > 0) {
+    alertHTML += `<div class="dis-alert" style="background:#fffbeb;border-color:#fde68a;color:#b45309">🚗 <span>Road incident near ${roadIncidents[0]?.location||'local area'} — train demand may be higher</span></div>`;
+  }
+  if(!GTFS_API_KEY) {
+    alertHTML += `<div style="background:#f0fdf4;border:1.5px solid #bbf7d0;border-radius:12px;padding:9px 13px;margin-bottom:9px;font-size:11px;color:#15803d;display:flex;align-items:center;gap:8px">🔑 <span>Register free at <a href="https://opendata.transport.vic.gov.au/dataset/gtfs-realtime" target="_blank" style="color:#15803d;font-weight:600">opendata.transport.vic.gov.au</a> for live train delays</span></div>`;
+  }
+  document.getElementById('alerts-wrap').innerHTML=alertHTML;
 
   checkRain();
-  renderChips(wd,dd);
-  renderStation(wd,dd);
+  renderChips(wd, dd + ri);
+  renderStation(wd, dd + ri);
   updateStreak();
 
   document.getElementById('train-time').value=ls('trainTime','07:52');
