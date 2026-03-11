@@ -3,58 +3,71 @@
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Werribee Station Parking</title>
+  <title>Western Melbourne Parking Advisor</title>
   <meta name="theme-color" content="#1c2b3a"/>
   <style>
     *{box-sizing:border-box;margin:0;padding:0}
     body{background:#f0ece6;font-family:Georgia,serif;min-height:100vh}
     .header{background:#1c2b3a;padding:12px 16px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
-    .header-title{color:#f0e6d3;font-size:15px;font-weight:700}
-    .header-sub{color:#5d7a8a;font-size:10px;letter-spacing:3px;font-family:monospace}
-    .wrap{max-width:580px;margin:0 auto;padding:16px}
-    .card{background:#fff;border-radius:16px;padding:20px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
-    .verdict-card{border-radius:18px;padding:24px 20px;margin-bottom:14px}
-    .verdict-text{font-size:36px;font-weight:900;letter-spacing:-1px;line-height:1}
-    .verdict-sub{font-size:13px;color:#475569;margin-top:5px}
-    .pct{font-size:32px;font-weight:900}
-    .bar-wrap{height:10px;background:rgba(0,0,0,0.08);border-radius:5px;overflow:hidden;margin:12px 0}
-    .bar-fill{height:100%;border-radius:5px;transition:width 1.4s ease}
-    .pill{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;margin:3px}
-    .btn{width:100%;padding:14px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit;letter-spacing:0.5px}
+    .wrap{max-width:600px;margin:0 auto;padding:16px}
+    .card{background:#fff;border-radius:16px;padding:18px;margin-bottom:12px;box-shadow:0 2px 12px rgba(0,0,0,0.06)}
+    .verdict-card{border-radius:18px;padding:22px 18px;margin-bottom:14px}
+    .btn{width:100%;padding:13px;border-radius:12px;border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:inherit}
     .grid2{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:12px}
-    .mini-card{background:#fff;border-radius:12px;padding:14px;box-shadow:0 1px 8px rgba(0,0,0,0.05)}
-    .mini-label{font-size:9px;color:#94a3b8;letter-spacing:2px;font-family:monospace;margin-bottom:4px}
-    .mini-val{font-size:18px;font-weight:800}
+    .mini-card{background:#fff;border-radius:12px;padding:13px;box-shadow:0 1px 8px rgba(0,0,0,0.05)}
     .action-row{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
-    .action-btn{padding:12px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;text-align:center;transition:all 0.15s}
-    .action-btn:active{transform:scale(0.96)}
-    .footer{text-align:center;font-size:10px;color:#94a3b8;font-family:monospace;padding:20px 16px;letter-spacing:1px}
-    .loading{text-align:center;padding:40px;color:#94a3b8;font-size:14px}
+    .action-btn{padding:11px;border-radius:12px;border:1px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-weight:700;font-family:inherit;text-align:center}
+    .action-btn:active{transform:scale(0.97)}
     .tag{font-size:10px;color:#475569;letter-spacing:3px;font-family:monospace;margin-bottom:6px}
-    .timer-banner{background:linear-gradient(135deg,#1e3a5f,#1c2b3a);border-radius:16px;padding:18px 20px;margin-bottom:12px;color:#fff}
-    .timer-big{font-size:48px;font-weight:900;font-family:monospace;letter-spacing:-2px;line-height:1}
-    .timer-label{font-size:11px;color:#7dd3fc;letter-spacing:2px;font-family:monospace;margin-bottom:8px}
-    .timer-sub{font-size:12px;color:#94a3b8;margin-top:6px}
+    .pill{display:inline-block;padding:4px 10px;border-radius:20px;font-size:11px;margin:3px}
+    .bar-wrap{height:8px;background:rgba(0,0,0,0.08);border-radius:4px;overflow:hidden;margin:8px 0}
+    .bar-fill{height:100%;border-radius:4px;transition:width 1.2s ease}
+    .footer{text-align:center;font-size:10px;color:#94a3b8;font-family:monospace;padding:20px 16px}
+
+    /* Station selector */
+    .station-scroll{display:flex;gap:8px;overflow-x:auto;padding-bottom:8px;margin-bottom:14px;scrollbar-width:none}
+    .station-scroll::-webkit-scrollbar{display:none}
+    .station-chip{flex-shrink:0;padding:8px 14px;border-radius:20px;border:1.5px solid #e2e8f0;background:#fff;cursor:pointer;font-size:12px;font-weight:600;font-family:inherit;white-space:nowrap;transition:all 0.15s}
+    .station-chip.active{background:#1c2b3a;color:#fff;border-color:#1c2b3a}
+    .station-chip.busy{border-color:#ef444488}
+    .station-chip.moderate{border-color:#f9731688}
+    .station-chip.good{border-color:#22c55e88}
+
+    /* Timer */
+    .timer-banner{background:linear-gradient(135deg,#1e3a5f,#1c2b3a);border-radius:16px;padding:16px 18px;margin-bottom:12px;color:#fff}
+    .timer-big{font-size:44px;font-weight:900;font-family:monospace;letter-spacing:-2px;line-height:1}
     .timer-urgent{animation:pulse 1s infinite}
-    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
-    .rain-alert{background:linear-gradient(135deg,rgba(30,64,175,0.1),rgba(14,165,233,0.07));border:1px solid #3b82f666;border-radius:12px;padding:12px 16px;margin-bottom:10px;display:flex;align-items:center;gap:12px}
-    .streak-banner{background:linear-gradient(135deg,#7c2d12,#b45309);border-radius:14px;padding:14px 18px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
-    .alt-spot{display:flex;align-items:center;justify-content:space-between;padding:10px 0;border-bottom:1px solid #f1f5f9}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+
+    /* Rain */
+    .rain-alert{background:linear-gradient(135deg,rgba(30,64,175,0.1),rgba(14,165,233,0.06));border:1px solid #3b82f666;border-radius:12px;padding:11px 15px;margin-bottom:10px;display:flex;align-items:center;gap:11px}
+
+    /* Streak */
+    .streak-banner{background:linear-gradient(135deg,#7c2d12,#b45309);border-radius:14px;padding:13px 17px;margin-bottom:12px;display:flex;align-items:center;justify-content:space-between}
+
+    /* Network overview */
+    .network-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f1f5f9;cursor:pointer}
+    .network-row:last-child{border-bottom:none}
+    .network-bar{height:6px;border-radius:3px;margin-top:4px}
+
+    /* Alt parking */
+    .alt-spot{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid #f1f5f9}
     .alt-spot:last-child{border-bottom:none}
-    .time-input{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:8px;color:#fff;font-size:24px;font-family:monospace;font-weight:700;width:100px;padding:4px 8px;text-align:center}
-    .time-input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.6}
+
+    .time-input{background:rgba(255,255,255,0.12);border:1px solid rgba(255,255,255,0.25);border-radius:8px;color:#fff;font-size:22px;font-family:monospace;font-weight:700;width:95px;padding:4px 7px;text-align:center}
+    .time-input::-webkit-calendar-picker-indicator{filter:invert(1);opacity:0.5}
   </style>
 </head>
 <body>
 
 <div class="header">
   <div>
-    <div class="header-title">🚉 Werribee Station Parking</div>
-    <div class="header-sub" id="header-sub">LOADING...</div>
+    <div style="color:#f0e6d3;font-size:15px;font-weight:700">🚉 Western Melbourne Parking</div>
+    <div style="color:#5d7a8a;font-size:10px;letter-spacing:3px;font-family:monospace" id="header-sub">LOADING...</div>
   </div>
-  <div style="display:flex;align-items:center;gap:10px">
+  <div style="display:flex;align-items:center;gap:8px">
     <div id="weather-badge" style="text-align:right"></div>
-    <button onclick="refresh()" style="background:transparent;border:1px solid #2d4a5a;color:#5d7a8a;border-radius:6px;padding:6px 10px;cursor:pointer;font-size:13px" id="refresh-btn">🔄</button>
+    <button onclick="refresh()" style="background:transparent;border:1px solid #2d4a5a;color:#5d7a8a;border-radius:6px;padding:5px 9px;cursor:pointer;font-size:13px" id="refresh-btn">🔄</button>
   </div>
 </div>
 
@@ -64,27 +77,27 @@
   <div class="streak-banner" id="streak-banner" style="display:none">
     <div>
       <div style="font-size:10px;color:#fcd34d;letter-spacing:2px;font-family:monospace">COMMUTE STREAK</div>
-      <div style="font-size:28px;font-weight:900;color:#fff;margin-top:2px"><span id="streak-num">0</span> 🔥</div>
-      <div style="font-size:11px;color:#fbbf24;margin-top:2px" id="streak-sub">Days checking before commute</div>
+      <div style="font-size:26px;font-weight:900;color:#fff;margin-top:2px"><span id="streak-num">0</span> 🔥</div>
+      <div style="font-size:11px;color:#fbbf24;margin-top:2px" id="streak-sub">Keep checking!</div>
     </div>
     <div style="text-align:right">
       <div style="font-size:10px;color:#fcd34d;letter-spacing:1px;font-family:monospace">BEST</div>
-      <div style="font-size:22px;font-weight:800;color:#fbbf24"><span id="streak-best">0</span> 🏆</div>
-      <div style="font-size:11px;color:#92400e;margin-top:4px" id="streak-savings"></div>
+      <div style="font-size:20px;font-weight:800;color:#fbbf24"><span id="streak-best">0</span> 🏆</div>
+      <div style="font-size:11px;color:#92400e;margin-top:3px" id="streak-savings"></div>
     </div>
   </div>
 
-  <!-- LEAVE NOW TIMER -->
+  <!-- TIMER -->
   <div class="timer-banner">
-    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
-      <div class="timer-label">⏱ LEAVE NOW TIMER</div>
-      <div style="display:flex;align-items:center;gap:8px">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+      <div style="font-size:11px;color:#7dd3fc;letter-spacing:2px;font-family:monospace">⏱ LEAVE NOW TIMER</div>
+      <div style="display:flex;align-items:center;gap:7px">
         <span style="font-size:11px;color:#94a3b8">Train:</span>
         <input type="time" id="train-time" class="time-input" value="07:52" onchange="saveAndUpdateTimer()"/>
       </div>
     </div>
     <div class="timer-big" id="timer-display">--:--</div>
-    <div class="timer-sub" id="timer-sub">Loading...</div>
+    <div style="font-size:12px;color:#94a3b8;margin-top:5px" id="timer-sub">Loading...</div>
   </div>
 
   <!-- RAIN ALERT -->
@@ -93,8 +106,12 @@
   <!-- ALERTS -->
   <div id="alerts"></div>
 
+  <!-- STATION SELECTOR -->
+  <div class="tag">SELECT YOUR STATION</div>
+  <div class="station-scroll" id="station-chips"></div>
+
   <!-- VERDICT -->
-  <div id="verdict-wrap" class="loading">Loading parking data...</div>
+  <div id="verdict-wrap" style="text-align:center;padding:30px;color:#94a3b8">Loading...</div>
 
   <!-- MINI CARDS -->
   <div class="grid2" id="mini-cards"></div>
@@ -104,29 +121,29 @@
     <button class="action-btn" onclick="toggle('alt-panel')">🅿️ Alt Parking</button>
     <button class="action-btn" onclick="toggle('hourly-chart')">📊 Hourly</button>
     <button class="action-btn" onclick="toggle('report-panel')">👥 Report</button>
-    <button class="action-btn" onclick="toggle('forecast-panel')">🌤️ 7-Day</button>
+    <button class="action-btn" onclick="toggle('network-panel')">🗺️ All Stations</button>
+  </div>
+
+  <!-- NETWORK OVERVIEW -->
+  <div id="network-panel" style="display:none" class="card">
+    <div class="tag">🗺️ WERRIBEE LINE — ALL STATIONS NOW</div>
+    <div id="network-list"></div>
   </div>
 
   <!-- ALT PARKING -->
   <div id="alt-panel" style="display:none" class="card">
     <div class="tag">🅿️ ALTERNATIVE PARKING NEARBY</div>
-    <div style="font-size:11px;color:#94a3b8;margin-bottom:12px">When the station car park is full — tap any to open in Maps:</div>
+    <div style="font-size:11px;color:#94a3b8;margin-bottom:10px">Tap to open in Google Maps</div>
     <div id="alt-list"></div>
   </div>
 
   <!-- HOURLY CHART -->
   <div id="hourly-chart" style="display:none" class="card">
     <div class="tag">TODAY'S HOURLY FORECAST</div>
-    <div id="chart-bars" style="display:flex;align-items:flex-end;gap:2px;height:80px;margin-top:8px"></div>
+    <div id="chart-bars" style="display:flex;align-items:flex-end;gap:2px;height:75px;margin-top:8px"></div>
     <div style="display:flex;justify-content:space-between;font-size:9px;color:#94a3b8;font-family:monospace;margin-top:4px">
       <span>12AM</span><span>6AM</span><span>12PM</span><span>6PM</span><span>11PM</span>
     </div>
-  </div>
-
-  <!-- FORECAST -->
-  <div id="forecast-panel" style="display:none" class="card">
-    <div class="tag">7-DAY OUTLOOK</div>
-    <div id="forecast-content" style="margin-top:8px"></div>
   </div>
 
   <!-- REPORT -->
@@ -150,33 +167,181 @@
     </div>
   </div>
 
-  <div class="footer">WERRIBEE STATION PARKING ADVISOR · DATA: OPEN-METEO + PTV<br>INDIVIDUAL SPOT DATA IS ESTIMATED — NOT REAL SENSORS</div>
+  <div class="footer">WESTERN MELBOURNE PARKING ADVISOR · WERRIBEE LINE<br>DATA: OPEN-METEO + PTV · OCCUPANCY IS ESTIMATED — NOT REAL SENSORS</div>
 </div>
 
 <script>
-const BASE=[2,2,2,2,3,5,18,72,91,80,62,55,50,52,58,65,80,88,74,50,30,18,10,5];
-const WKND=[2,2,2,2,2,3,5,15,28,32,28,24,20,22,24,26,28,25,20,14,10,6,4,2];
-const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-const WICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',53:'🌧️',55:'🌧️',61:'🌦️',63:'🌧️',65:'⛈️',80:'🌦️',81:'🌧️',95:'⛈️'};
-const WCODES={0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',51:'Drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Showers',81:'Heavy showers',95:'Thunderstorm'};
-
-const ALT=[
-  {name:'Watton St (north side)', walk:'3 min',steps:'~200',type:'Street',note:'Free, no time limit',maps:'https://maps.google.com/?q=-37.9005,144.6610'},
-  {name:'Comben Drive',           walk:'5 min',steps:'~350',type:'Street',note:'Free, quiet street',  maps:'https://maps.google.com/?q=-37.9015,144.6595'},
-  {name:'Synnot Street',          walk:'7 min',steps:'~500',type:'Street',note:'Free, residential',   maps:'https://maps.google.com/?q=-37.9022,144.6585'},
-  {name:'Werribee Plaza (west)',   walk:'9 min',steps:'~650',type:'Car park',note:'Free, ~400 spots, rarely full',maps:'https://maps.google.com/?q=-37.8988,144.6568'},
-  {name:'Heaths Road',            walk:'11 min',steps:'~800',type:'Street',note:'Free, last resort',  maps:'https://maps.google.com/?q=-37.9035,144.6560'},
+// ── STATION DATA ────────────────────────────────────────────────────────────
+// Only stations with meaningful car parks (skip CBD/inner stations)
+const STATIONS = [
+  {
+    id:'werribee', name:'Werribee', short:'WER',
+    lat:-37.9027, lon:144.6627,
+    spots:120, zone:2,
+    // Weekday hourly occupancy profile (0-23h)
+    base:[2,2,2,2,3,5,18,72,91,80,62,55,50,52,58,65,80,88,74,50,30,18,10,5],
+    wknd:[2,2,2,2,2,3,5,15,28,32,28,24,20,22,24,26,28,25,20,14,10,6,4,2],
+    alt:[
+      {name:'Watton St (north)',  walk:'3 min', note:'Free, no limit',       maps:'https://maps.google.com/?q=-37.9005,144.6610'},
+      {name:'Comben Drive',       walk:'5 min', note:'Free, quiet street',   maps:'https://maps.google.com/?q=-37.9015,144.6595'},
+      {name:'Synnot Street',      walk:'7 min', note:'Free, residential',    maps:'https://maps.google.com/?q=-37.9022,144.6585'},
+      {name:'Werribee Plaza (W)', walk:'9 min', note:'Free, ~400 spots',     maps:'https://maps.google.com/?q=-37.8988,144.6568'},
+    ]
+  },
+  {
+    id:'hoppers', name:'Hoppers Crossing', short:'HOP',
+    lat:-37.8808, lon:144.6975,
+    spots:350, zone:2,
+    // Hoppers is very busy — large catchment, fills fast
+    base:[2,2,2,2,3,6,22,78,94,85,65,58,52,54,60,68,82,90,76,52,32,20,10,5],
+    wknd:[2,2,2,2,2,3,6,18,30,35,30,26,22,24,26,28,30,28,22,15,10,6,3,2],
+    alt:[
+      {name:'Old Geelong Rd (S)', walk:'4 min', note:'Free street parking',  maps:'https://maps.google.com/?q=-37.8825,144.6970'},
+      {name:'Heaths Rd',          walk:'6 min', note:'Free, side streets',   maps:'https://maps.google.com/?q=-37.8830,144.6950'},
+      {name:'Hoppers Lane',       walk:'8 min', note:'Free, residential',    maps:'https://maps.google.com/?q=-37.8800,144.6940'},
+    ]
+  },
+  {
+    id:'williams', name:'Williams Landing', short:'WIL',
+    lat:-37.8680, lon:144.7325,
+    spots:400, zone:2,
+    // Williams Landing: huge catchment from Point Cook, fills 7:15am
+    base:[2,2,2,2,3,7,25,82,95,87,68,60,54,56,62,70,84,91,77,54,33,21,11,5],
+    wknd:[2,2,2,2,2,3,6,20,32,36,32,28,24,26,28,30,32,30,24,16,11,7,3,2],
+    alt:[
+      {name:'Wallace Ave',        walk:'3 min', note:'Free street',          maps:'https://maps.google.com/?q=-37.8670,144.7330'},
+      {name:'Palmers Rd (south)', walk:'5 min', note:'Free street',          maps:'https://maps.google.com/?q=-37.8700,144.7310'},
+      {name:'Williams Landing S/C',walk:'7 min',note:'Free 3hr, large',      maps:'https://maps.google.com/?q=-37.8665,144.7350'},
+    ]
+  },
+  {
+    id:'aircraft', name:'Aircraft', short:'AIR',
+    lat:-37.8578, lon:144.7575,
+    spots:180, zone:2,
+    // Aircraft: underutilised vs Laverton despite being closer for some
+    base:[2,2,2,2,3,5,15,55,72,65,50,45,42,44,50,55,68,75,62,44,28,16,8,4],
+    wknd:[2,2,2,2,2,3,4,12,22,26,24,20,18,20,22,24,26,24,18,12,8,5,3,2],
+    alt:[
+      {name:'Overton Rd',         walk:'4 min', note:'Free street',          maps:'https://maps.google.com/?q=-37.8570,144.7560'},
+      {name:'Point Cook Rd',      walk:'6 min', note:'Free, side streets',   maps:'https://maps.google.com/?q=-37.8590,144.7550'},
+    ]
+  },
+  {
+    id:'laverton', name:'Laverton', short:'LAV',
+    lat:-37.8614, lon:144.7742,
+    spots:580, zone:1,
+    // Laverton: last Zone 1 — fills by 7:30am, huge demand
+    base:[2,2,2,2,4,8,28,88,97,90,72,65,58,60,65,72,86,93,80,58,36,22,12,5],
+    wknd:[2,2,2,2,2,4,7,22,34,38,34,30,26,28,30,32,34,32,26,18,12,7,4,2],
+    alt:[
+      {name:'Aviation Rd',        walk:'4 min', note:'Free street',          maps:'https://maps.google.com/?q=-37.8600,144.7730'},
+      {name:'Dohertys Rd',        walk:'6 min', note:'Free street',          maps:'https://maps.google.com/?q=-37.8630,144.7720'},
+      {name:'Aircraft Station',   walk:'15 min',note:'Drives less, more spaces',maps:'https://maps.google.com/?q=-37.8578,144.7575'},
+    ]
+  },
+  {
+    id:'westona', name:'Westona', short:'WST',
+    lat:-37.8742, lon:144.7933,
+    spots:80, zone:1,
+    base:[2,2,2,2,3,5,14,60,78,70,55,48,44,46,52,58,70,78,65,46,28,16,8,4],
+    wknd:[2,2,2,2,2,3,4,12,22,26,22,18,16,18,20,22,24,22,18,12,8,5,3,2],
+    alt:[
+      {name:'Millers Rd',         walk:'4 min', note:'Free street',          maps:'https://maps.google.com/?q=-37.8735,144.7920'},
+    ]
+  },
+  {
+    id:'altona', name:'Altona', short:'ALT',
+    lat:-37.8680, lon:144.8282,
+    spots:110, zone:1,
+    base:[2,2,2,2,3,5,16,65,82,74,58,52,47,49,55,62,74,82,68,49,30,18,9,4],
+    wknd:[2,2,2,2,2,3,5,14,25,28,25,22,19,21,23,25,27,25,20,14,9,6,3,2],
+    alt:[
+      {name:'Pier St',            walk:'3 min', note:'Free, beachside',      maps:'https://maps.google.com/?q=-37.8670,144.8270'},
+      {name:'Altona Beach (far)', walk:'8 min', note:'Free, always spaces',  maps:'https://maps.google.com/?q=-37.8670,144.8240'},
+    ]
+  },
+  {
+    id:'seaholme', name:'Seaholme', short:'SEA',
+    lat:-37.8667, lon:144.8428,
+    spots:60, zone:1,
+    base:[2,2,2,2,3,4,12,52,70,62,48,42,38,40,46,52,64,72,60,42,26,14,7,3],
+    wknd:[2,2,2,2,2,3,4,10,18,22,20,16,14,16,18,20,22,20,16,10,7,4,2,2],
+    alt:[
+      {name:'Mason St',           walk:'3 min', note:'Free, quiet street',   maps:'https://maps.google.com/?q=-37.8660,144.8420'},
+    ]
+  },
+  {
+    id:'newport', name:'Newport', short:'NPT',
+    lat:-37.8473, lon:144.8822,
+    spots:90, zone:1,
+    base:[2,2,2,2,3,5,16,65,82,74,58,52,47,49,55,62,74,80,66,48,30,17,8,4],
+    wknd:[2,2,2,2,2,3,5,14,24,28,24,20,18,20,22,24,26,24,19,13,8,5,3,2],
+    alt:[
+      {name:'Hall St',            walk:'4 min', note:'Free street',          maps:'https://maps.google.com/?q=-37.8465,144.8810'},
+      {name:'Mason St',           walk:'5 min', note:'Free street',          maps:'https://maps.google.com/?q=-37.8480,144.8800'},
+    ]
+  },
+  {
+    id:'spotswood', name:'Spotswood', short:'SPW',
+    lat:-37.8328, lon:144.8878,
+    spots:70, zone:1,
+    base:[2,2,2,2,3,5,14,58,74,66,52,46,42,44,50,56,68,75,62,44,27,15,7,3],
+    wknd:[2,2,2,2,2,3,4,11,20,24,22,18,15,17,19,21,23,21,17,11,7,4,2,2],
+    alt:[
+      {name:'Hudsons Rd',         walk:'3 min', note:'Free street',          maps:'https://maps.google.com/?q=-37.8320,144.8865'},
+    ]
+  },
+  {
+    id:'yarraville', name:'Yarraville', short:'YRV',
+    lat:-37.8178, lon:144.8932,
+    spots:50, zone:1,
+    base:[2,2,2,2,3,5,12,50,66,60,46,40,36,38,44,50,62,70,58,40,24,14,6,3],
+    wknd:[2,2,2,2,2,3,4,10,18,20,18,15,13,15,17,19,21,19,15,10,6,4,2,2],
+    alt:[
+      {name:'Anderson St',        walk:'4 min', note:'Free, 2hr limit',      maps:'https://maps.google.com/?q=-37.8170,144.8920'},
+    ]
+  },
+  {
+    id:'seddon', name:'Seddon', short:'SED',
+    lat:-37.8106, lon:144.8988,
+    spots:30, zone:1,
+    base:[2,2,2,2,2,4,10,42,58,52,40,35,32,34,40,45,56,63,52,36,22,12,6,3],
+    wknd:[2,2,2,2,2,2,3,8,14,17,15,12,11,13,14,16,18,16,13,9,5,3,2,2],
+    alt:[
+      {name:'Charles St',         walk:'3 min', note:'Free, 1hr limit nearby',maps:'https://maps.google.com/?q=-37.8100,144.8975'},
+    ]
+  },
+  {
+    id:'footscray', name:'Footscray', short:'FSY',
+    lat:-37.7998, lon:144.8998,
+    spots:0, zone:1,
+    // No dedicated commuter car park — street only
+    base:[2,2,2,2,2,4,10,40,55,50,38,33,30,32,38,43,54,60,50,34,20,11,5,3],
+    wknd:[2,2,2,2,2,2,3,8,13,16,14,11,10,12,13,15,17,15,12,8,5,3,2,2],
+    alt:[
+      {name:'Irving St',          walk:'2 min', note:'Free, fills fast',      maps:'https://maps.google.com/?q=-37.7998,144.8990'},
+      {name:'McNab Ave',          walk:'3 min', note:'Free, limited spots',   maps:'https://maps.google.com/?q=-37.8005,144.8980'},
+      {name:'Little Saigon Plaza',walk:'4 min', note:'Paid, 2hr free',        maps:'https://maps.google.com/?q=-37.8010,144.9010'},
+    ]
+  },
 ];
 
-let weather=null,disruptions=[],reports=[],selZone='A',selType='full',currentPct=50;
-let timerInterval=null;
+const WKND_IDS=['werribee','hoppers','williams','aircraft','laverton','westona','altona','seaholme','newport','spotswood','yarraville','seddon','footscray'];
+const WICONS={0:'☀️',1:'🌤️',2:'⛅',3:'☁️',45:'🌫️',51:'🌦️',53:'🌧️',55:'🌧️',61:'🌦️',63:'🌧️',65:'⛈️',80:'🌦️',81:'🌧️',95:'⛈️'};
+const WCODES={0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',51:'Drizzle',53:'Drizzle',55:'Heavy drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Showers',81:'Heavy showers',95:'Thunderstorm'};
+const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
+let weather=null, disruptions=[], selZone='A', selType='full', currentPct=50;
+let timerInterval=null;
+let selectedStation = ls('selectedStation','werribee') || 'werribee';
+
+// ── HELPERS ─────────────────────────────────────────────────────────────────
 function fmt12(h){return h===0?'12AM':h<12?h+'AM':h===12?'12PM':(h-12)+'PM';}
 function getVerdict(p){
-  if(p>=90)return{text:'STAY HOME',sub:'Car park is full — leave 40+ min early.',color:'#dc2626',bg:'rgba(220,38,38,0.1)',emoji:'🛑'};
-  if(p>=75)return{text:'RISKY',sub:'Very busy — leave right now.',color:'#ea580c',bg:'rgba(234,88,12,0.1)',emoji:'⚠️'};
-  if(p>=55)return{text:'MODERATE',sub:'Filling up — leave soon.',color:'#d97706',bg:'rgba(217,119,6,0.1)',emoji:'🟡'};
-  if(p>=30)return{text:'GOOD',sub:'Decent availability. Normal timing fine.',color:'#16a34a',bg:'rgba(22,163,74,0.1)',emoji:'✅'};
+  if(p>=90)return{text:'STAY HOME', sub:'Car park is full — leave 40+ min early.', color:'#dc2626',bg:'rgba(220,38,38,0.1)',emoji:'🛑'};
+  if(p>=75)return{text:'RISKY',     sub:'Very busy — leave right now.',            color:'#ea580c',bg:'rgba(234,88,12,0.1)',emoji:'⚠️'};
+  if(p>=55)return{text:'MODERATE',  sub:'Filling up — leave soon.',               color:'#d97706',bg:'rgba(217,119,6,0.1)',emoji:'🟡'};
+  if(p>=30)return{text:'GOOD',      sub:'Decent availability. Normal timing ok.', color:'#16a34a',bg:'rgba(22,163,74,0.1)',emoji:'✅'};
   return{text:'EASY',sub:'Plenty of spaces. No rush!',color:'#0284c7',bg:'rgba(2,132,199,0.1)',emoji:'🅿️'};
 }
 function wDelta(code,precip){
@@ -188,176 +353,186 @@ function wDelta(code,precip){
 }
 function ls(k,d=null){try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
+function stationPct(st, wd, dd){
+  const now=new Date(), h=now.getHours(), isWknd=now.getDay()===0||now.getDay()===6;
+  const base = isWknd ? st.wknd : st.base;
+  const reports = ls('crowd_reports',[]).filter(r=>r.station===st.id&&Date.now()-r.ts<30*60*1000);
+  const cd = reports.reduce((a,r)=>a+(r.type==='full'?6:r.type==='spaces'?-5:0),0);
+  return Math.min(99,Math.max(1,(base[h]??50)+wd.d+dd+cd));
+}
 
-// ── STREAK ──────────────────────────────────────────────────
+// ── STREAK ──────────────────────────────────────────────────────────────────
 function updateStreak(){
-  const today=new Date().toDateString();
-  const h=new Date().getHours(),dow=new Date().getDay();
-  const isCommute=h>=5&&h<=10&&dow>=1&&dow<=5;
+  const today=new Date().toDateString(), h=new Date().getHours(), dow=new Date().getDay();
+  if(h<5||h>10||dow<1||dow>5)return;
   let s=ls('streak',{count:0,best:0,lastDate:'',totalMins:0});
-  if(isCommute&&s.lastDate!==today){
-    const yest=new Date();yest.setDate(yest.getDate()-1);
+  if(s.lastDate!==today){
     const gap=(new Date(today)-new Date(s.lastDate||0))/(1000*60*60*24);
-    s.count=(gap<=3)?s.count+1:1;
-    s.best=Math.max(s.best,s.count);
-    s.lastDate=today;
-    s.totalMins=(s.totalMins||0)+8;
+    s.count=gap<=3?s.count+1:1; s.best=Math.max(s.best,s.count);
+    s.lastDate=today; s.totalMins=(s.totalMins||0)+8;
     lsSet('streak',s);
   }
   if(s.count>0){
     document.getElementById('streak-banner').style.display='flex';
     document.getElementById('streak-num').textContent=s.count;
     document.getElementById('streak-best').textContent=s.best;
-    document.getElementById('streak-savings').textContent=s.totalMins>0?`~${s.totalMins} mins saved`:'Keep it up!';
-    document.getElementById('streak-sub').textContent=s.count===1?'Day 1 — great start! 💪':s.count<5?`${s.count} days — building momentum!`:s.count<10?`${s.count} days — you're on fire! 🔥`:`${s.count} days — absolute legend! 🏆`;
+    document.getElementById('streak-savings').textContent=s.totalMins>0?`~${s.totalMins} mins saved`:'';
+    document.getElementById('streak-sub').textContent=s.count<5?`${s.count} day streak — keep it up! 💪`:s.count<10?`${s.count} days — on fire! 🔥`:`${s.count} days — legend! 🏆`;
   }
 }
 
-// ── TIMER ───────────────────────────────────────────────────
-function saveAndUpdateTimer(){
-  lsSet('trainTime',document.getElementById('train-time').value);
-  startTimer();
-}
-function startTimer(){
-  if(timerInterval)clearInterval(timerInterval);
-  timerInterval=setInterval(tickTimer,1000);
-  tickTimer();
-}
+// ── TIMER ────────────────────────────────────────────────────────────────────
+function saveAndUpdateTimer(){lsSet('trainTime',document.getElementById('train-time').value);startTimer();}
+function startTimer(){if(timerInterval)clearInterval(timerInterval);timerInterval=setInterval(tickTimer,1000);tickTimer();}
 function tickTimer(){
   const val=document.getElementById('train-time').value||'07:52';
   const[tH,tM]=val.split(':').map(Number);
-  const now=new Date();
-  const train=new Date(now);train.setHours(tH,tM,0,0);
-  if(train<=now)train.setDate(train.getDate()+1);
-  const diffMs=train-now;
-  const diffMins=Math.floor(diffMs/60000);
-  const diffSecs=Math.floor((diffMs%60000)/1000);
+  const now=new Date(), train=new Date(now);
+  train.setHours(tH,tM,0,0); if(train<=now)train.setDate(train.getDate()+1);
+  const diffMs=train-now, diffMins=Math.floor(diffMs/60000), diffSecs=Math.floor((diffMs%60000)/1000);
   const findMins=currentPct>=95?20:currentPct>=85?11:currentPct>=70?5:currentPct>=45?2:1;
-  const leaveInMins=diffMins-(8+findMins+5);
-  const disp=document.getElementById('timer-display');
-  const sub=document.getElementById('timer-sub');
-  if(diffMins>120){
-    disp.textContent=`${Math.floor(diffMins/60)}h ${diffMins%60}m`;
-    disp.className='timer-big';
-    sub.textContent=`Until ${val} train · Leave in ~${leaveInMins} mins`;
-  }else if(leaveInMins<=0){
-    disp.textContent='LEAVE NOW';disp.style.fontSize='28px';
-    disp.className='timer-big timer-urgent';
-    sub.textContent=Math.abs(leaveInMins)>0?`${Math.abs(leaveInMins)} min${Math.abs(leaveInMins)>1?'s':''} behind — go! 🏃`:'Right on time — head out!';
-  }else{
-    const mm=String(diffMins).padStart(2,'0'),ss=String(diffSecs).padStart(2,'0');
-    disp.textContent=`${mm}:${ss}`;disp.style.fontSize='';
-    disp.className=leaveInMins<=10?'timer-big timer-urgent':'timer-big';
-    sub.textContent=`Leave in ~${leaveInMins} min${leaveInMins!==1?'s':''} · ${findMins}m to park + 5m walk to platform`;
-  }
+  const leaveIn=diffMins-(8+findMins+5);
+  const disp=document.getElementById('timer-display'), sub=document.getElementById('timer-sub');
+  if(diffMins>120){disp.textContent=`${Math.floor(diffMins/60)}h ${diffMins%60}m`;disp.className='timer-big';sub.textContent=`Until ${val} train · Leave in ~${leaveIn} mins`;}
+  else if(leaveIn<=0){disp.textContent='LEAVE NOW';disp.style.fontSize='28px';disp.className='timer-big timer-urgent';sub.textContent=`${Math.abs(leaveIn)>0?Math.abs(leaveIn)+' min behind — ':''} Go go go! 🏃`;}
+  else{const mm=String(diffMins).padStart(2,'0'),ss=String(diffSecs).padStart(2,'0');disp.textContent=`${mm}:${ss}`;disp.style.fontSize='';disp.className=leaveIn<=10?'timer-big timer-urgent':'timer-big';sub.textContent=`Leave in ~${leaveIn} min${leaveIn!==1?'s':''} · ${findMins}m park + 5m walk`;}
 }
 
-// ── RAIN ALERT ──────────────────────────────────────────────
+// ── RAIN ALERT ───────────────────────────────────────────────────────────────
 function checkRain(){
   if(!weather?.hourlyPrecipProb)return;
-  const h=new Date().getHours();
-  const next3=weather.hourlyPrecipProb.slice(h,h+3);
-  const maxP=Math.max(...next3);
-  const rainIn=next3.findIndex(p=>p>=50);
+  const h=new Date().getHours(), next3=weather.hourlyPrecipProb.slice(h,h+3), maxP=Math.max(...next3), rainIn=next3.findIndex(p=>p>=50);
   const wrap=document.getElementById('rain-alert-wrap');
-  if(maxP>=50){
-    const when=rainIn===0?'Rain likely now':rainIn===1?'Rain in ~1 hour':`Rain in ~${rainIn} hours`;
-    wrap.innerHTML=`<div class="rain-alert"><span style="font-size:26px;flex-shrink:0">🌧️</span><div><div style="font-size:12px;font-weight:700;color:#1d4ed8;margin-bottom:3px">${when} — expect ${Math.round(maxP/7)}% more cars</div><div style="font-size:11px;color:#3b82f6">${maxP}% chance of rain · Consider leaving earlier than usual</div></div></div>`;
-  }else{wrap.innerHTML='';}
+  if(maxP>=50){const when=rainIn===0?'Rain likely now':rainIn===1?'Rain in ~1 hour':`Rain in ~${rainIn} hours`;wrap.innerHTML=`<div class="rain-alert"><span style="font-size:24px;flex-shrink:0">🌧️</span><div><div style="font-size:12px;font-weight:700;color:#1d4ed8">${when} — expect more cars</div><div style="font-size:11px;color:#3b82f6">${maxP}% chance · occupancy ~${Math.round(maxP/7)}% higher · leave earlier</div></div></div>`;}
+  else wrap.innerHTML='';
 }
 
-// ── ALT PARKING ─────────────────────────────────────────────
-function renderAlt(pct){
-  document.getElementById('alt-list').innerHTML=ALT.map((s,i)=>{
-    const hot=pct>=75&&i<2;
-    return`<div class="alt-spot" style="${hot?'background:rgba(22,163,74,0.04);padding:10px 6px;margin:0 -6px;border-radius:8px;':''}">
-      <div><div style="font-weight:700;color:${hot?'#15803d':'#1e293b'};font-size:13px">${hot?'⭐ ':''}${s.name}</div>
-      <div style="font-size:11px;color:#64748b;margin-top:2px">${s.type} · ${s.note}</div></div>
-      <div style="text-align:right;flex-shrink:0;margin-left:10px;cursor:pointer" onclick="window.open('${s.maps}','_blank')">
-        <div style="font-size:14px;font-weight:700;color:#0284c7">🗺️ ${s.walk}</div>
-        <div style="font-size:10px;color:#94a3b8">${s.steps} steps</div>
-      </div></div>`;
+// ── STATION CHIPS ────────────────────────────────────────────────────────────
+function renderChips(wd, dd){
+  const h=new Date().getHours(), isWknd=new Date().getDay()===0||new Date().getDay()===6;
+  document.getElementById('station-chips').innerHTML = STATIONS.map(st=>{
+    const pct=stationPct(st,wd,dd);
+    const cls=pct>=75?'busy':pct>=55?'moderate':'good';
+    const isActive=st.id===selectedStation;
+    return `<button class="station-chip ${cls} ${isActive?'active':''}" onclick="selectStation('${st.id}')">${st.short}<br><span style="font-size:10px;opacity:0.75">${pct}%</span></button>`;
   }).join('');
-  if(pct>=90)document.getElementById('alt-panel').style.display='block';
 }
 
-// ── MAIN REFRESH ────────────────────────────────────────────
+function selectStation(id){
+  selectedStation=id; lsSet('selectedStation',id);
+  const wd=weather?wDelta(weather.code,weather.precip):{d:0,label:'Loading',icon:'⏳'};
+  const dd=disruptions.some(d=>d.text.includes('MORE'))?12:0;
+  renderChips(wd,dd);
+  renderStation(wd,dd);
+}
+
+// ── STATION VERDICT ───────────────────────────────────────────────────────────
+function renderStation(wd,dd){
+  const now=new Date(), h=now.getHours(), dow=now.getDay(), isWknd=dow===0||dow===6;
+  const st=STATIONS.find(s=>s.id===selectedStation)||STATIONS[0];
+  const base=isWknd?st.wknd:st.base;
+  const reports=ls('crowd_reports',[]).filter(r=>r.station===st.id&&Date.now()-r.ts<30*60*1000);
+  const cd=reports.reduce((a,r)=>a+(r.type==='full'?6:r.type==='spaces'?-5:0),0);
+  const pct=Math.min(99,Math.max(1,(base[h]??50)+wd.d+dd+cd));
+  currentPct=pct;
+  const v=getVerdict(pct);
+  const free=st.spots>0?Math.round(st.spots*(1-pct/100)):0;
+  const fm=pct>=95?'15-25':pct>=85?'8-15':pct>=70?'3-8':pct>=45?'1-3':'<1';
+
+  document.getElementById('verdict-wrap').innerHTML=`
+    <div class="verdict-card" style="background:${v.bg};border:2px solid ${v.color}44;position:relative;overflow:hidden">
+      <div style="position:absolute;right:-10px;top:-10px;font-size:80px;opacity:0.06;user-select:none">${v.emoji}</div>
+      <div class="tag">${st.name.toUpperCase()} · ${DAYS[dow].toUpperCase()} ${fmt12(h)}</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:12px">
+        <div><div style="font-size:32px;font-weight:900;letter-spacing:-1px;line-height:1;color:${v.color}">${v.text}</div><div style="font-size:12px;color:#475569;margin-top:4px">${v.sub}</div></div>
+        <div style="text-align:center"><div style="font-size:28px;font-weight:900;color:${v.color}">${pct}%</div><div style="font-size:9px;color:#94a3b8;font-family:monospace">FULL</div>${st.spots>0?`<div style="font-size:13px;font-weight:700;color:${v.color};margin-top:1px">${free} free</div>`:'<div style="font-size:10px;color:#94a3b8">street only</div>'}</div>
+      </div>
+      <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,#22c55e,${v.color})"></div></div>
+      <div style="margin-bottom:12px">
+        <span class="pill" style="background:rgba(255,255,255,0.6);color:#475569">${wd.icon} ${wd.label} <span style="font-family:monospace;font-size:9px">${wd.d>0?'+'+wd.d:wd.d}%</span></span>
+        ${dd>0?`<span class="pill" style="background:rgba(220,38,38,0.1);color:#dc2626">🚌 +${dd}%</span>`:''}
+        ${cd!==0?`<span class="pill" style="background:rgba(139,92,246,0.1);color:#7c3aed">👥 ${cd>0?'+':''}${cd}%</span>`:''}
+        ${st.zone===1?'<span class="pill" style="background:rgba(14,165,233,0.1);color:#0284c7">Zone 1</span>':'<span class="pill" style="background:rgba(100,116,139,0.1);color:#64748b">Zone 2</span>'}
+      </div>
+      <div style="background:rgba(255,255,255,0.5);border-radius:10px;padding:9px 12px;margin-bottom:12px;display:flex;justify-content:space-between;align-items:center">
+        <div><div style="font-size:10px;color:#64748b;letter-spacing:2px;font-family:monospace">⏱ EST. FIND TIME</div><div style="font-size:18px;font-weight:800;color:${v.color};margin-top:1px">${fm} mins</div></div>
+        ${st.spots>0?`<div style="font-size:11px;color:#64748b">${st.spots} total spots</div>`:``}
+      </div>
+      <button class="btn" onclick="window.open('https://maps.google.com/?q=${st.name}+Station+Melbourne+Car+Park','_blank')" style="background:${v.color};color:#fff;box-shadow:0 4px 16px ${v.color}55">
+        🅿️ Open in Google Maps${st.spots>0?` → ~${free} free`:''}
+      </button>
+    </div>`;
+
+  // Mini cards
+  const tb=base.map(b=>Math.min(99,b+wd.d));
+  const bh=tb.slice(5,11).reduce((best,val,i)=>val<tb[best+5]?i+5:best,5)+5;
+  document.getElementById('mini-cards').innerHTML=`
+    <div class="mini-card"><div style="font-size:9px;color:#94a3b8;letter-spacing:2px;font-family:monospace;margin-bottom:4px">BEST LEAVE TIME</div><div style="font-size:18px;font-weight:800;color:#16a34a">${fmt12(bh)}</div><div style="font-size:11px;color:#64748b">${tb[bh]}% predicted</div></div>
+    <div class="mini-card"><div style="font-size:9px;color:#94a3b8;letter-spacing:2px;font-family:monospace;margin-bottom:4px">WEATHER</div><div style="font-size:18px;font-weight:800">${weather?`${WICONS[weather.code]||'🌤️'} ${weather.temp}°C`:'–'}</div><div style="font-size:11px;color:#64748b">${weather?`${weather.wind}km/h wind`:'...'}</div></div>
+    <div class="mini-card"><div style="font-size:9px;color:#94a3b8;letter-spacing:2px;font-family:monospace;margin-bottom:4px">FREE SPOTS</div><div style="font-size:18px;font-weight:800;color:${v.color}">${st.spots>0?free:'N/A'}</div><div style="font-size:11px;color:#64748b">${st.spots>0?`of ${st.spots}`:'street only'}</div></div>
+    <div class="mini-card"><div style="font-size:9px;color:#94a3b8;letter-spacing:2px;font-family:monospace;margin-bottom:4px">PTV STATUS</div><div style="font-size:18px;font-weight:800">${disruptions.length>0?'⚠️':'✅'}</div><div style="font-size:11px;color:#64748b">${disruptions.length>0?'Disruption':'Normal'}</div></div>`;
+
+  // Hourly chart
+  document.getElementById('chart-bars').innerHTML=base.map((b,i)=>{const p=Math.min(99,b+wd.d),col=p>=75?'#ef4444':p>=55?'#f97316':p>=30?'#16a34a':'#0284c7',isN=i===h;return`<div style="flex:1;background:${col}${isN?'':'88'};border-radius:2px 2px 0 0;height:${p}%;position:relative;min-height:4px">${isN?'<div style="position:absolute;top:-14px;left:50%;transform:translateX(-50%);font-size:8px;color:#1c2b3a;font-weight:700;white-space:nowrap">NOW</div>':''}</div>`;}).join('');
+
+  // Alt parking
+  document.getElementById('alt-list').innerHTML=(st.alt||[]).map((a,i)=>{
+    const hot=pct>=75&&i<2;
+    return`<div class="alt-spot"><div><div style="font-weight:700;color:${hot?'#15803d':'#1e293b'};font-size:13px">${hot?'⭐ ':''}${a.name}</div><div style="font-size:11px;color:#64748b;margin-top:1px">${a.note}</div></div><div style="text-align:right;flex-shrink:0;margin-left:10px;cursor:pointer" onclick="window.open('${a.maps}','_blank')"><div style="font-size:14px;font-weight:700;color:#0284c7">🗺️ ${a.walk}</div></div></div>`;
+  }).join('') || '<div style="color:#94a3b8;font-size:12px">No alt parking data</div>';
+}
+
+// ── NETWORK OVERVIEW ──────────────────────────────────────────────────────────
+function renderNetwork(wd,dd){
+  document.getElementById('network-list').innerHTML=STATIONS.map(st=>{
+    const pct=stationPct(st,wd,dd);
+    const col=pct>=75?'#ef4444':pct>=55?'#f97316':pct>=30?'#16a34a':'#0284c7';
+    return`<div class="network-row" onclick="selectStation('${st.id}');toggle('network-panel')">
+      <div style="flex:1">
+        <div style="font-size:13px;font-weight:${st.id===selectedStation?700:400};color:#1e293b">${st.id===selectedStation?'→ ':''} ${st.name} ${st.zone===1?'<span style="font-size:10px;color:#0284c7">Z1</span>':''}</div>
+        <div class="network-bar" style="width:${pct}%;background:${col};max-width:200px"></div>
+      </div>
+      <div style="text-align:right;margin-left:12px">
+        <div style="font-size:14px;font-weight:700;color:${col}">${pct}%</div>
+        <div style="font-size:10px;color:#94a3b8">${st.spots>0?st.spots+' spots':'street'}</div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── MAIN REFRESH ──────────────────────────────────────────────────────────────
 async function refresh(){
-  const now=new Date(),h=now.getHours(),dow=now.getDay(),isWknd=dow===0||dow===6;
-  const base=isWknd?WKND:BASE;
+  const now=new Date(), h=now.getHours(), dow=now.getDay();
   document.getElementById('refresh-btn').textContent='⏳';
   document.getElementById('header-sub').textContent='SYNCING...';
 
   try{
-    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=-37.9027&longitude=144.6627&current=temperature_2m,precipitation,weathercode,windspeed_10m&hourly=precipitation_probability&timezone=Australia%2FSydney&forecast_days=7');
-    const d=await r.json(),c=d.current;
-    weather={temp:Math.round(c.temperature_2m),precip:c.precipitation,code:c.weathercode,wind:Math.round(c.windspeed_10m),daily:d.daily,hourlyPrecipProb:d.hourly?.precipitation_probability};
+    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=-37.9027&longitude=144.6627&current=temperature_2m,precipitation,weathercode,windspeed_10m&hourly=precipitation_probability&timezone=Australia%2FSydney&forecast_days=1');
+    const d=await r.json(), c=d.current;
+    weather={temp:Math.round(c.temperature_2m),precip:c.precipitation,code:c.weathercode,wind:Math.round(c.windspeed_10m),hourlyPrecipProb:d.hourly?.precipitation_probability};
   }catch{weather=null;}
 
   disruptions=[];
   try{
     const r=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://www.ptv.vic.gov.au/disruptions/werribee-line-disruptions/nochrome'));
-    const d=await r.json(),html=d.contents||'';
+    const d=await r.json(), html=d.contents||'';
     if(html.toLowerCase().includes('replacement bus'))disruptions.push({type:'warning',text:'Bus replacements on Werribee line — MORE parking demand today'});
     if(html.toLowerCase().includes('altered timetable'))disruptions.push({type:'info',text:'Altered timetable in effect'});
   }catch{}
 
-  try{reports=JSON.parse(localStorage.getItem('crowd_reports')||'[]');}catch{reports=[];}
-  const rec=reports.filter(r=>Date.now()-r.ts<30*60*1000);
-  const cd=rec.reduce((a,r)=>a+(r.type==='full'?6:r.type==='spaces'?-5:0),0);
   const wd=weather?wDelta(weather.code,weather.precip):{d:0,label:'Loading',icon:'⏳'};
   const dd=disruptions.some(d=>d.text.includes('MORE'))?12:0;
-  const pct=Math.min(99,Math.max(1,(base[h]??50)+wd.d+dd+cd));
-  currentPct=pct;
-  const v=getVerdict(pct),free=Math.round(120*(1-pct/100));
 
-  document.getElementById('header-sub').textContent=`${DAYS[dow].toUpperCase()} ${fmt12(h)} · LIVE`;
-  if(weather)document.getElementById('weather-badge').innerHTML=`<div style="color:#f0e6d3;font-size:15px">${WICONS[weather.code]||'🌤️'} ${weather.temp}°C</div><div style="color:#5d7a8a;font-size:9px;font-family:monospace">${(WCODES[weather.code]||'').slice(0,12)}</div>`;
-
-  checkRain();
+  if(weather) document.getElementById('weather-badge').innerHTML=`<div style="color:#f0e6d3;font-size:14px">${WICONS[weather.code]||'🌤️'} ${weather.temp}°C</div><div style="color:#5d7a8a;font-size:9px;font-family:monospace">${(WCODES[weather.code]||'').slice(0,12)}</div>`;
 
   let ah='';
-  disruptions.forEach(d=>{const bg=d.type==='warning'?'rgba(220,38,38,0.08)':'rgba(2,132,199,0.08)',col=d.type==='warning'?'#dc2626':'#0284c7';ah+=`<div style="background:${bg};border:1px solid ${col}44;border-radius:8px;padding:10px 14px;margin-bottom:10px;color:${col};font-size:12px">${d.type==='warning'?'⚠️':'ℹ️'} <strong>PTV Alert:</strong> ${d.text}</div>`;});
-  if(rec.length>0)ah+=`<div style="background:rgba(139,92,246,0.08);border:1px solid #8b5cf633;border-radius:8px;padding:10px 14px;margin-bottom:10px;color:#7c3aed;font-size:12px">👥 <strong>${rec.length} community report${rec.length>1?'s':''}</strong> in last 30 min — adjusted ${cd>0?'+':''}${cd}%</div>`;
+  disruptions.forEach(d=>{const bg=d.type==='warning'?'rgba(220,38,38,0.08)':'rgba(2,132,199,0.08)',col=d.type==='warning'?'#dc2626':'#0284c7';ah+=`<div style="background:${bg};border:1px solid ${col}44;border-radius:8px;padding:9px 13px;margin-bottom:10px;color:${col};font-size:12px">${d.type==='warning'?'⚠️':'ℹ️'} <strong>PTV:</strong> ${d.text}</div>`;});
   document.getElementById('alerts').innerHTML=ah;
 
-  const fm=pct>=95?'15-25':pct>=85?'8-15':pct>=70?'3-8':pct>=45?'1-3':'<1';
-  document.getElementById('verdict-wrap').innerHTML=`
-    <div class="verdict-card" style="background:${v.bg};border:2px solid ${v.color}44;position:relative;overflow:hidden">
-      <div style="position:absolute;right:-10px;top:-10px;font-size:90px;opacity:0.06;user-select:none">${v.emoji}</div>
-      <div class="tag">RIGHT NOW · ${DAYS[dow].toUpperCase()} ${fmt12(h)}</div>
-      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
-        <div><div class="verdict-text" style="color:${v.color}">${v.text}</div><div class="verdict-sub">${v.sub}</div></div>
-        <div style="text-align:center"><div class="pct" style="color:${v.color}">${pct}%</div><div style="font-size:9px;color:#94a3b8;font-family:monospace">FULL</div><div style="font-size:14px;font-weight:700;color:${v.color};margin-top:2px">${free} free</div></div>
-      </div>
-      <div class="bar-wrap"><div class="bar-fill" style="width:${pct}%;background:linear-gradient(90deg,#22c55e,${v.color})"></div></div>
-      <div style="margin-bottom:14px">
-        <span class="pill" style="background:rgba(255,255,255,0.6);color:#475569">${wd.icon} ${wd.label} <span style="font-family:monospace;font-size:9px;color:#94a3b8">${wd.d>0?'+'+wd.d:wd.d}%</span></span>
-        ${dd>0?`<span class="pill" style="background:rgba(220,38,38,0.1);color:#dc2626">🚌 Bus replace +${dd}%</span>`:''}
-        ${cd!==0?`<span class="pill" style="background:rgba(139,92,246,0.1);color:#7c3aed">👥 Reports ${cd>0?'+':''}${cd}%</span>`:''}
-      </div>
-      <div style="background:rgba(255,255,255,0.5);border-radius:10px;padding:10px 14px;margin-bottom:14px;display:flex;justify-content:space-between;align-items:center">
-        <div><div style="font-size:10px;color:#64748b;letter-spacing:2px;font-family:monospace">⏱ EST. TIME TO FIND A SPOT</div><div style="font-size:20px;font-weight:800;color:${v.color};margin-top:2px">${fm} mins</div></div>
-        ${pct>=75?`<div style="font-size:11px;color:#dc2626;font-weight:700;text-align:right;cursor:pointer" onclick="toggle('alt-panel')">⬇️ Alt parking<br>available →</div>`:''}
-      </div>
-      <button class="btn" onclick="window.open('https://maps.google.com/?q=Werribee+Station+Car+Park,+Werribee+VIC','_blank')" style="background:${v.color};color:#fff;box-shadow:0 4px 20px ${v.color}55">
-        🅿️ Open in Google Maps → ~${free} spots free
-      </button>
-    </div>`;
-
-  const tb=base.map(b=>Math.min(99,b+wd.d));
-  const bh=tb.slice(5,11).reduce((best,val,i)=>val<tb[best+5]?i+5:best,5)+5;
-  document.getElementById('mini-cards').innerHTML=`
-    <div class="mini-card"><div class="mini-label">BEST LEAVE TIME</div><div class="mini-val" style="color:#16a34a">${fmt12(bh)}</div><div style="font-size:11px;color:#64748b">${tb[bh]}% predicted</div></div>
-    <div class="mini-card"><div class="mini-label">WEATHER</div><div class="mini-val">${weather?`${WICONS[weather.code]||'🌤️'} ${weather.temp}°C`:'–'}</div><div style="font-size:11px;color:#64748b">${weather?`${weather.wind}km/h wind`:'Loading...'}</div></div>
-    <div class="mini-card"><div class="mini-label">FREE SPOTS</div><div class="mini-val" style="color:${v.color}">${free}</div><div style="font-size:11px;color:#64748b">of 120 total</div></div>
-    <div class="mini-card"><div class="mini-label">PTV STATUS</div><div class="mini-val">${disruptions.length>0?'⚠️':'✅'}</div><div style="font-size:11px;color:#64748b">${disruptions.length>0?'Disruptions':'Normal service'}</div></div>`;
-
-  document.getElementById('chart-bars').innerHTML=BASE.map((b,i)=>{const p=Math.min(99,b+wd.d),col=p>=75?'#ef4444':p>=55?'#f97316':p>=30?'#16a34a':'#0284c7',isN=i===h;return`<div style="flex:1;background:${col}${isN?'':'88'};border-radius:2px 2px 0 0;height:${p}%;position:relative;min-height:4px">${isN?'<div style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);font-size:8px;color:#1c2b3a;font-weight:700;white-space:nowrap">NOW</div>':''}</div>`;}).join('');
-
-  if(weather?.daily){const d=weather.daily;let fc='';for(let i=0;i<Math.min(7,d.time?.length||0);i++){const dt=new Date(d.time[i]),dn=DAYS[dt.getDay()],mxT=d.temperature_2m_max?.[i]||'–',mnT=d.temperature_2m_min?.[i]||'–',cd2=d.weathercode?.[i]||0,iW=dt.getDay()===0||dt.getDay()===6,mp=Math.round(iW?WKND[8]:BASE[8]),st=mp>=80?'⭐':mp>=60?'⭐⭐':'⭐⭐⭐';fc+=`<div style="display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid #f1f5f9;font-size:12px"><div style="width:80px;font-weight:${i===0?700:400};color:${i===0?'#1c2b3a':'#475569'}">${i===0?'Today':dn}</div><div>${WICONS[cd2]||'🌤️'} ${Math.round(mxT)}°/${Math.round(mnT)}°</div><div style="color:#64748b">8AM: ~${mp}% ${st}</div></div>`;}document.getElementById('forecast-content').innerHTML=fc||'<div style="color:#94a3b8">No forecast data</div>';}
-
-  renderAlt(pct);
+  checkRain();
+  renderChips(wd,dd);
+  renderStation(wd,dd);
+  renderNetwork(wd,dd);
   updateStreak();
 
   const saved=ls('trainTime','07:52');
@@ -371,7 +546,12 @@ async function refresh(){
 function toggle(id){const el=document.getElementById(id);el.style.display=el.style.display==='none'?'block':'none';}
 function setZone(z){selZone=z;['A','B','C','D'].forEach(x=>{const b=document.getElementById('zone-'+x);b.style.background=x===z?'#3b82f6':'#fff';b.style.color=x===z?'#fff':'inherit';});}
 function setType(t){selType=t;['full','busy','spaces'].forEach(x=>{const b=document.getElementById('type-'+x);b.style.background=x===t?'#8b5cf6':'#fff';b.style.color=x===t?'#fff':'inherit';});}
-function confirmReport(){try{let r=JSON.parse(localStorage.getItem('crowd_reports')||'[]');r.push({zone:selZone,type:selType,ts:Date.now()});r=r.slice(-20);localStorage.setItem('crowd_reports',JSON.stringify(r));}catch{}document.getElementById('report-panel').style.display='none';alert(`Report submitted: Zone ${selZone} is ${selType}. Thanks!`);refresh();}
+function confirmReport(){
+  try{let r=ls('crowd_reports',[]);r.push({station:selectedStation,zone:selZone,type:selType,ts:Date.now()});r=r.slice(-50);lsSet('crowd_reports',r);}catch{}
+  document.getElementById('report-panel').style.display='none';
+  alert(`Report submitted for ${STATIONS.find(s=>s.id===selectedStation)?.name}: Zone ${selZone} is ${selType}. Thanks!`);
+  refresh();
+}
 
 if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(regs=>regs.forEach(r=>r.unregister()));
 
