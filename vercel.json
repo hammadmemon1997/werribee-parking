@@ -1,5 +1,21 @@
 {
   "buildCommand": "",
   "outputDirectory": ".",
-  "rewrites": [{ "source": "/(.*)", "destination": "/index.html" }]
+  "routes": [
+    { "src": "/stations", "dest": "/stations/index.html" },
+    { "src": "/werribee", "dest": "/werribee/index.html" },
+    { "src": "/hoppers", "dest": "/hoppers/index.html" },
+    { "src": "/williams", "dest": "/williams/index.html" },
+    { "src": "/aircraft", "dest": "/aircraft/index.html" },
+    { "src": "/laverton", "dest": "/laverton/index.html" },
+    { "src": "/westona", "dest": "/westona/index.html" },
+    { "src": "/altona", "dest": "/altona/index.html" },
+    { "src": "/seaholme", "dest": "/seaholme/index.html" },
+    { "src": "/newport", "dest": "/newport/index.html" },
+    { "src": "/spotswood", "dest": "/spotswood/index.html" },
+    { "src": "/yarraville", "dest": "/yarraville/index.html" },
+    { "src": "/seddon", "dest": "/seddon/index.html" },
+    { "src": "/footscray", "dest": "/footscray/index.html" },
+    { "src": "/(.*)", "dest": "/index.html" }
+  ]
 }

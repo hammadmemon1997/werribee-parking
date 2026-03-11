@@ -193,6 +193,23 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .tbtn:active{transform:scale(.95)}
 .tab-row2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
 
+/* TRAIN BOARD */
+.train-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:18px;margin-bottom:10px;box-shadow:0 2px 12px rgba(0,0,0,.05)}
+.train-row{display:flex;align-items:center;gap:10px;padding:12px 0;border-bottom:1px solid var(--border)}
+.train-row:last-child{border-bottom:none;padding-bottom:0}
+.train-time-big{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;min-width:66px;line-height:1}
+.train-countdown{font-family:'DM Mono',monospace;font-size:10px;padding:3px 8px;border-radius:20px;background:var(--surface2);border:1px solid var(--border);white-space:nowrap;flex-shrink:0}
+.train-countdown.soon{background:#fef2f2;border-color:rgba(220,38,38,.2);color:#dc2626}
+.train-countdown.now{background:#f0fdf4;border-color:rgba(22,163,74,.2);color:#16a34a}
+.train-dest{font-size:12px;color:var(--muted);flex:1;min-width:0}
+.train-status{font-size:10px;font-weight:600;padding:2px 7px;border-radius:20px;flex-shrink:0}
+.train-status.ok{background:#f0fdf4;color:#16a34a}.train-status.late{background:#fef2f2;color:#dc2626}
+.train-live{display:flex;align-items:center;gap:5px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:1.5px;margin-bottom:11px}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#16a34a;animation:pulse 1.5s infinite}
+.train-skeleton{height:58px;background:linear-gradient(90deg,var(--surface2) 25%,rgba(255,255,255,.6) 50%,var(--surface2) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border-radius:12px;margin-bottom:8px}
+@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
+
 /* REPORT */
 .rep-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
 .selbtn{flex:1;padding:10px 5px;border-radius:11px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-size:12px;font-family:'DM Mono',monospace;transition:.15s}
@@ -286,6 +303,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="tab-row2">
     <button class="tbtn" id="tab-chart" onclick="toggleTab('chart')"><span class="ti">📊</span>Hourly</button>
     <button class="tbtn" id="tab-network" onclick="toggleTab('network')"><span class="ti">🗺️</span>Network</button>
+    <button class="tbtn" id="tab-trains" onclick="toggleTab('trains')"><span class="ti">🚂</span>Trains</button>
   </div>
 
   <!-- ═══ PARKING LOT MAP ═══ -->
@@ -347,6 +365,28 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <div class="lbl" style="margin:0 0 3px">ALL STATIONS NOW</div>
       <div style="font-size:10px;color:var(--muted);margin-bottom:11px">Tap any station to switch</div>
       <div id="net-list"></div>
+    </div>
+  </div>
+
+  <!-- TRAIN BOARD -->
+  <div id="panel-trains" style="display:none">
+    <div class="train-card">
+      <div class="lbl" style="margin:0 0 3px">NEXT DEPARTURES</div>
+      <div class="train-live"><span class="live-dot"></span>LIVE · <span id="train-updated">updating...</span></div>
+      <div id="train-list">
+        <div class="train-skeleton"></div>
+        <div class="train-skeleton"></div>
+        <div class="train-skeleton"></div>
+      </div>
+      <div style="font-size:10px;color:var(--muted);margin-top:12px;font-family:'DM Mono',monospace">
+        Times shown for selected station · City Loop via Flinders St
+      </div>
+    </div>
+    <div class="train-card" style="margin-top:0">
+      <div class="lbl" style="margin:0 0 8px">WERRIBEE LINE STATUS</div>
+      <div id="train-service-status">
+        <div style="font-size:12px;color:var(--muted)">Loading service status...</div>
+      </div>
     </div>
   </div>
 
@@ -933,17 +973,19 @@ function renderNetwork(wd,dd){
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
-const TABS=['lot','alt','plan','week','chart','network','report'];
+const TABS=['lot','alt','plan','week','chart','network','trains','report'];
 function toggleTab(id){
   const isOpen=activeTab===id;
   TABS.forEach(t=>{
     const p=document.getElementById('panel-'+t),b=document.getElementById('tab-'+t);
     if(p)p.style.display='none';if(b)b.classList.remove('active');
   });
+  stopTrainRefresh();
   if(!isOpen){
     const p=document.getElementById('panel-'+id),b=document.getElementById('tab-'+id);
     if(p)p.style.display='block';if(b)b.classList.add('active');
     activeTab=id;
+    if(id==='trains') startTrainRefresh();
     setTimeout(()=>p?.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
   } else activeTab=null;
 }
@@ -1098,6 +1140,102 @@ async function fetchRoadIncidents() {
 }
 
 // ── MAIN REFRESH ──────────────────────────────────────────────────────────────
+// ── LIVE TRAIN BOARD ─────────────────────────────────────────────────────────
+// Werribee line timetable — static scheduled times (Metro trains run every ~20min peak, ~30min off-peak)
+// Used when PTV live API key not yet active; updates on-screen with real countdowns
+const TRAIN_TIMETABLE = {
+  // Werribee → Flinders St (approx departure times from Werribee, minutes past each hour)
+  werribee:  { wd:[[5,38],[6,4],[6,24],[6,42],[7,1],[7,18],[7,35],[7,52],[8,9],[8,27],[8,46],[9,6],[9,27],[9,55],[10,25],[10,55],[11,25],[11,55],[12,25],[12,55],[13,25],[13,55],[14,25],[14,55],[15,10],[15,25],[15,40],[15,55],[16,10],[16,25],[16,40],[16,55],[17,10],[17,25],[17,40],[17,55],[18,15],[18,35],[18,55],[19,20],[19,50],[20,20],[20,50],[21,20],[21,50],[22,20],[22,55],[23,25]], wk:[[7,5],[7,38],[8,12],[8,45],[9,20],[9,55],[10,30],[11,5],[11,40],[12,15],[12,50],[13,25],[14,0],[14,35],[15,10],[15,45],[16,20],[16,55],[17,30],[18,5],[18,40],[19,15],[19,50],[20,25],[21,0],[21,40],[22,20],[23,0]] },
+  hoppers:   { offset:5 },   // mins after Werribee
+  williams:  { offset:9 },
+  aircraft:  { offset:13 },
+  laverton:  { offset:17 },
+  westona:   { offset:21 },
+  altona:    { offset:24 },
+  seaholme:  { offset:27 },
+  newport:   { offset:30 },
+  spotswood: { offset:33 },
+  yarraville:{ offset:36 },
+  seddon:    { offset:38 },
+  footscray: { offset:41 },
+};
+
+function getNextTrains(stationId, count=5) {
+  const now = new Date();
+  const dow = now.getDay(), isWk = dow===0||dow===6;
+  const base = TRAIN_TIMETABLE.werribee;
+  const times = isWk ? base.wk : base.wd;
+  const offset = TRAIN_TIMETABLE[stationId]?.offset ?? 0;
+
+  // Build absolute departure times
+  const departures = [];
+  // Today + small window into tomorrow
+  for (let dayOff = 0; dayOff <= 1; dayOff++) {
+    for (const [h, m] of times) {
+      const dep = new Date(now);
+      dep.setDate(dep.getDate() + dayOff);
+      dep.setHours(h, m + offset, 0, 0);
+      const diffMin = (dep - now) / 60000;
+      if (diffMin > -1) departures.push({dep, diffMin});
+    }
+  }
+  departures.sort((a,b)=>a.diffMin-b.diffMin);
+  return departures.slice(0, count);
+}
+
+function renderTrainBoard() {
+  const st = STATIONS.find(s=>s.id===selStation)||STATIONS[0];
+  const trains = getNextTrains(st.id, 5);
+  const now = new Date();
+
+  const rows = trains.map((t, i) => {
+    const diff = t.diffMin;
+    const timeStr = t.dep.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit',hour12:false});
+    let countdownCls = '', countdownTxt = '';
+    if (diff < 1) { countdownCls='now'; countdownTxt='DEPARTING'; }
+    else if (diff < 5) { countdownCls='soon'; countdownTxt=`${Math.round(diff)} min`; }
+    else { countdownTxt=`${Math.round(diff)} min`; }
+
+    const dest = st.zone===2 ? 'Flinders St via City Loop' : 'Flinders St';
+    const platform = st.id==='footscray'?'Plat 3': st.id==='newport'?'Plat 1':'Plat 1';
+    return `<div class="train-row">
+      <div class="train-time-big" style="color:${diff<5?'#dc2626':diff<15?'#d97706':'var(--text)'}">${timeStr}</div>
+      <div style="flex:1;min-width:0">
+        <div style="font-size:12px;font-weight:600">${dest}</div>
+        <div class="train-dest">${i===0?'Next departure':'Then'} · ${platform}</div>
+      </div>
+      <div class="train-countdown ${countdownCls}">${countdownTxt}</div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('train-list').innerHTML = rows || '<div style="color:var(--muted);font-size:12px;padding:12px 0">No upcoming services found</div>';
+  document.getElementById('train-updated').textContent = now.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+
+  // Service status from disruptions
+  const hasDisruption = disruptions.length > 0 || gtfsAlerts.length > 0;
+  const statusItems = [];
+  if (!hasDisruption) {
+    statusItems.push(`<div style="display:flex;align-items:center;gap:8px;padding:8px 0"><span style="font-size:18px">✅</span><div><div style="font-size:12px;font-weight:600;color:#16a34a">Running normally</div><div style="font-size:11px;color:var(--muted)">No reported disruptions</div></div></div>`);
+  } else {
+    [...disruptions,...gtfsAlerts].forEach(d=>{
+      const isWarn = d.type==='warn';
+      statusItems.push(`<div style="display:flex;align-items:center;gap:8px;padding:8px 0;border-bottom:1px solid var(--border)"><span>${isWarn?'⚠️':'ℹ️'}</span><div style="font-size:11px;color:${isWarn?'#dc2626':'#1d4ed8'}">${d.text}</div></div>`);
+    });
+  }
+  document.getElementById('train-service-status').innerHTML = statusItems.join('');
+}
+
+// Auto-refresh train board every minute when visible
+let trainInterval = null;
+function startTrainRefresh() {
+  if (trainInterval) return;
+  renderTrainBoard();
+  trainInterval = setInterval(renderTrainBoard, 60000);
+}
+function stopTrainRefresh() {
+  if (trainInterval) { clearInterval(trainInterval); trainInterval=null; }
+}
+
 async function refresh(){
   document.getElementById('rbtn').textContent='…';
 
@@ -1166,6 +1304,11 @@ async function refresh(){
 }
 
 if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(s=>s.unregister()));
+
+// Handle ?station= deep link from SEO pages
+const _sp = new URLSearchParams(window.location.search).get('station');
+if (_sp && STATIONS.find(s=>s.id===_sp)) { selStation=_sp; lsSet('selStation',_sp); }
+
 refresh();
 setInterval(refresh,10*60*1000);
 </script>

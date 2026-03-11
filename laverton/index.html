@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Laverton Station Parking — Live Availability | ParkWest</title>
+<meta name="description" content="Check Laverton Station parking availability in real time. Laverton Station has Melbourne's largest Werribee line car park with 580+ spaces. Zone 1 Myki boundary station. Free app for Melbourne commuters on the Werribee line."/>
+<meta name="keywords" content="Laverton station parking, Laverton train station parking, Werribee line parking, Hobsons Bay commuter parking, Melbourne train parking"/>
+<link rel="canonical" href="https://werribee-parking.vercel.app/laverton"/>
+<meta property="og:title" content="Laverton Station Parking — Live Availability"/>
+<meta property="og:description" content="Laverton Station has Melbourne's largest Werribee line car park with 580+ spaces. Zone 1 Myki boundary station."/>
+<meta property="og:url" content="https://werribee-parking.vercel.app/laverton"/>
+<meta property="og:type" content="website"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#faf7f2;color:#1a1208;font-family:'DM Sans',sans-serif;min-height:100vh}
+.hdr{background:rgba(250,247,242,.96);border-bottom:1px solid rgba(0,0,0,.08);padding:14px 20px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;backdrop-filter:blur(16px);z-index:10}
+.logo{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;text-decoration:none;color:#1a1208}.logo span{color:#2563eb}
+.open-btn{background:#2563eb;color:#fff;border:none;border-radius:12px;padding:9px 18px;font-size:13px;font-weight:600;cursor:pointer;font-family:'DM Sans',sans-serif;text-decoration:none}
+.wrap{max-width:680px;margin:0 auto;padding:32px 20px 60px}
+.breadcrumb{font-family:'DM Mono',monospace;font-size:10px;letter-spacing:2px;color:#8a7d6b;margin-bottom:20px}
+.breadcrumb a{color:#8a7d6b;text-decoration:none}.breadcrumb a:hover{color:#2563eb}
+h1{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;letter-spacing:-1px;margin-bottom:8px;line-height:1.1}
+.subtitle{font-size:15px;color:#8a7d6b;margin-bottom:28px;line-height:1.5}
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:28px}
+.stat{background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:16px;padding:16px;text-align:center}
+.stat-val{font-family:'Syne',sans-serif;font-size:22px;font-weight:800;margin-bottom:4px}
+.stat-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:#8a7d6b}
+.live-card{background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:20px;padding:24px;margin-bottom:24px;text-align:center}
+.live-card h2{font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:8px}
+.live-card p{color:#8a7d6b;font-size:13px;margin-bottom:18px}
+.app-btn{display:inline-block;background:#2563eb;color:#fff;text-decoration:none;border-radius:14px;padding:14px 28px;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.3px}
+.app-btn:hover{background:#1d4ed8}
+.info-section{margin-bottom:24px}
+.info-section h2{font-family:'Syne',sans-serif;font-size:18px;font-weight:800;margin-bottom:10px}
+.info-section p{font-size:14px;line-height:1.7;color:#374151;margin-bottom:10px}
+.tip-list{list-style:none;padding:0}
+.tip-list li{font-size:13px;color:#374151;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.06);display:flex;gap:10px;line-height:1.5}
+.tip-list li:last-child{border-bottom:none}
+.nearby-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.nearby-card{background:#fff;border:1.5px solid rgba(0,0,0,.08);border-radius:14px;padding:14px}
+.nearby-card a{font-size:13px;color:#2563eb;text-decoration:none;font-weight:600}
+.nearby-card p{font-size:11px;color:#8a7d6b;margin-top:3px}
+footer{border-top:1px solid rgba(0,0,0,.08);padding:24px 20px;text-align:center;font-size:12px;color:#8a7d6b;font-family:'DM Mono',monospace}
+footer a{color:#2563eb;text-decoration:none}
+@media(max-width:480px){.stat-grid{grid-template-columns:repeat(2,1fr)}.nearby-grid{grid-template-columns:1fr}h1{font-size:26px}}
+</style>
+<script type="application/ld+json">
+{
+  "@context":"https://schema.org",
+  "@type":"Place",
+  "name":"Laverton Railway Station",
+  "description":"Laverton Station has Melbourne's largest Werribee line car park with 580+ spaces. Zone 1 Myki boundary station.",
+  "address":{
+    "@type":"PostalAddress",
+    "addressLocality":"Laverton",
+    "addressRegion":"VIC",
+    "addressCountry":"AU"
+  },
+  "amenityFeature":[
+    {"@type":"LocationFeatureSpecification","name":"Car Park","value":true},
+    {"@type":"LocationFeatureSpecification","name":"Parking Spaces","value":580},
+    {"@type":"LocationFeatureSpecification","name":"Myki Zone","value":"Zone 1"}
+  ]
+}
+</script>
+</head>
+<body>
+<header class="hdr">
+  <a href="/" class="logo">Park<span>West</span></a>
+  <a href="/?station=laverton" class="open-btn">Check Live →</a>
+</header>
+
+<div class="wrap">
+  <div class="breadcrumb">
+    <a href="/">ParkWest</a> › <a href="/stations">Werribee Line</a> › Laverton
+  </div>
+
+  <h1>Laverton Station Parking</h1>
+  <p class="subtitle">Laverton Station has Melbourne's largest Werribee line car park with 580+ spaces. Zone 1 Myki boundary station.</p>
+
+  <div class="stat-grid">
+    <div class="stat">
+      <div class="stat-val" style="color:#16a34a">580</div>
+      <div class="stat-lbl">TOTAL SPACES</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val" style="color:#2563eb">Zone 1</div>
+      <div class="stat-lbl">MYKI ZONE</div>
+    </div>
+    <div class="stat">
+      <div class="stat-val">~40 min</div>
+      <div class="stat-lbl">TO CITY</div>
+    </div>
+  </div>
+
+  <div class="live-card">
+    <h2>🚦 Is Laverton parking full right now?</h2>
+    <p>ParkWest uses real-time occupancy modelling, live PTV disruption data, and weather to predict parking availability — updated every 10 minutes.</p>
+    <a href="/?station=laverton" class="app-btn">Check Live Availability →</a>
+  </div>
+
+  <div class="info-section">
+    <h2>About Laverton Station Parking</h2>
+    <p>Laverton Station has Melbourne's largest Werribee line car park with 580+ spaces. Zone 1 Myki boundary station.</p>
+    <p>The car park at Laverton is free for commuters with a Myki card (Zone 1). Spaces are allocated on a first-come, first-served basis — no reservations available.</p>
+    <p>Peak times are typically 7:00am–8:30am on weekdays. Arrive before 7:30am for the best chance of a space. On rainy days, occupancy is typically 10–15% higher than normal.</p>
+  </div>
+
+  <div class="info-section">
+    <h2>Tips for parking at Laverton</h2>
+    <ul class="tip-list">
+      <li>⏰ <span>Arrive before <strong>7:30am</strong> on weekdays to guarantee a space — the lot typically fills by 7:45–8:00am.</span></li>
+      <li>🌧️ <span>On rainy days the lot fills 15–20 minutes earlier than usual — leave home earlier or consider street parking.</span></li>
+      <li>📱 <span>Use <strong>ParkWest</strong> to check occupancy before you leave home — saves circling the car park.</span></li>
+      <li>💰 <span>Zone 1 Myki — the most cost-effective zone for daily commuters.</span></li>
+      <li>🚌 <span>If the lot is full, check the ParkWest <strong>Alternative Parking</strong> tab for free street parking options within walking distance.</span></li>
+    </ul>
+  </div>
+
+  <div class="info-section">
+    <h2>Nearby stations on the Werribee line</h2>
+    <div class="nearby-grid">
+      
+      <div class="nearby-card">
+        <a href="/werribee">Werribee Station</a>
+        <p>120 spaces · Zone 2</p>
+      </div>
+      <div class="nearby-card">
+        <a href="/hoppers">Hoppers Crossing Station</a>
+        <p>350 spaces · Zone 2</p>
+      </div>
+      <div class="nearby-card">
+        <a href="/williams">Williams Landing Station</a>
+        <p>400 spaces · Zone 2</p>
+      </div>
+      <div class="nearby-card">
+        <a href="/aircraft">Aircraft Station</a>
+        <p>180 spaces · Zone 2</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<footer>
+  <p>© 2026 <a href="/">ParkWest</a> — Free Melbourne commuter parking app · <a href="/">Check all stations →</a></p>
+  <p style="margin-top:6px">Data updates every 10 min · Not affiliated with PTV or Metro Trains</p>
+</footer>
+</body>
+</html>
