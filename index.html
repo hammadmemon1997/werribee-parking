@@ -3,390 +3,192 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
-<title>Park West — Melbourne Commuter</title>
+<title>ParkWest — Melbourne Commuter</title>
 <meta name="theme-color" content="#faf7f2"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
-
 <style>
-:root {
-  --bg: #faf7f2;
-  --surface: #ffffff;
-  --surface2: #f3ede4;
-  --border: rgba(0,0,0,0.08);
-  --border2: rgba(0,0,0,0.05);
-  --text: #1a1208;
-  --muted: #8a7d6b;
-  --accent: #2563eb;
-  --green: #16a34a;
-  --amber: #d97706;
-  --red: #dc2626;
-  --orange: #ea580c;
-  --r: 16px;
+:root{
+  --bg:#faf7f2; --surface:#fff; --surface2:#f3ede4; --border:rgba(0,0,0,0.08);
+  --text:#1a1208; --muted:#8a7d6b; --accent:#2563eb;
+  --red:#dc2626; --orange:#ea580c; --amber:#d97706; --green:#16a34a;
 }
+*{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 0%,rgba(255,220,150,.1) 0%,transparent 55%),radial-gradient(ellipse at 80% 100%,rgba(200,220,255,.07) 0%,transparent 50%);pointer-events:none;z-index:0}
 
-* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+/* HEADER */
+.hdr{position:sticky;top:0;z-index:200;background:rgba(250,247,242,.93);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;padding-top:max(12px,env(safe-area-inset-top))}
+.logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.5px}.logo span{color:var(--accent)}
+.hdr-r{display:flex;align-items:center;gap:8px}
+.wpill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 11px;font-size:12px;font-family:'DM Mono',monospace}
+.rbtn{background:var(--surface);border:1px solid var(--border);border-radius:10px;width:34px;height:34px;cursor:pointer;font-size:15px;color:var(--muted);display:flex;align-items:center;justify-content:center;transition:.2s}
+.rbtn:active{transform:scale(.9)}
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: 'DM Sans', sans-serif;
-  min-height: 100vh;
-  overflow-x: hidden;
-}
+.wrap{max-width:480px;margin:0 auto;padding:14px 14px 50px;position:relative;z-index:1}
+.lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:7px}
 
-/* Subtle warm texture */
-body::before {
-  content: '';
-  position: fixed;
-  top: 0; left: 0; right: 0; bottom: 0;
-  background: radial-gradient(ellipse at 20% 0%, rgba(255,220,150,0.12) 0%, transparent 60%),
-              radial-gradient(ellipse at 80% 100%, rgba(200,220,255,0.08) 0%, transparent 50%);
-  pointer-events: none; z-index: 0;
-}
+/* STATION CHIPS */
+.chips{display:flex;gap:7px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none;margin-bottom:14px}
+.chips::-webkit-scrollbar{display:none}
+.chip{flex-shrink:0;border-radius:12px;padding:8px 12px;font-family:'DM Mono',monospace;font-size:11px;cursor:pointer;border:1.5px solid var(--border);background:var(--surface);color:var(--text);transition:.15s;text-align:center;line-height:1.3;box-shadow:0 1px 4px rgba(0,0,0,.05)}
+.chip .cp{font-size:10px;opacity:.55;display:block;margin-top:1px}
+.chip.active{border-color:var(--accent);background:rgba(37,99,235,.07);color:var(--accent)}
+.chip.cr{border-color:rgba(220,38,38,.4)}.chip.co{border-color:rgba(234,88,12,.35)}.chip.ca{border-color:rgba(217,119,6,.35)}.chip.cg{border-color:rgba(22,163,74,.3)}.chip.cb{border-color:rgba(37,99,235,.25)}
 
-/* ── HEADER ── */
-.header {
-  position: sticky; top: 0; z-index: 200;
-  background: rgba(250,247,242,0.92);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--border);
-  padding: 12px 20px;
-  display: flex; align-items: center; justify-content: space-between;
-  padding-top: max(12px, env(safe-area-inset-top));
-}
-.logo { font-family: 'Syne', sans-serif; font-size: 17px; font-weight: 800; letter-spacing: -0.5px; color: var(--text); }
-.logo span { color: var(--accent); }
-.header-right { display: flex; align-items: center; gap: 10px; }
-.weather-pill {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 20px; padding: 5px 11px;
-  font-size: 12px; font-family: 'DM Mono', monospace; color: var(--text);
-}
-.refresh-btn {
-  background: var(--surface); border: 1px solid var(--border);
-  border-radius: 10px; width: 34px; height: 34px;
-  cursor: pointer; font-size: 14px; color: var(--muted);
-  display: flex; align-items: center; justify-content: center;
-  transition: all 0.2s;
-}
-.refresh-btn:active { transform: scale(0.9); }
+/* HERO CARD */
+.hero{border-radius:20px;padding:20px 18px 18px;margin-bottom:12px;position:relative;overflow:hidden;border:1.5px solid var(--border);background:var(--surface);box-shadow:0 2px 16px rgba(0,0,0,.06);animation:fu .4s ease both}
+.hglow{position:absolute;top:-20px;right:-20px;width:180px;height:180px;border-radius:50%;pointer-events:none;opacity:.07;filter:blur(50px)}
+.vtext{font-family:'Syne',sans-serif;font-size:32px;font-weight:800;line-height:1;letter-spacing:-1px}
+.vsub{font-size:12px;color:var(--muted);margin-top:4px;line-height:1.4;max-width:190px}
+.pct-big{font-family:'Syne',sans-serif;font-size:34px;font-weight:800;line-height:1}
+.ptrack{height:6px;background:rgba(0,0,0,.07);border-radius:3px;overflow:hidden;margin:14px 0 12px}
+.pfill{height:100%;border-radius:3px;transition:width 1.4s cubic-bezier(.4,0,.2,1)}
+.pills{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+.pill{padding:3px 9px;border-radius:20px;font-size:10px;font-family:'DM Mono',monospace;background:var(--surface2);color:var(--muted);border:1px solid var(--border)}
+.find-row{background:var(--surface2);border-radius:12px;padding:11px 13px;display:flex;align-items:center;justify-content:space-between}
+.mapbtn{padding:9px 13px;border-radius:10px;border:none;cursor:pointer;font-size:12px;font-weight:600;font-family:'DM Sans',sans-serif;transition:.2s}
+.mapbtn:active{transform:scale(.96)}
 
-/* ── MAIN WRAP ── */
-.wrap { max-width: 480px; margin: 0 auto; padding: 16px 16px 40px; position: relative; z-index: 1; }
+/* TIMER */
+.timer-card{border-radius:20px;padding:16px 18px;background:#1e3a5f;margin-bottom:12px;position:relative;overflow:hidden;box-shadow:0 4px 20px rgba(30,58,95,.22);animation:fu .4s .05s ease both}
+.timer-card::before{content:'';position:absolute;bottom:-25px;right:-25px;width:110px;height:110px;background:radial-gradient(circle,rgba(255,255,255,.08),transparent);border-radius:50%;pointer-events:none}
+.tdisplay{font-family:'DM Mono',monospace;font-size:46px;font-weight:500;letter-spacing:-2px;line-height:1;color:#fff}
+.turgent{animation:blink .8s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+.tsub{font-size:11px;color:rgba(255,255,255,.45);margin-top:5px}
+.tinput{background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.2);border-radius:10px;color:#fff;font-family:'DM Mono',monospace;font-size:16px;font-weight:500;padding:5px 9px;width:86px;text-align:center}
+.tinput::-webkit-calendar-picker-indicator{filter:invert(1);opacity:.45}
 
-/* ── STATION SCROLL ── */
-.section-label {
-  font-family: 'DM Mono', monospace;
-  font-size: 9px; letter-spacing: 3px; color: var(--muted);
-  margin-bottom: 8px; margin-top: 4px;
-}
-.station-scroll { display: flex; gap: 7px; overflow-x: auto; padding-bottom: 6px; scrollbar-width: none; margin-bottom: 16px; }
-.station-scroll::-webkit-scrollbar { display: none; }
-.chip {
-  flex-shrink: 0;
-  border-radius: 12px;
-  padding: 8px 13px;
-  font-family: 'DM Mono', monospace;
-  font-size: 11px; font-weight: 500;
-  cursor: pointer; border: 1.5px solid var(--border);
-  background: var(--surface);
-  color: var(--text);
-  transition: all 0.15s;
-  text-align: center; line-height: 1.3;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.05);
-}
-.chip .chip-pct { font-size: 10px; opacity: 0.55; display: block; margin-top: 1px; }
-.chip.active { border-color: var(--accent); background: rgba(37,99,235,0.07); color: var(--accent); }
-.chip.c-red { border-color: rgba(220,38,38,0.35); }
-.chip.c-orange { border-color: rgba(234,88,12,0.35); }
-.chip.c-amber { border-color: rgba(217,119,6,0.35); }
-.chip.c-green { border-color: rgba(22,163,74,0.3); }
-.chip.c-blue { border-color: rgba(37,99,235,0.25); }
+/* RAIN */
+.rain-banner{background:#eff6ff;border:1.5px solid #bfdbfe;border-radius:14px;padding:11px 14px;display:flex;gap:11px;align-items:center;margin-bottom:12px}
 
-/* ── HERO VERDICT CARD ── */
-.hero {
-  border-radius: 20px;
-  padding: 22px 20px 20px;
-  margin-bottom: 14px;
-  position: relative; overflow: hidden;
-  border: 1.5px solid var(--border);
-  background: var(--surface);
-  box-shadow: 0 2px 16px rgba(0,0,0,0.06);
-}
-.hero-glow {
-  position: absolute; top: 0; right: 0;
-  width: 200px; height: 200px;
-  border-radius: 50%;
-  pointer-events: none;
-  opacity: 0.08;
-  filter: blur(50px);
-}
-.hero-label { font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 3px; color: var(--muted); margin-bottom: 12px; }
-.hero-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 16px; }
-.verdict-text { font-family: 'Syne', sans-serif; font-size: 34px; font-weight: 800; line-height: 1; letter-spacing: -1px; }
-.verdict-sub { font-size: 12px; color: var(--muted); margin-top: 5px; line-height: 1.4; max-width: 200px; }
-.pct-ring { text-align: center; }
-.pct-big { font-family: 'Syne', sans-serif; font-size: 36px; font-weight: 800; line-height: 1; }
-.pct-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2px; color: var(--muted); margin-top: 2px; }
-.pct-free { font-size: 11px; font-weight: 600; margin-top: 3px; }
+/* STREAK */
+.streak-card{background:linear-gradient(135deg,#fff7ed,#fef3c7);border:1.5px solid #fde68a;border-radius:18px;padding:14px 16px;display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;position:relative;overflow:hidden}
+.streak-card::before{content:'🔥';position:absolute;right:16px;top:50%;transform:translateY(-50%);font-size:55px;opacity:.1}
 
-/* Progress arc */
-.progress-track { position: relative; height: 6px; background: rgba(0,0,0,0.07); border-radius: 3px; overflow: hidden; margin-bottom: 14px; }
-.progress-fill { height: 100%; border-radius: 3px; transition: width 1.4s cubic-bezier(0.4,0,0.2,1); }
+/* STAT GRID */
+.sgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px;margin-bottom:12px;animation:fu .4s .1s ease both}
+.scard{background:var(--surface);border:1.5px solid var(--border);border-radius:16px;padding:13px 14px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.slbl{font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2.5px;color:var(--muted);margin-bottom:5px}
+.sval{font-family:'Syne',sans-serif;font-size:20px;font-weight:700;line-height:1}
+.ssub{font-size:10px;color:var(--muted);margin-top:2px}
 
-/* Pills */
-.pills { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 16px; }
-.pill {
-  padding: 4px 10px; border-radius: 20px;
-  font-size: 10px; font-family: 'DM Mono', monospace;
-  background: var(--surface2); color: var(--muted);
-  border: 1px solid var(--border);
+/* ═══ PARKING LOT MAP ═══ */
+.lot-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 1px 8px rgba(0,0,0,.05)}
+.lot-summary{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap}
+.lot-badge{padding:6px 12px;border-radius:10px;font-family:'DM Mono',monospace;font-size:11px;font-weight:500;flex:1;text-align:center;min-width:70px}
+.lot-map{background:#f5f0e8;border-radius:14px;padding:12px;position:relative}
+.lot-road{height:16px;background:linear-gradient(90deg,#d4cfc7 0%,#c8c3bb 100%);border-radius:6px;margin-bottom:10px;display:flex;align-items:center;justify-content:center;font-size:8px;font-family:'DM Mono',monospace;color:#8a7d6b;letter-spacing:2px}
+.lot-section{margin-bottom:10px}
+.lot-section:last-child{margin-bottom:0}
+.zone-label{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:#8a7d6b;margin-bottom:6px;display:flex;align-items:center;gap:6px}
+.zone-bar{height:2px;flex:1;border-radius:1px;background:currentColor;opacity:.25}
+.spot-row{display:flex;gap:4px;margin-bottom:4px}
+.spot-row:last-child{margin-bottom:0}
+.spot{
+  flex:1;height:28px;border-radius:5px;cursor:pointer;
+  transition:transform .15s,box-shadow .15s;
+  display:flex;align-items:center;justify-content:center;
+  font-size:8px;font-family:'DM Mono',monospace;font-weight:500;
+  position:relative;
 }
+.spot:active{transform:scale(.93)}
+.spot.taken{background:rgba(220,38,38,.15);border:1.5px solid rgba(220,38,38,.3);color:rgba(220,38,38,.5)}
+.spot.free{background:rgba(22,163,74,.15);border:1.5px solid rgba(22,163,74,.35);color:rgba(22,163,74,.7)}
+.spot.maybe{background:rgba(217,119,6,.12);border:1.5px solid rgba(217,119,6,.3);color:rgba(217,119,6,.6)}
+.spot.free:active{box-shadow:0 0 0 3px rgba(22,163,74,.3)}
+.spot-tooltip{position:absolute;bottom:calc(100% + 6px);left:50%;transform:translateX(-50%);background:#1a1208;color:#fff;padding:4px 8px;border-radius:6px;font-size:9px;white-space:nowrap;pointer-events:none;opacity:0;transition:opacity .2s;z-index:10}
+.spot:hover .spot-tooltip,.spot:active .spot-tooltip{opacity:1}
+.lot-legend{display:flex;gap:12px;margin-top:10px;flex-wrap:wrap}
+.leg{display:flex;align-items:center;gap:5px;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace}
+.leg::before{content:'';width:12px;height:10px;border-radius:3px;flex-shrink:0}
+.leg.taken::before{background:rgba(220,38,38,.3);border:1px solid rgba(220,38,38,.4)}
+.leg.free::before{background:rgba(22,163,74,.25);border:1px solid rgba(22,163,74,.4)}
+.leg.maybe::before{background:rgba(217,119,6,.2);border:1px solid rgba(217,119,6,.35)}
+.entry-arrow{text-align:center;font-size:10px;color:var(--muted);font-family:'DM Mono',monospace;margin-bottom:6px;letter-spacing:1px}
 
-/* Find time row */
-.find-row {
-  background: var(--surface2); border-radius: 12px;
-  padding: 12px 14px; display: flex; align-items: center; justify-content: space-between;
-}
-.find-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; }
-.find-label { font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); letter-spacing: 2px; }
-.maps-btn {
-  padding: 9px 14px; border-radius: 10px; border: none;
-  cursor: pointer; font-size: 12px; font-weight: 600; font-family: 'DM Sans', sans-serif;
-  transition: all 0.2s;
-}
-.maps-btn:active { transform: scale(0.96); }
+/* ALT PARKING */
+.alt-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.alt-spot{display:flex;align-items:center;gap:11px;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.alt-spot:last-child{border-bottom:none;padding-bottom:0}
+.alt-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0;background:var(--surface2);border:1px solid var(--border)}
+.alt-walk{font-family:'DM Mono',monospace;font-size:12px;color:var(--accent);font-weight:500}
+.maptap{margin-top:3px;padding:4px 9px;border-radius:8px;background:rgba(37,99,235,.07);border:1px solid rgba(37,99,235,.2);color:var(--accent);font-size:10px;cursor:pointer;font-family:'DM Mono',monospace;transition:.15s;display:inline-block}
+.maptap:active{background:rgba(37,99,235,.15);transform:scale(.95)}
 
-/* ── TIMER CARD ── */
-.timer-card {
-  border-radius: 20px; padding: 18px 20px;
-  background: #1e3a5f;
-  border: none;
-  margin-bottom: 14px; position: relative; overflow: hidden;
-  box-shadow: 0 4px 20px rgba(30,58,95,0.2);
-}
-.timer-card::before {
-  content: ''; position: absolute;
-  bottom: -30px; right: -30px;
-  width: 120px; height: 120px;
-  background: radial-gradient(circle, rgba(255,255,255,0.1), transparent);
-  border-radius: 50%; pointer-events: none;
-}
-.timer-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
-.timer-display {
-  font-family: 'DM Mono', monospace;
-  font-size: 48px; font-weight: 500;
-  letter-spacing: -2px; line-height: 1;
-  color: #fff;
-}
-.timer-urgent { animation: blink 0.8s infinite; }
-@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-.timer-sub { font-size: 11px; color: rgba(255,255,255,0.5); margin-top: 6px; }
-.train-input {
-  background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2);
-  border-radius: 10px; color: #fff;
-  font-family: 'DM Mono', monospace; font-size: 16px; font-weight: 500;
-  padding: 6px 10px; width: 88px; text-align: center;
-}
-.train-input::-webkit-calendar-picker-indicator { filter: invert(1); opacity: 0.5; }
+/* CHART */
+.chart-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.cbars{display:flex;align-items:flex-end;gap:2px;height:80px;margin:12px 0 5px}
+.cbw{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;height:100%;position:relative}
+.cbar{width:100%;border-radius:3px 3px 0 0;min-height:3px}
+.cnow{position:absolute;top:-18px;left:50%;transform:translateX(-50%);white-space:nowrap}
+.cdot{width:6px;height:6px;border-radius:50%;background:var(--accent);margin:0 auto 2px;box-shadow:0 0 5px rgba(37,99,235,.4)}
+.clbl{font-family:'DM Mono',monospace;font-size:8px;color:var(--accent)}
+.caxis{display:flex;justify-content:space-between;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)}
 
-/* ── RAIN BANNER ── */
-.rain-banner {
-  background: #eff6ff;
-  border: 1.5px solid #bfdbfe;
-  border-radius: 14px; padding: 12px 15px;
-  display: flex; gap: 12px; align-items: center;
-  margin-bottom: 14px;
-}
+/* NETWORK */
+.net-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.nrow{display:flex;align-items:center;gap:11px;padding:9px 0;border-bottom:1px solid rgba(0,0,0,.05);cursor:pointer;transition:opacity .15s}
+.nrow:last-child{border-bottom:none;padding-bottom:0}
+.nrow:active{opacity:.5}
+.nname{font-size:13px;font-weight:500;flex:1}
+.nbar-w{width:75px;height:4px;background:rgba(0,0,0,.07);border-radius:2px;overflow:hidden}
+.nbar{height:100%;border-radius:2px}
+.npct{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;width:36px;text-align:right}
+.nzone{font-size:9px;background:rgba(37,99,235,.08);color:var(--accent);padding:2px 6px;border-radius:4px;font-family:'DM Mono',monospace;flex-shrink:0}
 
-/* ── STREAK ── */
-.streak-card {
-  background: linear-gradient(135deg, #fff7ed, #fef3c7);
-  border: 1.5px solid #fde68a;
-  border-radius: 18px; padding: 15px 18px;
-  display: flex; align-items: center; justify-content: space-between;
-  margin-bottom: 14px; position: relative; overflow: hidden;
-}
-.streak-card::before {
-  content: '🔥'; position: absolute;
-  right: 18px; top: 50%; transform: translateY(-50%);
-  font-size: 60px; opacity: 0.08;
-}
+/* ═══ NEW: COMMUTE PLANNER ═══ */
+.plan-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.plan-row{display:flex;align-items:center;justify-content:space-between;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.05)}
+.plan-row:last-child{border-bottom:none}
+.plan-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0}
+.plan-time{font-family:'DM Mono',monospace;font-size:13px;font-weight:500;color:var(--accent)}
+.plan-act{font-size:12px;flex:1;margin:0 10px}
+.plan-dur{font-family:'DM Mono',monospace;font-size:10px;color:var(--muted)}
 
-/* ── STAT GRID ── */
-.stat-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 14px; }
-.stat-card {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 16px; padding: 14px 15px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-}
-.stat-label { font-family: 'DM Mono', monospace; font-size: 8px; letter-spacing: 2.5px; color: var(--muted); margin-bottom: 6px; }
-.stat-val { font-family: 'Syne', sans-serif; font-size: 22px; font-weight: 700; line-height: 1; color: var(--text); }
-.stat-sub { font-size: 10px; color: var(--muted); margin-top: 3px; }
+/* ═══ NEW: WEEKLY PATTERN ═══ */
+.week-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.week-bars{display:flex;gap:6px;align-items:flex-end;height:60px;margin:10px 0 6px}
+.wbar-w{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:flex-end;gap:4px}
+.wbar{width:100%;border-radius:4px 4px 0 0;min-height:4px;transition:height .6s ease}
+.wday{font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)}
+.wday.today{color:var(--accent);font-weight:500}
+.wpeak{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.wpeak-badge{padding:4px 9px;border-radius:8px;font-size:10px;font-family:'DM Mono',monospace;background:var(--surface2);border:1px solid var(--border);color:var(--muted)}
 
-/* ── PARKING GRID ── */
-.parking-section {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 20px; padding: 18px; margin-bottom: 14px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-}
-.parking-grid-visual {
-  display: grid; gap: 4px;
-  margin: 14px 0 10px;
-}
-.spot {
-  border-radius: 5px; aspect-ratio: 1.4;
-  transition: all 0.3s;
-  cursor: default;
-  position: relative;
-}
-.spot.taken { background: rgba(220,38,38,0.18); border: 1px solid rgba(220,38,38,0.25); }
-.spot.free  { background: rgba(22,163,74,0.18);  border: 1px solid rgba(22,163,74,0.3); }
-.spot.maybe { background: rgba(217,119,6,0.15);  border: 1px solid rgba(217,119,6,0.25); }
+/* TABS */
+.tab-row{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin-bottom:12px}
+.tbtn{padding:10px 4px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface);color:var(--muted);cursor:pointer;font-size:10px;font-family:'DM Mono',monospace;text-align:center;line-height:1.4;transition:.15s;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+.tbtn .ti{font-size:18px;display:block;margin-bottom:3px}
+.tbtn.active{border-color:var(--accent);color:var(--accent);background:rgba(37,99,235,.06)}
+.tbtn:active{transform:scale(.95)}
+.tab-row2{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:12px}
 
-.spot-legend { display: flex; gap: 14px; }
-.legend-dot { display: flex; align-items: center; gap: 5px; font-size: 10px; color: var(--muted); font-family: 'DM Mono', monospace; }
-.legend-dot::before { content: ''; width: 10px; height: 8px; border-radius: 2px; flex-shrink: 0; }
-.legend-dot.taken::before { background: rgba(220,38,38,0.4); }
-.legend-dot.free::before  { background: rgba(22,163,74,0.4);  }
-.legend-dot.maybe::before { background: rgba(217,119,6,0.35); }
+/* REPORT */
+.rep-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;margin-bottom:12px;box-shadow:0 1px 6px rgba(0,0,0,.04)}
+.selbtn{flex:1;padding:10px 5px;border-radius:11px;border:1.5px solid var(--border);background:var(--surface2);color:var(--muted);cursor:pointer;font-size:12px;font-family:'DM Mono',monospace;transition:.15s}
+.selbtn.active{border-color:var(--accent);color:var(--accent);background:rgba(37,99,235,.07)}
+.subbtn{width:100%;padding:13px;border-radius:13px;background:#1e3a5f;color:#fff;border:none;cursor:pointer;font-size:14px;font-weight:700;font-family:'Syne',sans-serif;letter-spacing:.5px;transition:.2s}
+.subbtn:active{transform:scale(.97);opacity:.9}
 
-/* ── ALT PARKING ── */
-.alt-card {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 20px; padding: 18px; margin-bottom: 14px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-}
-.alt-spot {
-  display: flex; align-items: center; gap: 12px;
-  padding: 11px 0; border-bottom: 1px solid rgba(0,0,0,0.05);
-}
-.alt-spot:last-child { border-bottom: none; padding-bottom: 0; }
-.alt-icon {
-  width: 36px; height: 36px; border-radius: 10px;
-  display: flex; align-items: center; justify-content: center;
-  font-size: 16px; flex-shrink: 0;
-  background: var(--surface2); border: 1px solid var(--border);
-}
-.alt-name { font-size: 13px; font-weight: 600; color: var(--text); }
-.alt-note { font-size: 10px; color: var(--muted); margin-top: 1px; font-family: 'DM Mono', monospace; }
-.alt-right { margin-left: auto; text-align: right; flex-shrink: 0; }
-.alt-walk { font-family: 'DM Mono', monospace; font-size: 12px; color: var(--accent); font-weight: 500; }
-.map-tap-btn {
-  margin-top: 4px; padding: 4px 10px; border-radius: 8px;
-  background: rgba(37,99,235,0.07); border: 1px solid rgba(37,99,235,0.2);
-  color: var(--accent); font-size: 10px; cursor: pointer;
-  font-family: 'DM Mono', monospace; font-weight: 500;
-  transition: all 0.15s;
-  display: inline-block;
-}
-.map-tap-btn:active { background: rgba(37,99,235,0.15); transform: scale(0.95); }
+/* DISRUPTION */
+.dis-alert{background:#fef2f2;border:1.5px solid #fecaca;border-radius:12px;padding:9px 13px;margin-bottom:9px;font-size:12px;display:flex;align-items:center;gap:8px;color:var(--red)}
 
-/* ── HOURLY CHART ── */
-.chart-card {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 20px; padding: 18px; margin-bottom: 14px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-}
-.chart-bars {
-  display: flex; align-items: flex-end; gap: 3px;
-  height: 80px; margin: 12px 0 6px;
-}
-.chart-bar-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; height: 100%; position: relative; }
-.chart-bar { width: 100%; border-radius: 3px 3px 0 0; min-height: 3px; transition: height 0.6s ease; }
-.chart-now-line { position: absolute; top: -16px; left: 50%; transform: translateX(-50%); white-space: nowrap; }
-.chart-now-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent); margin: 0 auto 3px; box-shadow: 0 0 6px rgba(37,99,235,0.4); }
-.chart-now-lbl { font-family: 'DM Mono', monospace; font-size: 8px; color: var(--accent); }
-.chart-labels { display: flex; justify-content: space-between; font-family: 'DM Mono', monospace; font-size: 9px; color: var(--muted); }
+.footer{text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:#c4b9a8;letter-spacing:2px;padding:18px 0 8px}
 
-/* ── NETWORK PANEL ── */
-.network-card {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 20px; padding: 18px; margin-bottom: 14px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-}
-.net-row {
-  display: flex; align-items: center; gap: 12px;
-  padding: 10px 0; border-bottom: 1px solid rgba(0,0,0,0.05);
-  cursor: pointer; transition: opacity 0.15s;
-}
-.net-row:last-child { border-bottom: none; padding-bottom: 0; }
-.net-row:active { opacity: 0.6; }
-.net-name { font-size: 13px; font-weight: 500; flex: 1; color: var(--text); }
-.net-bar-wrap { width: 80px; height: 4px; background: rgba(0,0,0,0.07); border-radius: 2px; overflow: hidden; }
-.net-bar { height: 100%; border-radius: 2px; }
-.net-pct { font-family: 'DM Mono', monospace; font-size: 13px; font-weight: 500; width: 36px; text-align: right; }
-.net-zone { font-size: 9px; background: rgba(37,99,235,0.08); color: var(--accent); padding: 2px 6px; border-radius: 4px; font-family: 'DM Mono', monospace; flex-shrink: 0; }
-
-/* ── ACTION TABS ── */
-.tab-row {
-  display: grid; grid-template-columns: repeat(4,1fr); gap: 7px; margin-bottom: 14px;
-}
-.tab-btn {
-  padding: 11px 4px; border-radius: 14px;
-  border: 1.5px solid var(--border); background: var(--surface);
-  color: var(--muted); cursor: pointer;
-  font-size: 10px; font-family: 'DM Mono', monospace;
-  text-align: center; line-height: 1.4;
-  transition: all 0.15s;
-  box-shadow: 0 1px 4px rgba(0,0,0,0.04);
-}
-.tab-btn .tab-icon { font-size: 18px; display: block; margin-bottom: 3px; }
-.tab-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(37,99,235,0.06); }
-.tab-btn:active { transform: scale(0.95); }
-
-/* ── REPORT ── */
-.report-card {
-  background: var(--surface); border: 1.5px solid var(--border);
-  border-radius: 20px; padding: 18px; margin-bottom: 14px;
-  box-shadow: 0 1px 6px rgba(0,0,0,0.04);
-}
-.zone-row, .type-row { display: flex; gap: 7px; margin-bottom: 14px; }
-.sel-btn {
-  flex: 1; padding: 10px 6px; border-radius: 12px;
-  border: 1.5px solid var(--border); background: var(--surface2);
-  color: var(--muted); cursor: pointer; font-size: 12px;
-  font-family: 'DM Mono', monospace; font-weight: 500;
-  transition: all 0.15s;
-}
-.sel-btn.active { border-color: var(--accent); color: var(--accent); background: rgba(37,99,235,0.07); }
-.submit-btn {
-  width: 100%; padding: 14px; border-radius: 14px;
-  background: #1e3a5f; color: #fff;
-  border: none; cursor: pointer; font-size: 14px;
-  font-weight: 700; font-family: 'Syne', sans-serif;
-  letter-spacing: 0.5px;
-  transition: all 0.2s;
-}
-.submit-btn:active { transform: scale(0.97); opacity: 0.9; }
-
-/* ── ALERT BANNER ── */
-.disruption-alert {
-  background: #fef2f2; border: 1.5px solid #fecaca;
-  border-radius: 12px; padding: 10px 14px; margin-bottom: 10px;
-  font-size: 12px; display: flex; align-items: center; gap: 8px; color: var(--red);
-}
-
-.footer { text-align: center; font-family: 'DM Mono', monospace; font-size: 9px; color: #c4b9a8; letter-spacing: 2px; padding: 20px 0 10px; }
-
-/* Entrance animation */
-@keyframes fadeUp { from { opacity:0; transform:translateY(14px); } to { opacity:1; transform:translateY(0); } }
-.hero { animation: fadeUp 0.4s ease both; }
-.timer-card { animation: fadeUp 0.4s 0.05s ease both; }
-.stat-grid { animation: fadeUp 0.4s 0.1s ease both; }
+@keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 </style>
 </head>
 <body>
 
-<div class="header">
+<div class="hdr">
   <div class="logo">Park<span>West</span></div>
-  <div class="header-right">
-    <div class="weather-pill" id="weather-pill">— °C</div>
-    <button class="refresh-btn" id="refresh-btn" onclick="refresh()">↻</button>
+  <div class="hdr-r">
+    <div class="wpill" id="wpill">— °C</div>
+    <button class="rbtn" id="rbtn" onclick="refresh()">↻</button>
   </div>
 </div>
 
@@ -395,255 +197,277 @@ body::before {
   <!-- STREAK -->
   <div class="streak-card" id="streak-card" style="display:none">
     <div>
-      <div class="section-label" style="margin:0 0 4px">COMMUTE STREAK</div>
-      <div style="font-family:'Syne',sans-serif;font-size:28px;font-weight:800;color:#ff8c00"><span id="s-num">0</span> days</div>
-      <div style="font-size:11px;color:#c2643a;margin-top:2px" id="s-sub">Keep checking in!</div>
+      <div class="lbl" style="margin:0 0 3px">COMMUTE STREAK</div>
+      <div style="font-family:'Syne',sans-serif;font-size:26px;font-weight:800;color:#d97706"><span id="s-num">0</span> days</div>
+      <div style="font-size:11px;color:#92400e;margin-top:2px" id="s-sub">Keep going!</div>
     </div>
     <div style="text-align:right">
-      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#6b3a1a;letter-spacing:2px;margin-bottom:2px">BEST</div>
-      <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;color:#ffb547"><span id="s-best">0</span> 🏆</div>
-      <div style="font-size:10px;color:#6b3a1a;margin-top:3px" id="s-savings"></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;color:#92400e;letter-spacing:2px;margin-bottom:2px">BEST</div>
+      <div style="font-family:'Syne',sans-serif;font-size:18px;font-weight:800;color:#d97706"><span id="s-best">0</span> 🏆</div>
+      <div style="font-size:10px;color:#b45309;margin-top:2px" id="s-savings"></div>
     </div>
   </div>
 
   <!-- TIMER -->
   <div class="timer-card">
-    <div class="timer-top">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
       <div>
-        <div class="section-label" style="margin:0 0 2px">LEAVE NOW TIMER</div>
-        <div style="font-size:11px;color:var(--muted)" id="timer-sub">Set your train time →</div>
+        <div style="font-family:'DM Mono',monospace;font-size:9px;color:rgba(255,255,255,.45);letter-spacing:3px;margin-bottom:1px">LEAVE NOW TIMER</div>
+        <div style="font-size:11px;color:rgba(255,255,255,.45)" id="tsub">Set your train time →</div>
       </div>
       <div style="display:flex;flex-direction:column;align-items:flex-end;gap:3px">
-        <div style="font-size:9px;font-family:'DM Mono',monospace;color:var(--muted);letter-spacing:2px">TRAIN AT</div>
-        <input type="time" id="train-time" class="train-input" value="07:52" onchange="saveAndUpdateTimer()"/>
+        <div style="font-size:9px;font-family:'DM Mono',monospace;color:rgba(255,255,255,.35);letter-spacing:2px">TRAIN AT</div>
+        <input type="time" id="train-time" class="tinput" value="07:52" onchange="saveTimer()"/>
       </div>
     </div>
-    <div class="timer-display" id="timer-display">--:--</div>
+    <div class="tdisplay" id="tdisplay">--:--</div>
   </div>
 
-  <!-- RAIN ALERT -->
+  <!-- RAIN -->
   <div id="rain-wrap"></div>
-
   <!-- DISRUPTIONS -->
   <div id="alerts-wrap"></div>
 
   <!-- STATION CHIPS -->
-  <div class="section-label">WERRIBEE LINE</div>
-  <div class="station-scroll" id="chips"></div>
+  <div class="lbl">WERRIBEE LINE</div>
+  <div class="chips" id="chips"></div>
 
-  <!-- VERDICT HERO -->
-  <div id="verdict-wrap">
-    <div style="text-align:center;padding:40px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px">LOADING...</div>
-  </div>
+  <!-- HERO VERDICT -->
+  <div id="verdict-wrap"><div style="text-align:center;padding:40px;color:var(--muted);font-family:'DM Mono',monospace;font-size:11px">LOADING...</div></div>
 
   <!-- STAT GRID -->
-  <div class="stat-grid" id="stat-grid"></div>
+  <div class="sgrid" id="sgrid"></div>
 
-  <!-- TABS -->
+  <!-- TABS ROW 1 -->
   <div class="tab-row">
-    <button class="tab-btn" id="tab-parking" onclick="toggleTab('parking')"><span class="tab-icon">🅿️</span>Spots</button>
-    <button class="tab-btn" id="tab-alt" onclick="toggleTab('alt')"><span class="tab-icon">📍</span>Alt Park</button>
-    <button class="tab-btn" id="tab-chart" onclick="toggleTab('chart')"><span class="tab-icon">📊</span>Hourly</button>
-    <button class="tab-btn" id="tab-network" onclick="toggleTab('network')"><span class="tab-icon">🗺️</span>Network</button>
+    <button class="tbtn" id="tab-lot" onclick="toggleTab('lot')"><span class="ti">🅿️</span>Lot Map</button>
+    <button class="tbtn" id="tab-alt" onclick="toggleTab('alt')"><span class="ti">📍</span>Alt Park</button>
+    <button class="tbtn" id="tab-plan" onclick="toggleTab('plan')"><span class="ti">🗓</span>Planner</button>
+    <button class="tbtn" id="tab-week" onclick="toggleTab('week')"><span class="ti">📅</span>Weekly</button>
+  </div>
+  <div class="tab-row2">
+    <button class="tbtn" id="tab-chart" onclick="toggleTab('chart')"><span class="ti">📊</span>Hourly</button>
+    <button class="tbtn" id="tab-network" onclick="toggleTab('network')"><span class="ti">🗺️</span>Network</button>
   </div>
 
-  <!-- PARKING GRID PANEL -->
-  <div id="panel-parking" style="display:none">
-    <div class="parking-section">
-      <div class="section-label" style="margin:0 0 4px">ESTIMATED SPOT AVAILABILITY</div>
-      <div style="font-size:11px;color:var(--muted)">Visual estimate based on occupancy model</div>
-      <div class="parking-grid-visual" id="spot-grid"></div>
-      <div class="spot-legend">
-        <div class="legend-dot taken">Likely taken</div>
-        <div class="legend-dot maybe">Uncertain</div>
-        <div class="legend-dot free">Likely free</div>
+  <!-- ═══ PARKING LOT MAP ═══ -->
+  <div id="panel-lot" style="display:none">
+    <div class="lot-card">
+      <div class="lbl" style="margin:0 0 3px">PARKING LOT — LIVE ZONE VIEW</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:11px">Tap a green spot to navigate · Model-based estimate</div>
+      <div class="lot-summary" id="lot-summary"></div>
+      <div class="lot-map" id="lot-map"></div>
+      <div class="lot-legend">
+        <div class="leg taken">Likely taken</div>
+        <div class="leg maybe">Uncertain</div>
+        <div class="leg free">Probably free — tap to navigate</div>
       </div>
     </div>
   </div>
 
-  <!-- ALT PARKING PANEL -->
+  <!-- ALT PARKING -->
   <div id="panel-alt" style="display:none">
     <div class="alt-card">
-      <div class="section-label" style="margin:0 0 12px">NEARBY ALTERNATIVES</div>
+      <div class="lbl" style="margin:0 0 11px">NEARBY ALTERNATIVES</div>
       <div id="alt-list"></div>
     </div>
   </div>
 
-  <!-- HOURLY CHART PANEL -->
-  <div id="panel-chart" style="display:none">
-    <div class="chart-card">
-      <div class="section-label" style="margin:0 0 2px">TODAY'S OCCUPANCY FORECAST</div>
-      <div style="font-size:10px;color:var(--muted)">Estimated % full · Werribee line weather applied</div>
-      <div class="chart-bars" id="chart-bars"></div>
-      <div class="chart-labels"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div>
+  <!-- COMMUTE PLANNER -->
+  <div id="panel-plan" style="display:none">
+    <div class="plan-card">
+      <div class="lbl" style="margin:0 0 3px">YOUR COMMUTE TIMELINE</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:11px">Based on current conditions + your train time</div>
+      <div id="plan-list"></div>
     </div>
   </div>
 
-  <!-- NETWORK PANEL -->
+  <!-- WEEKLY PATTERN -->
+  <div id="panel-week" style="display:none">
+    <div class="week-card">
+      <div class="lbl" style="margin:0 0 3px">WEEKLY PARKING PATTERN</div>
+      <div style="font-size:11px;color:var(--muted)">Typical peak occupancy by day</div>
+      <div class="week-bars" id="week-bars"></div>
+      <div class="caxis"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+      <div class="wpeak" id="week-tips" style="margin-top:10px"></div>
+    </div>
+  </div>
+
+  <!-- HOURLY CHART -->
+  <div id="panel-chart" style="display:none">
+    <div class="chart-card">
+      <div class="lbl" style="margin:0 0 2px">TODAY'S HOURLY FORECAST</div>
+      <div style="font-size:10px;color:var(--muted)">Estimated % full · weather-adjusted</div>
+      <div class="cbars" id="cbars"></div>
+      <div class="caxis"><span>12am</span><span>6am</span><span>12pm</span><span>6pm</span><span>11pm</span></div>
+    </div>
+  </div>
+
+  <!-- NETWORK -->
   <div id="panel-network" style="display:none">
-    <div class="network-card">
-      <div class="section-label" style="margin:0 0 4px">ALL STATIONS NOW</div>
-      <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Tap to switch station</div>
+    <div class="net-card">
+      <div class="lbl" style="margin:0 0 3px">ALL STATIONS NOW</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:11px">Tap any station to switch</div>
       <div id="net-list"></div>
     </div>
   </div>
 
-  <!-- REPORT TAB (always visible at bottom of tabs) -->
+  <!-- REPORT -->
+  <div style="margin-bottom:12px">
+    <button class="tbtn" id="tab-report" onclick="toggleTab('report')" style="width:100%;padding:12px"><span class="ti">👥</span>Report Live Conditions</button>
+  </div>
   <div id="panel-report" style="display:none">
-    <div class="report-card">
-      <div class="section-label" style="margin:0 0 12px">SUBMIT LIVE REPORT</div>
-      <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Zone:</div>
-      <div class="zone-row">
-        <button class="sel-btn active" id="zone-A" onclick="setZone('A')">A</button>
-        <button class="sel-btn" id="zone-B" onclick="setZone('B')">B</button>
-        <button class="sel-btn" id="zone-C" onclick="setZone('C')">C</button>
-        <button class="sel-btn" id="zone-D" onclick="setZone('D')">D</button>
+    <div class="rep-card">
+      <div class="lbl" style="margin:0 0 11px">SUBMIT LIVE REPORT</div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:9px">Zone:</div>
+      <div style="display:flex;gap:6px;margin-bottom:12px">
+        <button class="selbtn active" id="zone-A" onclick="setZone('A')">A</button>
+        <button class="selbtn" id="zone-B" onclick="setZone('B')">B</button>
+        <button class="selbtn" id="zone-C" onclick="setZone('C')">C</button>
+        <button class="selbtn" id="zone-D" onclick="setZone('D')">D</button>
       </div>
-      <div style="font-size:10px;color:var(--muted);margin-bottom:12px">Status:</div>
-      <div class="type-row">
-        <button class="sel-btn active" id="type-full" onclick="setType('full')">🔴 Full</button>
-        <button class="sel-btn" id="type-busy" onclick="setType('busy')">🟡 Busy</button>
-        <button class="sel-btn" id="type-spaces" onclick="setType('spaces')">🟢 Spaces</button>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:9px">Status:</div>
+      <div style="display:flex;gap:6px;margin-bottom:14px">
+        <button class="selbtn active" id="type-full" onclick="setType('full')">🔴 Full</button>
+        <button class="selbtn" id="type-busy" onclick="setType('busy')">🟡 Busy</button>
+        <button class="selbtn" id="type-spaces" onclick="setType('spaces')">🟢 Spaces</button>
       </div>
-      <button class="submit-btn" onclick="confirmReport()">Submit Report</button>
+      <button class="subbtn" onclick="confirmReport()">Submit Report</button>
     </div>
   </div>
 
-  <!-- REPORT BUTTON -->
-  <div style="margin-bottom:14px">
-    <button class="tab-btn" id="tab-report" onclick="toggleTab('report')" style="width:100%;padding:12px;grid-column:span 4">
-      <span class="tab-icon">👥</span>Report Conditions
-    </button>
-  </div>
-
-  <div class="footer">PARK WEST · WERRIBEE LINE · DATA IS ESTIMATED NOT LIVE SENSORS</div>
+  <div class="footer">PARKWEST · WERRIBEE LINE · OCCUPANCY IS ESTIMATED · NOT LIVE SENSORS</div>
 </div>
 
 <script>
-// ── DATA ─────────────────────────────────────────────────────────────────────
-const STATIONS = [
-  { id:'werribee',   name:'Werribee',          short:'WER', lat:-37.9027,lon:144.6627, spots:120, zone:2,
-    base:[2,2,2,2,3,5,18,72,91,80,62,55,50,52,58,65,80,88,74,50,30,18,10,5],
-    wknd:[2,2,2,2,2,3,5,15,28,32,28,24,20,22,24,26,28,25,20,14,10,6,4,2],
-    alt:[{name:'Watton St (north)',walk:'3 min',note:'FREE · No limit',maps:'https://maps.google.com/?q=-37.9005,144.6610'},
-         {name:'Comben Drive',walk:'5 min',note:'FREE · Quiet street',maps:'https://maps.google.com/?q=-37.9015,144.6595'},
-         {name:'Synnot Street',walk:'7 min',note:'FREE · Residential',maps:'https://maps.google.com/?q=-37.9022,144.6585'},
-         {name:'Werribee Plaza (W)',walk:'9 min',note:'FREE · ~400 spots',maps:'https://maps.google.com/?q=-37.8988,144.6568'}]},
-  { id:'hoppers',    name:'Hoppers Crossing',  short:'HOP', lat:-37.8808,lon:144.6975, spots:350, zone:2,
-    base:[2,2,2,2,3,6,22,78,94,85,65,58,52,54,60,68,82,90,76,52,32,20,10,5],
-    wknd:[2,2,2,2,2,3,6,18,30,35,30,26,22,24,26,28,30,28,22,15,10,6,3,2],
-    alt:[{name:'Old Geelong Rd (S)',walk:'4 min',note:'FREE · Street parking',maps:'https://maps.google.com/?q=-37.8825,144.6970'},
-         {name:'Heaths Rd',walk:'6 min',note:'FREE · Side streets',maps:'https://maps.google.com/?q=-37.8830,144.6950'},
-         {name:'Hoppers Lane',walk:'8 min',note:'FREE · Residential',maps:'https://maps.google.com/?q=-37.8800,144.6940'}]},
-  { id:'williams',   name:'Williams Landing',  short:'WIL', lat:-37.8680,lon:144.7325, spots:400, zone:2,
-    base:[2,2,2,2,3,7,25,82,95,87,68,60,54,56,62,70,84,91,77,54,33,21,11,5],
-    wknd:[2,2,2,2,2,3,6,20,32,36,32,28,24,26,28,30,32,30,24,16,11,7,3,2],
-    alt:[{name:'Wallace Ave',walk:'3 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8670,144.7330'},
-         {name:'Palmers Rd (south)',walk:'5 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8700,144.7310'},
-         {name:'Williams Landing S/C',walk:'7 min',note:'FREE · 3hr, large lot',maps:'https://maps.google.com/?q=-37.8665,144.7350'}]},
-  { id:'aircraft',   name:'Aircraft',          short:'AIR', lat:-37.8578,lon:144.7575, spots:180, zone:2,
-    base:[2,2,2,2,3,5,15,55,72,65,50,45,42,44,50,55,68,75,62,44,28,16,8,4],
-    wknd:[2,2,2,2,2,3,4,12,22,26,24,20,18,20,22,24,26,24,18,12,8,5,3,2],
-    alt:[{name:'Overton Rd',walk:'4 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8570,144.7560'},
-         {name:'Point Cook Rd',walk:'6 min',note:'FREE · Side streets',maps:'https://maps.google.com/?q=-37.8590,144.7550'}]},
-  { id:'laverton',   name:'Laverton',          short:'LAV', lat:-37.8614,lon:144.7742, spots:580, zone:1,
-    base:[2,2,2,2,4,8,28,88,97,90,72,65,58,60,65,72,86,93,80,58,36,22,12,5],
-    wknd:[2,2,2,2,2,4,7,22,34,38,34,30,26,28,30,32,34,32,26,18,12,7,4,2],
-    alt:[{name:'Aviation Rd',walk:'4 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8600,144.7730'},
-         {name:'Dohertys Rd',walk:'6 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8630,144.7720'},
-         {name:'Aircraft Station',walk:'15 min',note:'Less demand · more spaces',maps:'https://maps.google.com/?q=-37.8578,144.7575'}]},
-  { id:'westona',    name:'Westona',           short:'WST', lat:-37.8742,lon:144.7933, spots:80,  zone:1,
-    base:[2,2,2,2,3,5,14,60,78,70,55,48,44,46,52,58,70,78,65,46,28,16,8,4],
-    wknd:[2,2,2,2,2,3,4,12,22,26,22,18,16,18,20,22,24,22,18,12,8,5,3,2],
-    alt:[{name:'Millers Rd',walk:'4 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8735,144.7920'}]},
-  { id:'altona',     name:'Altona',            short:'ALT', lat:-37.8680,lon:144.8282, spots:110, zone:1,
-    base:[2,2,2,2,3,5,16,65,82,74,58,52,47,49,55,62,74,82,68,49,30,18,9,4],
-    wknd:[2,2,2,2,2,3,5,14,25,28,25,22,19,21,23,25,27,25,20,14,9,6,3,2],
-    alt:[{name:'Pier St',walk:'3 min',note:'FREE · Beachside',maps:'https://maps.google.com/?q=-37.8670,144.8270'},
-         {name:'Altona Beach (far)',walk:'8 min',note:'FREE · Always spaces',maps:'https://maps.google.com/?q=-37.8670,144.8240'}]},
-  { id:'seaholme',   name:'Seaholme',          short:'SEA', lat:-37.8667,lon:144.8428, spots:60,  zone:1,
-    base:[2,2,2,2,3,4,12,52,70,62,48,42,38,40,46,52,64,72,60,42,26,14,7,3],
-    wknd:[2,2,2,2,2,3,4,10,18,22,20,16,14,16,18,20,22,20,16,10,7,4,2,2],
-    alt:[{name:'Mason St',walk:'3 min',note:'FREE · Quiet street',maps:'https://maps.google.com/?q=-37.8660,144.8420'}]},
-  { id:'newport',    name:'Newport',           short:'NPT', lat:-37.8473,lon:144.8822, spots:90,  zone:1,
-    base:[2,2,2,2,3,5,16,65,82,74,58,52,47,49,55,62,74,80,66,48,30,17,8,4],
-    wknd:[2,2,2,2,2,3,5,14,24,28,24,20,18,20,22,24,26,24,19,13,8,5,3,2],
-    alt:[{name:'Hall St',walk:'4 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8465,144.8810'},
-         {name:'Mason St',walk:'5 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8480,144.8800'}]},
-  { id:'spotswood',  name:'Spotswood',         short:'SPW', lat:-37.8328,lon:144.8878, spots:70,  zone:1,
-    base:[2,2,2,2,3,5,14,58,74,66,52,46,42,44,50,56,68,75,62,44,27,15,7,3],
-    wknd:[2,2,2,2,2,3,4,11,20,24,22,18,15,17,19,21,23,21,17,11,7,4,2,2],
-    alt:[{name:'Hudsons Rd',walk:'3 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8320,144.8865'}]},
-  { id:'yarraville', name:'Yarraville',        short:'YRV', lat:-37.8178,lon:144.8932, spots:50,  zone:1,
-    base:[2,2,2,2,3,5,12,50,66,60,46,40,36,38,44,50,62,70,58,40,24,14,6,3],
-    wknd:[2,2,2,2,2,3,4,10,18,20,18,15,13,15,17,19,21,19,15,10,6,4,2,2],
-    alt:[{name:'Anderson St',walk:'4 min',note:'FREE · 2hr limit',maps:'https://maps.google.com/?q=-37.8170,144.8920'}]},
-  { id:'seddon',     name:'Seddon',            short:'SED', lat:-37.8106,lon:144.8988, spots:30,  zone:1,
-    base:[2,2,2,2,2,4,10,42,58,52,40,35,32,34,40,45,56,63,52,36,22,12,6,3],
-    wknd:[2,2,2,2,2,2,3,8,14,17,15,12,11,13,14,16,18,16,13,9,5,3,2,2],
-    alt:[{name:'Charles St',walk:'3 min',note:'FREE · 1hr limit nearby',maps:'https://maps.google.com/?q=-37.8100,144.8975'}]},
-  { id:'footscray',  name:'Footscray',         short:'FSY', lat:-37.7998,lon:144.8998, spots:0,   zone:1,
-    base:[2,2,2,2,2,4,10,40,55,50,38,33,30,32,38,43,54,60,50,34,20,11,5,3],
-    wknd:[2,2,2,2,2,2,3,8,13,16,14,11,10,12,13,15,17,15,12,8,5,3,2,2],
-    alt:[{name:'Irving St',walk:'2 min',note:'FREE · Fills fast',maps:'https://maps.google.com/?q=-37.7998,144.8990'},
-         {name:'McNab Ave',walk:'3 min',note:'FREE · Limited',maps:'https://maps.google.com/?q=-37.8005,144.8980'},
-         {name:'Little Saigon Plaza',walk:'4 min',note:'PAID · 2hr free',maps:'https://maps.google.com/?q=-37.8010,144.9010'}]},
+// ── STATIONS ──────────────────────────────────────────────────────────────────
+const STATIONS=[
+  {id:'werribee',  name:'Werribee',         short:'WER',lat:-37.9027,lon:144.6627,spots:120,zone:2,
+   base:[2,2,2,2,3,5,18,72,91,80,62,55,50,52,58,65,80,88,74,50,30,18,10,5],
+   wknd:[2,2,2,2,2,3,5,15,28,32,28,24,20,22,24,26,28,25,20,14,10,6,4,2],
+   // Zones A=entry/closest, B=middle, C=far, D=overflow
+   zones:[{id:'A',name:'Zone A — Entry',rows:3,cols:8,weight:.7},{id:'B',name:'Zone B — Middle',rows:3,cols:8,weight:.85},{id:'C',name:'Zone C — Far end',rows:2,cols:8,weight:1.0},{id:'D',name:'Zone D — Overflow',rows:1,cols:8,weight:1.1}],
+   alt:[{name:'Watton St (north)',walk:'3 min',note:'FREE · No limit',maps:'https://maps.google.com/?q=-37.9005,144.6610'},
+        {name:'Comben Drive',walk:'5 min',note:'FREE · Quiet street',maps:'https://maps.google.com/?q=-37.9015,144.6595'},
+        {name:'Synnot Street',walk:'7 min',note:'FREE · Residential',maps:'https://maps.google.com/?q=-37.9022,144.6585'},
+        {name:'Werribee Plaza (W)',walk:'9 min',note:'FREE · ~400 spots',maps:'https://maps.google.com/?q=-37.8988,144.6568'}]},
+  {id:'hoppers',   name:'Hoppers Crossing', short:'HOP',lat:-37.8808,lon:144.6975,spots:350,zone:2,
+   base:[2,2,2,2,3,6,22,78,94,85,65,58,52,54,60,68,82,90,76,52,32,20,10,5],
+   wknd:[2,2,2,2,2,3,6,18,30,35,30,26,22,24,26,28,30,28,22,15,10,6,3,2],
+   zones:[{id:'A',name:'Zone A — Entry',rows:3,cols:10,weight:.65},{id:'B',name:'Zone B — North',rows:4,cols:10,weight:.8},{id:'C',name:'Zone C — South',rows:3,cols:10,weight:.95},{id:'D',name:'Zone D — Far',rows:2,cols:10,weight:1.05}],
+   alt:[{name:'Old Geelong Rd (S)',walk:'4 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8825,144.6970'},
+        {name:'Heaths Rd',walk:'6 min',note:'FREE · Side streets',maps:'https://maps.google.com/?q=-37.8830,144.6950'},
+        {name:'Hoppers Lane',walk:'8 min',note:'FREE · Residential',maps:'https://maps.google.com/?q=-37.8800,144.6940'}]},
+  {id:'williams',  name:'Williams Landing',  short:'WIL',lat:-37.8680,lon:144.7325,spots:400,zone:2,
+   base:[2,2,2,2,3,7,25,82,95,87,68,60,54,56,62,70,84,91,77,54,33,21,11,5],
+   wknd:[2,2,2,2,2,3,6,20,32,36,32,28,24,26,28,30,32,30,24,16,11,7,3,2],
+   zones:[{id:'A',name:'Zone A — Station side',rows:3,cols:10,weight:.6},{id:'B',name:'Zone B — Centre',rows:4,cols:10,weight:.8},{id:'C',name:'Zone C — East',rows:3,cols:10,weight:.95},{id:'D',name:'Zone D — Overflow',rows:3,cols:10,weight:1.1}],
+   alt:[{name:'Wallace Ave',walk:'3 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8670,144.7330'},
+        {name:'Palmers Rd (south)',walk:'5 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8700,144.7310'},
+        {name:'Williams Landing S/C',walk:'7 min',note:'FREE · 3hr, large',maps:'https://maps.google.com/?q=-37.8665,144.7350'}]},
+  {id:'aircraft',  name:'Aircraft',          short:'AIR',lat:-37.8578,lon:144.7575,spots:180,zone:2,
+   base:[2,2,2,2,3,5,15,55,72,65,50,45,42,44,50,55,68,75,62,44,28,16,8,4],
+   wknd:[2,2,2,2,2,3,4,12,22,26,24,20,18,20,22,24,26,24,18,12,8,5,3,2],
+   zones:[{id:'A',name:'Zone A — Main',rows:3,cols:8,weight:.7},{id:'B',name:'Zone B — West',rows:3,cols:8,weight:.9},{id:'C',name:'Zone C — Far',rows:2,cols:8,weight:1.0}],
+   alt:[{name:'Overton Rd',walk:'4 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8570,144.7560'},
+        {name:'Point Cook Rd',walk:'6 min',note:'FREE · Side streets',maps:'https://maps.google.com/?q=-37.8590,144.7550'}]},
+  {id:'laverton',  name:'Laverton',          short:'LAV',lat:-37.8614,lon:144.7742,spots:580,zone:1,
+   base:[2,2,2,2,4,8,28,88,97,90,72,65,58,60,65,72,86,93,80,58,36,22,12,5],
+   wknd:[2,2,2,2,2,4,7,22,34,38,34,30,26,28,30,32,34,32,26,18,12,7,4,2],
+   zones:[{id:'A',name:'Zone A — Main (Platform)',rows:4,cols:10,weight:.55},{id:'B',name:'Zone B — Centre',rows:4,cols:10,weight:.75},{id:'C',name:'Zone C — North',rows:4,cols:10,weight:.9},{id:'D',name:'Zone D — South',rows:3,cols:10,weight:1.0},{id:'E',name:'Zone E — Overflow',rows:2,cols:10,weight:1.15}],
+   alt:[{name:'Aviation Rd',walk:'4 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8600,144.7730'},
+        {name:'Dohertys Rd',walk:'6 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8630,144.7720'},
+        {name:'Aircraft Station',walk:'15 min',note:'Less busy · more spaces',maps:'https://maps.google.com/?q=-37.8578,144.7575'}]},
+  {id:'westona',   name:'Westona',           short:'WST',lat:-37.8742,lon:144.7933,spots:80,zone:1,
+   base:[2,2,2,2,3,5,14,60,78,70,55,48,44,46,52,58,70,78,65,46,28,16,8,4],
+   wknd:[2,2,2,2,2,3,4,12,22,26,22,18,16,18,20,22,24,22,18,12,8,5,3,2],
+   zones:[{id:'A',name:'Zone A — Main',rows:3,cols:7,weight:.75},{id:'B',name:'Zone B — Far',rows:2,cols:7,weight:1.0}],
+   alt:[{name:'Millers Rd',walk:'4 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8735,144.7920'}]},
+  {id:'altona',    name:'Altona',            short:'ALT',lat:-37.8680,lon:144.8282,spots:110,zone:1,
+   base:[2,2,2,2,3,5,16,65,82,74,58,52,47,49,55,62,74,82,68,49,30,18,9,4],
+   wknd:[2,2,2,2,2,3,5,14,25,28,25,22,19,21,23,25,27,25,20,14,9,6,3,2],
+   zones:[{id:'A',name:'Zone A — Station',rows:3,cols:7,weight:.7},{id:'B',name:'Zone B — East',rows:2,cols:7,weight:.9},{id:'C',name:'Zone C — Far',rows:2,cols:7,weight:1.0}],
+   alt:[{name:'Pier St',walk:'3 min',note:'FREE · Beachside',maps:'https://maps.google.com/?q=-37.8670,144.8270'},
+        {name:'Altona Beach (far)',walk:'8 min',note:'FREE · Always spaces',maps:'https://maps.google.com/?q=-37.8670,144.8240'}]},
+  {id:'seaholme',  name:'Seaholme',          short:'SEA',lat:-37.8667,lon:144.8428,spots:60,zone:1,
+   base:[2,2,2,2,3,4,12,52,70,62,48,42,38,40,46,52,64,72,60,42,26,14,7,3],
+   wknd:[2,2,2,2,2,3,4,10,18,22,20,16,14,16,18,20,22,20,16,10,7,4,2,2],
+   zones:[{id:'A',name:'Zone A — Main',rows:3,cols:6,weight:.8},{id:'B',name:'Zone B — Far',rows:2,cols:6,weight:1.0}],
+   alt:[{name:'Mason St',walk:'3 min',note:'FREE · Quiet street',maps:'https://maps.google.com/?q=-37.8660,144.8420'}]},
+  {id:'newport',   name:'Newport',           short:'NPT',lat:-37.8473,lon:144.8822,spots:90,zone:1,
+   base:[2,2,2,2,3,5,16,65,82,74,58,52,47,49,55,62,74,80,66,48,30,17,8,4],
+   wknd:[2,2,2,2,2,3,5,14,24,28,24,20,18,20,22,24,26,24,19,13,8,5,3,2],
+   zones:[{id:'A',name:'Zone A — Station',rows:3,cols:7,weight:.75},{id:'B',name:'Zone B — North',rows:2,cols:7,weight:.95}],
+   alt:[{name:'Hall St',walk:'4 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8465,144.8810'},
+        {name:'Mason St',walk:'5 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8480,144.8800'}]},
+  {id:'spotswood', name:'Spotswood',         short:'SPW',lat:-37.8328,lon:144.8878,spots:70,zone:1,
+   base:[2,2,2,2,3,5,14,58,74,66,52,46,42,44,50,56,68,75,62,44,27,15,7,3],
+   wknd:[2,2,2,2,2,3,4,11,20,24,22,18,15,17,19,21,23,21,17,11,7,4,2,2],
+   zones:[{id:'A',name:'Zone A — Main',rows:3,cols:6,weight:.8},{id:'B',name:'Zone B — Side',rows:2,cols:6,weight:1.0}],
+   alt:[{name:'Hudsons Rd',walk:'3 min',note:'FREE · Street',maps:'https://maps.google.com/?q=-37.8320,144.8865'}]},
+  {id:'yarraville',name:'Yarraville',        short:'YRV',lat:-37.8178,lon:144.8932,spots:50,zone:1,
+   base:[2,2,2,2,3,5,12,50,66,60,46,40,36,38,44,50,62,70,58,40,24,14,6,3],
+   wknd:[2,2,2,2,2,3,4,10,18,20,18,15,13,15,17,19,21,19,15,10,6,4,2,2],
+   zones:[{id:'A',name:'Zone A — Main',rows:2,cols:7,weight:.8},{id:'B',name:'Zone B — Side',rows:2,cols:7,weight:1.0}],
+   alt:[{name:'Anderson St',walk:'4 min',note:'FREE · 2hr limit',maps:'https://maps.google.com/?q=-37.8170,144.8920'}]},
+  {id:'seddon',    name:'Seddon',            short:'SED',lat:-37.8106,lon:144.8988,spots:30,zone:1,
+   base:[2,2,2,2,2,4,10,42,58,52,40,35,32,34,40,45,56,63,52,36,22,12,6,3],
+   wknd:[2,2,2,2,2,2,3,8,14,17,15,12,11,13,14,16,18,16,13,9,5,3,2,2],
+   zones:[{id:'A',name:'Zone A — Main',rows:2,cols:6,weight:.9},{id:'B',name:'Zone B — Side',rows:1,cols:6,weight:1.05}],
+   alt:[{name:'Charles St',walk:'3 min',note:'FREE · 1hr limit',maps:'https://maps.google.com/?q=-37.8100,144.8975'}]},
+  {id:'footscray', name:'Footscray',         short:'FSY',lat:-37.7998,lon:144.8998,spots:0,zone:1,
+   base:[2,2,2,2,2,4,10,40,55,50,38,33,30,32,38,43,54,60,50,34,20,11,5,3],
+   wknd:[2,2,2,2,2,2,3,8,13,16,14,11,10,12,13,15,17,15,12,8,5,3,2,2],
+   zones:[],
+   alt:[{name:'Irving St',walk:'2 min',note:'FREE · Fills fast',maps:'https://maps.google.com/?q=-37.7998,144.8990'},
+        {name:'McNab Ave',walk:'3 min',note:'FREE · Limited',maps:'https://maps.google.com/?q=-37.8005,144.8980'},
+        {name:'Little Saigon Plaza',walk:'4 min',note:'PAID · 2hr free',maps:'https://maps.google.com/?q=-37.8010,144.9010'}]},
 ];
 
-const WICONS={0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',51:'🌦',53:'🌧',55:'🌧',61:'🌦',63:'🌧',65:'⛈',80:'🌦',81:'🌧',95:'⛈'};
-const WCODES={0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',51:'Drizzle',53:'Drizzle',55:'Drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Showers',81:'Showers',95:'Storm'};
+const WI={0:'☀️',1:'🌤',2:'⛅',3:'☁️',45:'🌫',51:'🌦',53:'🌧',55:'🌧',61:'🌦',63:'🌧',65:'⛈',80:'🌦',81:'🌧',95:'⛈'};
+const WC={0:'Clear',1:'Mainly clear',2:'Partly cloudy',3:'Overcast',45:'Foggy',51:'Drizzle',53:'Drizzle',55:'Drizzle',61:'Light rain',63:'Rain',65:'Heavy rain',80:'Showers',81:'Showers',95:'Storm'};
 const DAYS=['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
 
-let weather=null, disruptions=[], selZone='A', selType='full', currentPct=50;
-let timerInt=null, selectedStation=ls('selectedStation','werribee')||'werribee';
-let activeTab=null;
+let weather=null,disruptions=[],selZone='A',selType='full',currentPct=50;
+let timerInt=null,selStation=ls('selStation','werribee')||'werribee',activeTab=null;
 
-// ── HELPERS ──────────────────────────────────────────────────────────────────
+// ── HELPERS ───────────────────────────────────────────────────────────────────
 function ls(k,d=null){try{const v=localStorage.getItem(k);return v!=null?JSON.parse(v):d;}catch{return d;}}
 function lsSet(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch{}}
 function fmt12(h){return h===0?'12AM':h<12?h+'AM':h===12?'12PM':(h-12)+'PM';}
-
-function getColor(p){
-  if(p>=90)return'#dc2626';
-  if(p>=75)return'#ea580c';
-  if(p>=55)return'#d97706';
-  if(p>=30)return'#16a34a';
-  return'#2563eb';
-}
-function getVerdict(p){
-  if(p>=90)return{text:'STAY HOME',sub:'Car park is full — find alt parking.',emoji:'🛑',color:'#dc2626'};
-  if(p>=75)return{text:'RISKY',sub:'Very busy — leave right now.',emoji:'⚠️',color:'#ea580c'};
-  if(p>=55)return{text:'MODERATE',sub:'Filling fast — head off soon.',emoji:'🟡',color:'#d97706'};
-  if(p>=30)return{text:'GOOD',sub:'Decent availability. Normal timing.',emoji:'✅',color:'#16a34a'};
-  return{text:'EASY',sub:'Plenty of spaces. No rush!',emoji:'🅿️',color:'#2563eb'};
+function col(p){return p>=90?'#dc2626':p>=75?'#ea580c':p>=55?'#d97706':p>=30?'#16a34a':'#2563eb';}
+function verdict(p){
+  if(p>=90)return{t:'STAY HOME',s:'Car park is full — go to alt parking.',c:'#dc2626'};
+  if(p>=75)return{t:'RISKY',    s:'Very busy — leave right now.',          c:'#ea580c'};
+  if(p>=55)return{t:'MODERATE', s:'Filling fast — head off soon.',         c:'#d97706'};
+  if(p>=30)return{t:'GOOD',     s:'Decent availability. Normal timing.',   c:'#16a34a'};
+  return         {t:'EASY',     s:'Plenty of spaces. No rush!',            c:'#2563eb'};
 }
 function wDelta(code,precip){
-  if(code>=61||precip>2)return{d:+14,label:'Rain +14%',icon:'🌧'};
-  if(code>=51||precip>0.5)return{d:+8,label:'Drizzle +8%',icon:'🌦'};
-  if(code===3)return{d:+3,label:'Overcast +3%',icon:'☁️'};
-  if(code===0||code===1)return{d:-4,label:'Fine -4%',icon:'☀️'};
-  return{d:0,label:'Neutral',icon:'🌤'};
+  if(code>=61||precip>2) return{d:+14,l:'Rain +14%',i:'🌧'};
+  if(code>=51||precip>.5)return{d:+8, l:'Drizzle +8%',i:'🌦'};
+  if(code===3)            return{d:+3, l:'Overcast +3%',i:'☁️'};
+  if(code===0||code===1) return{d:-4, l:'Fine −4%',i:'☀️'};
+  return{d:0,l:'Neutral',i:'🌤'};
 }
-function stationPct(st,wd,dd){
-  const h=new Date().getHours(), isWknd=new Date().getDay()===0||new Date().getDay()===6;
-  const base=isWknd?st.wknd:st.base;
-  const reps=ls('crowd_reports',[]).filter(r=>r.station===st.id&&Date.now()-r.ts<30*60*1000);
-  const cd=reps.reduce((a,r)=>a+(r.type==='full'?6:r.type==='spaces'?-5:0),0);
-  return Math.min(99,Math.max(1,(base[h]??50)+wd.d+dd+cd));
+function stPct(st,wd,dd){
+  const h=new Date().getHours(),isW=new Date().getDay()===0||new Date().getDay()===6;
+  const b=isW?st.wknd:st.base;
+  const r=ls('crowd_reports',[]).filter(r=>r.station===st.id&&Date.now()-r.ts<30*60*1000);
+  const cd=r.reduce((a,r)=>a+(r.type==='full'?6:r.type==='spaces'?-5:0),0);
+  return Math.min(99,Math.max(1,(b[h]??50)+wd.d+dd+cd));
 }
-function chipColorClass(p){
-  if(p>=75)return'c-red'; if(p>=55)return'c-orange'; if(p>=30)return'c-amber'; if(p>=15)return'c-green'; return'c-blue';
-}
+function chipCls(p){return p>=75?'cr':p>=55?'co':p>=30?'ca':p>=15?'cg':'cb';}
 
-// ── STREAK ───────────────────────────────────────────────────────────────────
+// ── STREAK ────────────────────────────────────────────────────────────────────
 function updateStreak(){
   const today=new Date().toDateString(),h=new Date().getHours(),dow=new Date().getDay();
   if(h<5||h>10||dow<1||dow>5)return;
   let s=ls('streak',{count:0,best:0,lastDate:'',totalMins:0});
   if(s.lastDate!==today){
-    const gap=(new Date(today)-new Date(s.lastDate||0))/(864e5);
-    s.count=gap<=3?s.count+1:1; s.best=Math.max(s.best,s.count);
-    s.lastDate=today; s.totalMins=(s.totalMins||0)+8; lsSet('streak',s);
+    const gap=(new Date(today)-new Date(s.lastDate||0))/864e5;
+    s.count=gap<=3?s.count+1:1;s.best=Math.max(s.best,s.count);
+    s.lastDate=today;s.totalMins=(s.totalMins||0)+8;lsSet('streak',s);
   }
   if(s.count>0){
     document.getElementById('streak-card').style.display='flex';
@@ -655,171 +479,238 @@ function updateStreak(){
 }
 
 // ── TIMER ─────────────────────────────────────────────────────────────────────
-function saveAndUpdateTimer(){lsSet('trainTime',document.getElementById('train-time').value);startTimer();}
+function saveTimer(){lsSet('trainTime',document.getElementById('train-time').value);startTimer();}
 function startTimer(){if(timerInt)clearInterval(timerInt);timerInt=setInterval(tickTimer,1000);tickTimer();}
 function tickTimer(){
   const val=document.getElementById('train-time').value||'07:52';
   const[tH,tM]=val.split(':').map(Number);
   const now=new Date(),train=new Date(now);
-  train.setHours(tH,tM,0,0); if(train<=now)train.setDate(train.getDate()+1);
-  const diffMs=train-now,diffMins=Math.floor(diffMs/60000),diffSecs=Math.floor((diffMs%60000)/1000);
-  const findMins=currentPct>=95?20:currentPct>=85?11:currentPct>=70?5:currentPct>=45?2:1;
-  const leaveIn=diffMins-(8+findMins+5);
-  const disp=document.getElementById('timer-display'),sub=document.getElementById('timer-sub');
-  if(diffMins>120){
-    disp.textContent=`${Math.floor(diffMins/60)}h ${diffMins%60}m`;
-    disp.className='timer-display'; disp.style.fontSize='';
-    sub.textContent=`Until ${val} train · Leave in ~${leaveIn} min`;
-  } else if(leaveIn<=0){
-    disp.textContent='GO NOW'; disp.style.fontSize='36px';
-    disp.className='timer-display timer-urgent';
-    sub.textContent=`${Math.abs(leaveIn)>0?Math.abs(leaveIn)+' min late — ':''} Run! 🏃`;
-  } else {
-    const mm=String(diffMins).padStart(2,'0'),ss=String(diffSecs).padStart(2,'0');
-    disp.textContent=`${mm}:${ss}`; disp.style.fontSize='';
-    disp.className=leaveIn<=10?'timer-display timer-urgent':'timer-display';
-    sub.textContent=`Leave in ~${leaveIn} min${leaveIn!==1?'s':''} · ${findMins}m park + 5m walk`;
-  }
+  train.setHours(tH,tM,0,0);if(train<=now)train.setDate(train.getDate()+1);
+  const ms=train-now,mins=Math.floor(ms/60000),secs=Math.floor((ms%60000)/1000);
+  const find=currentPct>=95?20:currentPct>=85?11:currentPct>=70?5:currentPct>=45?2:1;
+  const leave=mins-(8+find+5);
+  const d=document.getElementById('tdisplay'),s=document.getElementById('tsub');
+  if(mins>120){d.textContent=`${Math.floor(mins/60)}h ${mins%60}m`;d.className='tdisplay';d.style.fontSize='';s.textContent=`Until ${val} train · Leave in ~${leave} min`;}
+  else if(leave<=0){d.textContent='GO NOW';d.style.fontSize='32px';d.className='tdisplay turgent';s.textContent=`${Math.abs(leave)>0?Math.abs(leave)+' min late — ':''}Run! 🏃`;}
+  else{const mm=String(mins).padStart(2,'0'),ss=String(secs).padStart(2,'0');d.textContent=`${mm}:${ss}`;d.style.fontSize='';d.className=leave<=10?'tdisplay turgent':'tdisplay';s.textContent=`Leave in ~${leave} min · ${find}m park + 5m walk`;}
 }
 
 // ── RAIN ──────────────────────────────────────────────────────────────────────
 function checkRain(){
   if(!weather?.hourlyPrecipProb)return;
-  const h=new Date().getHours(),n3=weather.hourlyPrecipProb.slice(h,h+3),maxP=Math.max(...n3),ri=n3.findIndex(p=>p>=50);
-  const wrap=document.getElementById('rain-wrap');
-  if(maxP>=50){
-    const when=ri===0?'Rain likely now':ri===1?'Rain in ~1 hour':`Rain in ~${ri} hours`;
-    wrap.innerHTML=`<div class="rain-banner"><span style="font-size:24px;flex-shrink:0">🌧</span><div><div style="font-size:12px;font-weight:600;color:#1d4ed8">${when} — expect more drivers</div><div style="font-size:10px;color:#6b7280;margin-top:2px;font-family:'DM Mono',monospace">${maxP}% chance · occupancy ~${Math.round(maxP/7)}% higher</div></div></div>`;
-  } else wrap.innerHTML='';
+  const h=new Date().getHours(),n3=weather.hourlyPrecipProb.slice(h,h+3),max=Math.max(...n3),ri=n3.findIndex(p=>p>=50);
+  const w=document.getElementById('rain-wrap');
+  if(max>=50){const when=ri===0?'Rain likely now':ri===1?'Rain in ~1 hour':`Rain in ~${ri} hours`;w.innerHTML=`<div class="rain-banner"><span style="font-size:22px;flex-shrink:0">🌧</span><div><div style="font-size:12px;font-weight:600;color:#1d4ed8">${when} — more drivers expected</div><div style="font-size:10px;color:#6b7280;margin-top:2px;font-family:'DM Mono',monospace">${max}% chance · occupancy ~${Math.round(max/7)}% higher</div></div></div>`;}
+  else w.innerHTML='';
 }
 
 // ── CHIPS ─────────────────────────────────────────────────────────────────────
 function renderChips(wd,dd){
   document.getElementById('chips').innerHTML=STATIONS.map(st=>{
-    const p=stationPct(st,wd,dd),cls=chipColorClass(p),isA=st.id===selectedStation;
-    return`<button class="chip ${cls} ${isA?'active':''}" onclick="selectStation('${st.id}')">${st.short}<span class="chip-pct">${p}%</span></button>`;
+    const p=stPct(st,wd,dd),isA=st.id===selStation;
+    return`<button class="chip ${chipCls(p)} ${isA?'active':''}" onclick="selectStation('${st.id}')">${st.short}<span class="cp">${p}%</span></button>`;
   }).join('');
 }
 
-// ── PARKING GRID VISUAL ───────────────────────────────────────────────────────
-function renderSpotGrid(st,pct){
-  const total=st.spots>0?Math.min(st.spots,60):40;
-  const taken=Math.round(total*pct/100);
-  const maybe=Math.round(total*0.08);
-  const grid=document.getElementById('spot-grid');
-  const cols=Math.min(10,Math.ceil(Math.sqrt(total*1.6)));
-  grid.style.gridTemplateColumns=`repeat(${cols},1fr)`;
-  let html='';
-  const slots=[];
-  for(let i=0;i<total;i++)slots.push(i<taken?'taken':i<taken+maybe?'maybe':'free');
-  // Shuffle a bit for realism
-  for(let i=slots.length-1;i>0;i--){const j=Math.floor(Math.random()*0.3*i)+Math.max(0,i-3);[slots[i],slots[j]]=[slots[j],slots[i]];}
-  html=slots.map(s=>`<div class="spot ${s}"></div>`).join('');
-  grid.innerHTML=html;
-  grid.previousElementSibling.nextElementSibling = null;
+// ── LOT MAP ───────────────────────────────────────────────────────────────────
+function renderLotMap(st,pct){
+  if(!st.zones||st.zones.length===0){
+    document.getElementById('lot-summary').innerHTML='<div style="font-size:12px;color:var(--muted);padding:10px 0">No dedicated car park — see Alternative Parking below.</div>';
+    document.getElementById('lot-map').innerHTML='';
+    return;
+  }
+  const free=Math.round(st.spots*(1-pct/100));
+  // Zone-level summary badges
+  const sumHTML=st.zones.map(z=>{
+    const zp=Math.min(99,Math.round(pct*z.weight));
+    const zfree=Math.max(0,Math.round(z.rows*z.cols*(1-zp/100)));
+    const bg=zp>=85?'rgba(220,38,38,.1)':zp>=65?'rgba(217,119,6,.1)':'rgba(22,163,74,.1)';
+    const bc=zp>=85?'rgba(220,38,38,.3)':zp>=65?'rgba(217,119,6,.3)':'rgba(22,163,74,.3)';
+    const tc=zp>=85?'#dc2626':zp>=65?'#d97706':'#16a34a';
+    return`<div class="lot-badge" style="background:${bg};border:1.5px solid ${bc};color:${tc}">Zone ${z.id}<br><strong>${zfree}</strong> free`;
+  }).join('');
+  document.getElementById('lot-summary').innerHTML=sumHTML+'</div>';
+
+  // Lot map visual
+  let mapHTML=`<div class="entry-arrow">▼ ENTRY / STATION END ▼</div>`;
+  mapHTML+=`<div class="lot-road">STATION ROAD</div>`;
+
+  st.zones.forEach(z=>{
+    const zp=Math.min(99,Math.round(pct*z.weight));
+    // build spot grid for this zone
+    const totalSpots=z.rows*z.cols;
+    const takenCount=Math.round(totalSpots*zp/100);
+    const maybeCount=Math.max(0,Math.round(totalSpots*.07));
+    // generate slot array with weighted randomness (first rows empty longer)
+    const slots=[];
+    for(let i=0;i<totalSpots;i++){
+      // Row position — earlier rows (lower index) fill first
+      const rowWeight=Math.floor(i/z.cols)/z.rows;
+      const r=Math.random();
+      if(i<takenCount*0.85)slots.push('taken');
+      else if(i<takenCount)slots.push(r<0.6?'taken':'maybe');
+      else if(i<takenCount+maybeCount)slots.push(r<0.5?'maybe':'free');
+      else slots.push('free');
+    }
+
+    mapHTML+=`<div class="lot-section">`;
+    mapHTML+=`<div class="zone-label" style="color:${col(zp)}">${z.name} <div class="zone-bar"></div> ${zp}%</div>`;
+    for(let r=0;r<z.rows;r++){
+      mapHTML+=`<div class="spot-row">`;
+      for(let c=0;c<z.cols;c++){
+        const idx=r*z.cols+c;
+        const s=slots[idx]||'free';
+        const spotNum=`${z.id}${idx+1}`;
+        const mapsUrl=`https://maps.google.com/?q=${st.lat},${st.lon}&label=Zone+${z.id}+Spot+${idx+1}`;
+        if(s==='free'){
+          mapHTML+=`<div class="spot free" onclick="window.open('${mapsUrl}','_blank')" title="Navigate to spot ${spotNum}"><div class="spot-tooltip">Spot ${spotNum} — Navigate 🗺</div>${s==='free'?'🟢':''}</div>`;
+        } else {
+          mapHTML+=`<div class="spot ${s}"><div class="spot-tooltip">Spot ${spotNum} — ${s==='taken'?'Likely taken':'Uncertain'}</div>${s==='taken'?'✕':''}</div>`;
+        }
+      }
+      mapHTML+=`</div>`;
+      if(r===Math.floor(z.rows/2)-1&&z.rows>2)mapHTML+=`<div style="height:5px"></div>`; // driving lane
+    }
+    mapHTML+=`</div>`;
+  });
+
+  document.getElementById('lot-map').innerHTML=mapHTML;
 }
 
-// ── MAIN STATION RENDER ───────────────────────────────────────────────────────
+// ── COMMUTE PLANNER ───────────────────────────────────────────────────────────
+function renderPlanner(pct){
+  const val=document.getElementById('train-time').value||'07:52';
+  const[tH,tM]=val.split(':').map(Number);
+  const find=pct>=95?20:pct>=85?11:pct>=70?5:pct>=45?2:1;
+  const drive=8, walk=5;
+  const totalBuffer=drive+find+walk;
+
+  const train=new Date();train.setHours(tH,tM,0,0);
+  const arriveStation=new Date(train-walk*60000);
+  const findEnd=new Date(arriveStation-0);
+  const findStart=new Date(arriveStation-find*60000);
+  const leaveHome=new Date(findStart-drive*60000);
+  const t=d=>d.toLocaleTimeString('en-AU',{hour:'2-digit',minute:'2-digit'});
+
+  const steps=[
+    {time:t(leaveHome),  act:'🏠 Leave home',      dur:`${drive} min drive`,      dot:'#2563eb'},
+    {time:t(findStart),  act:'🚗 Arrive car park',  dur:`${find} min finding spot`,dot:col(pct)},
+    {time:t(arriveStation),act:'🚶 Walk to platform',dur:`${walk} min walk`,       dot:'#d97706'},
+    {time:val,           act:'🚂 Board your train', dur:'On time!',                dot:'#16a34a'},
+  ];
+
+  document.getElementById('plan-list').innerHTML=steps.map((s,i)=>`
+    <div class="plan-row">
+      <div class="plan-dot" style="background:${s.dot}"></div>
+      <div class="plan-act"><strong>${s.act}</strong></div>
+      <div>
+        <div class="plan-time">${s.time}</div>
+        <div style="font-size:10px;color:var(--muted);font-family:'DM Mono',monospace">${s.dur}</div>
+      </div>
+    </div>`).join('');
+}
+
+// ── WEEKLY PATTERN ────────────────────────────────────────────────────────────
+function renderWeekly(st,wd){
+  const h=8; // peak hour
+  const DOW=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+  const today=(new Date().getDay()+6)%7; // 0=Mon
+  const peaks=DOW.map((_,i)=>{
+    const isWknd=i>=5;
+    return Math.min(99,(isWknd?st.wknd:st.base)[h]+wd.d);
+  });
+  const maxP=Math.max(...peaks);
+  document.getElementById('week-bars').innerHTML=peaks.map((p,i)=>`
+    <div class="wbar-w">
+      <div class="wbar" style="height:${p/maxP*100}%;background:${col(p)};opacity:${i===today?1:.55}"></div>
+      <div class="wday ${i===today?'today':''}">${DOW[i]}</div>
+    </div>`).join('');
+
+  const best=peaks.slice(0,5).indexOf(Math.min(...peaks.slice(0,5)));
+  const worst=peaks.slice(0,5).indexOf(Math.max(...peaks.slice(0,5)));
+  document.getElementById('week-tips').innerHTML=`
+    <div class="wpeak-badge">🟢 Best: ${DOW[best]} (~${peaks[best]}%)</div>
+    <div class="wpeak-badge">🔴 Worst: ${DOW[worst]} (~${peaks[worst]}%)</div>
+    <div class="wpeak-badge">📅 Peak time: 7–8 AM</div>
+    <div class="wpeak-badge">💡 Arrive before 7am for easy parking</div>`;
+}
+
+// ── STATION RENDER ────────────────────────────────────────────────────────────
 function renderStation(wd,dd){
-  const now=new Date(),h=now.getHours(),dow=now.getDay(),isWknd=dow===0||dow===6;
-  const st=STATIONS.find(s=>s.id===selectedStation)||STATIONS[0];
-  const base=isWknd?st.wknd:st.base;
+  const now=new Date(),h=now.getHours(),dow=now.getDay(),isW=dow===0||dow===6;
+  const st=STATIONS.find(s=>s.id===selStation)||STATIONS[0];
+  const base=isW?st.wknd:st.base;
   const reps=ls('crowd_reports',[]).filter(r=>r.station===st.id&&Date.now()-r.ts<30*60*1000);
   const cd=reps.reduce((a,r)=>a+(r.type==='full'?6:r.type==='spaces'?-5:0),0);
   const pct=Math.min(99,Math.max(1,(base[h]??50)+wd.d+dd+cd));
   currentPct=pct;
-  const v=getVerdict(pct),col=v.color;
+  const v=verdict(pct),c=v.c;
   const free=st.spots>0?Math.round(st.spots*(1-pct/100)):null;
   const fm=pct>=95?'15–25':pct>=85?'8–15':pct>=70?'3–8':pct>=45?'1–3':'< 1';
 
   document.getElementById('verdict-wrap').innerHTML=`
-    <div class="hero" style="border-color:${col}22">
-      <div class="hero-glow" style="background:${col}"></div>
-      <div class="hero-label">${st.name.toUpperCase()} · ${DAYS[dow].toUpperCase()} ${fmt12(h)} · ZONE ${st.zone}</div>
-      <div class="hero-top">
-        <div>
-          <div class="verdict-text" style="color:${col}">${v.text}</div>
-          <div class="verdict-sub">${v.sub}</div>
-        </div>
-        <div class="pct-ring">
-          <div class="pct-big" style="color:${col}">${pct}%</div>
-          <div class="pct-label">FULL</div>
-          ${free!==null?`<div class="pct-free" style="color:${col}">${free} free</div>`:`<div class="pct-free" style="color:var(--muted)">street</div>`}
+    <div class="hero" style="border-color:${c}22">
+      <div class="hglow" style="background:${c}"></div>
+      <div style="font-family:'DM Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--muted);margin-bottom:11px">${st.name.toUpperCase()} · ${DAYS[dow].toUpperCase()} ${fmt12(h)} · ZONE ${st.zone}</div>
+      <div style="display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:14px">
+        <div><div class="vtext" style="color:${c}">${v.t}</div><div class="vsub">${v.s}</div></div>
+        <div style="text-align:center">
+          <div class="pct-big" style="color:${c}">${pct}%</div>
+          <div style="font-family:'DM Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--muted);margin-top:1px">FULL</div>
+          ${free!==null?`<div style="font-size:11px;font-weight:600;color:${c};margin-top:2px">${free} free</div>`:`<div style="font-size:10px;color:var(--muted)">street only</div>`}
         </div>
       </div>
-      <div class="progress-track">
-        <div class="progress-fill" style="width:${pct}%;background:linear-gradient(90deg,var(--green),${col})"></div>
-      </div>
+      <div class="ptrack"><div class="pfill" style="width:${pct}%;background:linear-gradient(90deg,#16a34a,${c})"></div></div>
       <div class="pills">
-        <span class="pill">${wd.icon} ${wd.label}</span>
-        ${dd>0?`<span class="pill" style="border-color:rgba(255,77,109,0.3);color:var(--red)">🚌 Bus rpl +${dd}%</span>`:''}
-        ${cd!==0?`<span class="pill" style="border-color:rgba(139,92,246,0.3);color:#a78bfa">👥 Reports ${cd>0?'+':''}${cd}%</span>`:''}
-        ${st.zone===1?`<span class="pill" style="border-color:rgba(37,99,235,0.25);color:#2563eb">Zone 1</span>`:`<span class="pill">Zone 2</span>`}
+        <span class="pill">${wd.i} ${wd.l}</span>
+        ${dd>0?`<span class="pill" style="border-color:rgba(220,38,38,.3);color:#dc2626">🚌 Bus rpl +${dd}%</span>`:''}
+        ${cd!==0?`<span class="pill" style="border-color:rgba(37,99,235,.25);color:#2563eb">👥 Reports ${cd>0?'+':''}${cd}%</span>`:''}
+        <span class="pill" style="${st.zone===1?'border-color:rgba(37,99,235,.25);color:#2563eb':''}">Zone ${st.zone}</span>
       </div>
       <div class="find-row">
         <div>
-          <div class="find-label">EST. FIND TIME</div>
-          <div class="find-val" style="color:${col}">${fm} min</div>
+          <div style="font-family:'DM Mono',monospace;font-size:9px;color:var(--muted);letter-spacing:2px">EST. FIND TIME</div>
+          <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:700;color:${c};margin-top:1px">${fm} min</div>
         </div>
-        <button class="maps-btn" style="background:${col};color:var(--bg)"
-          onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(st.name+' Station Melbourne parking')}','_blank')">
-          🗺 Station Map
-        </button>
+        <button class="mapbtn" style="background:${c};color:#fff"
+          onclick="window.open('https://maps.google.com/?q=${encodeURIComponent(st.name+' Station Melbourne parking')}','_blank')">🗺 Station Map</button>
       </div>
     </div>`;
 
   // Stat grid
   const tb=base.map(b=>Math.min(99,b+wd.d));
   const bh=tb.slice(5,11).reduce((best,val,i)=>val<tb[best+5]?i+5:best,5)+5;
-  document.getElementById('stat-grid').innerHTML=`
-    <div class="stat-card">
-      <div class="stat-label">BEST LEAVE TIME</div>
-      <div class="stat-val" style="color:var(--green)">${fmt12(bh)}</div>
-      <div class="stat-sub">${tb[bh]}% predicted</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">WEATHER NOW</div>
-      <div class="stat-val">${weather?`${WICONS[weather.code]||'🌤'} ${weather.temp}°`:'—'}</div>
-      <div class="stat-sub">${weather?(WCODES[weather.code]||''):'Loading...'}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">FREE SPOTS</div>
-      <div class="stat-val" style="color:${col}">${free!==null?free:'N/A'}</div>
-      <div class="stat-sub">${st.spots>0?`of ${st.spots} total`:'Street parking only'}</div>
-    </div>
-    <div class="stat-card">
-      <div class="stat-label">PTV STATUS</div>
-      <div class="stat-val">${disruptions.length>0?'⚠️':'✅'}</div>
-      <div class="stat-sub">${disruptions.length>0?'Disruption active':'Running normal'}</div>
-    </div>`;
+  document.getElementById('sgrid').innerHTML=`
+    <div class="scard"><div class="slbl">BEST LEAVE TIME</div><div class="sval" style="color:#16a34a">${fmt12(bh)}</div><div class="ssub">${tb[bh]}% predicted</div></div>
+    <div class="scard"><div class="slbl">WEATHER NOW</div><div class="sval">${weather?`${WI[weather.code]||'🌤'} ${weather.temp}°`:'—'}</div><div class="ssub">${weather?(WC[weather.code]||''):'Loading...'}</div></div>
+    <div class="scard"><div class="slbl">FREE SPOTS</div><div class="sval" style="color:${c}">${free!==null?free:'N/A'}</div><div class="ssub">${st.spots>0?`of ${st.spots} total`:'Street only'}</div></div>
+    <div class="scard"><div class="slbl">PTV STATUS</div><div class="sval">${disruptions.length>0?'⚠️':'✅'}</div><div class="ssub">${disruptions.length>0?'Disruption':'Running normal'}</div></div>`;
 
-  // Parking spot grid
-  renderSpotGrid(st, pct);
+  // All panels
+  renderLotMap(st,pct);
+  renderPlanner(pct);
+  renderWeekly(st,wd);
 
-  // Alt parking — Google Maps ONLY on tap of the map button
+  // Alt parking
   document.getElementById('alt-list').innerHTML=(st.alt||[]).map((a,i)=>{
     const hot=pct>=75&&i<2;
     return`<div class="alt-spot">
       <div class="alt-icon">${hot?'⭐':'📍'}</div>
       <div style="flex:1;min-width:0">
-        <div class="alt-name" style="${hot?'color:var(--green)':''}">${a.name}</div>
-        <div class="alt-note">${a.note}</div>
+        <div style="font-size:13px;font-weight:600;color:${hot?'#16a34a':'var(--text)'}">${a.name}</div>
+        <div style="font-size:10px;color:var(--muted);margin-top:1px;font-family:'DM Mono',monospace">${a.note}</div>
       </div>
       <div class="alt-right">
         <div class="alt-walk">${a.walk}</div>
-        <span class="map-tap-btn" onclick="window.open('${a.maps}','_blank')">Open Maps</span>
+        <span class="maptap" onclick="window.open('${a.maps}','_blank')">Open Maps</span>
       </div>
     </div>`;
   }).join('')||'<div style="color:var(--muted);font-size:12px">No data</div>';
 
   // Hourly chart
-  document.getElementById('chart-bars').innerHTML=base.map((b,i)=>{
-    const p=Math.min(99,b+wd.d),col2=p>=75?'#dc2626':p>=55?'#ea580c':p>=30?'#16a34a':'#2563eb';
-    const isN=i===h;
-    return`<div class="chart-bar-wrap">
-      ${isN?`<div class="chart-now-line"><div class="chart-now-dot"></div><div class="chart-now-lbl">NOW</div></div>`:''}
-      <div class="chart-bar" style="height:${p}%;background:${col2};opacity:${isN?1:0.45}"></div>
-    </div>`;
+  document.getElementById('cbars').innerHTML=base.map((b,i)=>{
+    const p=Math.min(99,b+wd.d),c2=col(p),isN=i===h;
+    return`<div class="cbw">${isN?`<div class="cnow"><div class="cdot"></div><div class="clbl">NOW</div></div>`:''}<div class="cbar" style="height:${p}%;background:${c2};opacity:${isN?1:.5}"></div></div>`;
   }).join('');
 
   // Network
@@ -828,64 +719,53 @@ function renderStation(wd,dd){
 
 // ── NETWORK ───────────────────────────────────────────────────────────────────
 function renderNetwork(wd,dd){
-  const wd2=wd||{d:0}, dd2=dd||0;
   document.getElementById('net-list').innerHTML=STATIONS.map(st=>{
-    const p=stationPct(st,wd2,dd2),col=getColor(p),isA=st.id===selectedStation;
-    return`<div class="net-row" onclick="selectStation('${st.id}');toggleTab('network')">
-      <div class="net-name" style="${isA?'color:var(--accent);font-weight:600':''}">
-        ${isA?'→ ':''}${st.name}
-      </div>
-      ${st.zone===1?`<div class="net-zone">Z1</div>`:''}
-      <div class="net-bar-wrap"><div class="net-bar" style="width:${p}%;background:${col}"></div></div>
-      <div class="net-pct" style="color:${col}">${p}%</div>
+    const p=stPct(st,wd,dd),c=col(p),isA=st.id===selStation;
+    return`<div class="nrow" onclick="selectStation('${st.id}');toggleTab('network')">
+      <div class="nname" style="${isA?'color:var(--accent);font-weight:600':''}">${isA?'→ ':''}${st.name}</div>
+      ${st.zone===1?`<div class="nzone">Z1</div>`:''}
+      <div class="nbar-w"><div class="nbar" style="width:${p}%;background:${c}"></div></div>
+      <div class="npct" style="color:${c}">${p}%</div>
     </div>`;
   }).join('');
 }
 
-// ── TABS ─────────────────────────────────────────────────────────────────────
-const TABS=['parking','alt','chart','network','report'];
+// ── TABS ──────────────────────────────────────────────────────────────────────
+const TABS=['lot','alt','plan','week','chart','network','report'];
 function toggleTab(id){
   const isOpen=activeTab===id;
   TABS.forEach(t=>{
-    const panel=document.getElementById('panel-'+t);
-    const btn=document.getElementById('tab-'+t);
-    if(panel){panel.style.display='none';}
-    if(btn){btn.classList.remove('active');}
+    const p=document.getElementById('panel-'+t),b=document.getElementById('tab-'+t);
+    if(p)p.style.display='none';if(b)b.classList.remove('active');
   });
   if(!isOpen){
-    const panel=document.getElementById('panel-'+id);
-    const btn=document.getElementById('tab-'+id);
-    if(panel)panel.style.display='block';
-    if(btn)btn.classList.add('active');
+    const p=document.getElementById('panel-'+id),b=document.getElementById('tab-'+id);
+    if(p)p.style.display='block';if(b)b.classList.add('active');
     activeTab=id;
-    panel?.scrollIntoView({behavior:'smooth',block:'nearest'});
+    setTimeout(()=>p?.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
   } else activeTab=null;
 }
 
-// ── SELECT STATION ────────────────────────────────────────────────────────────
 function selectStation(id){
-  selectedStation=id; lsSet('selectedStation',id);
-  const wd=weather?wDelta(weather.code,weather.precip):{d:0,label:'Loading',icon:'⏳'};
+  selStation=id;lsSet('selStation',id);
+  const wd=weather?wDelta(weather.code,weather.precip):{d:0,l:'—',i:'🌤'};
   const dd=disruptions.some(d=>d.text?.includes('MORE'))?12:0;
-  renderChips(wd,dd); renderStation(wd,dd);
+  renderChips(wd,dd);renderStation(wd,dd);
 }
 
 // ── REPORT ────────────────────────────────────────────────────────────────────
-function setZone(z){selZone=z;['A','B','C','D'].forEach(x=>{document.getElementById('zone-'+x).classList.toggle('active',x===z);});}
-function setType(t){selType=t;['full','busy','spaces'].forEach(x=>{document.getElementById('type-'+x).classList.toggle('active',x===t);});}
+function setZone(z){selZone=z;['A','B','C','D'].forEach(x=>document.getElementById('zone-'+x).classList.toggle('active',x===z));}
+function setType(t){selType=t;['full','busy','spaces'].forEach(x=>document.getElementById('type-'+x).classList.toggle('active',x===t));}
 function confirmReport(){
-  try{let r=ls('crowd_reports',[]);r.push({station:selectedStation,zone:selZone,type:selType,ts:Date.now()});r=r.slice(-50);lsSet('crowd_reports',r);}catch{}
+  try{let r=ls('crowd_reports',[]);r.push({station:selStation,zone:selZone,type:selType,ts:Date.now()});r=r.slice(-50);lsSet('crowd_reports',r);}catch{}
   toggleTab('report');
-  const st=STATIONS.find(s=>s.id===selectedStation);
-  alert(`Report saved for ${st?.name}: Zone ${selZone} is ${selType}. Thank you!`);
+  alert(`Report saved for ${STATIONS.find(s=>s.id===selStation)?.name}: Zone ${selZone} is ${selType}. Thanks!`);
   refresh();
 }
 
-// ── REFRESH ───────────────────────────────────────────────────────────────────
+// ── MAIN REFRESH ──────────────────────────────────────────────────────────────
 async function refresh(){
-  const now=new Date(),dow=now.getDay(),h=now.getHours();
-  document.getElementById('refresh-btn').textContent='…';
-
+  document.getElementById('rbtn').textContent='…';
   try{
     const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=-37.9027&longitude=144.6627&current=temperature_2m,precipitation,weathercode,windspeed_10m&hourly=precipitation_probability&timezone=Australia%2FSydney&forecast_days=1');
     const d=await r.json(),c=d.current;
@@ -896,18 +776,15 @@ async function refresh(){
   try{
     const r=await fetch('https://api.allorigins.win/get?url='+encodeURIComponent('https://www.ptv.vic.gov.au/disruptions/werribee-line-disruptions/nochrome'));
     const d=await r.json(),html=d.contents||'';
-    if(html.toLowerCase().includes('replacement bus'))disruptions.push({type:'warn',text:'Bus replacements active — MORE drivers expected'});
+    if(html.toLowerCase().includes('replacement bus'))disruptions.push({type:'warn',text:'Bus replacements active — MORE drivers expected today'});
     if(html.toLowerCase().includes('altered timetable'))disruptions.push({type:'info',text:'Altered timetable in effect'});
   }catch{}
 
-  const wd=weather?wDelta(weather.code,weather.precip):{d:0,label:'—',icon:'🌤'};
+  const wd=weather?wDelta(weather.code,weather.precip):{d:0,l:'—',i:'🌤'};
   const dd=disruptions.some(d=>d.text?.includes('MORE'))?12:0;
 
-  if(weather)document.getElementById('weather-pill').textContent=`${WICONS[weather.code]||'🌤'} ${weather.temp}°C`;
-
-  let ah='';
-  disruptions.forEach(d=>{ah+=`<div class="disruption-alert"><span>⚠️</span> <span style="font-size:11px">${d.text}</span></div>`;});
-  document.getElementById('alerts-wrap').innerHTML=ah;
+  if(weather)document.getElementById('wpill').textContent=`${WI[weather.code]||'🌤'} ${weather.temp}°C`;
+  document.getElementById('alerts-wrap').innerHTML=disruptions.map(d=>`<div class="dis-alert">⚠️ <span>${d.text}</span></div>`).join('');
 
   checkRain();
   renderChips(wd,dd);
@@ -916,12 +793,10 @@ async function refresh(){
 
   document.getElementById('train-time').value=ls('trainTime','07:52');
   startTimer();
-  document.getElementById('refresh-btn').textContent='↻';
+  document.getElementById('rbtn').textContent='↻';
 }
 
-// Kill old service workers
 if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(s=>s.unregister()));
-
 refresh();
 setInterval(refresh,10*60*1000);
 </script>
