@@ -2,6 +2,8 @@
   "buildCommand": "",
   "outputDirectory": ".",
   "routes": [
+    { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
+    { "src": "/robots.txt", "dest": "/robots.txt" },
     { "src": "/stations", "dest": "/stations/index.html" },
     { "src": "/werribee", "dest": "/werribee/index.html" },
     { "src": "/hoppers", "dest": "/hoppers/index.html" },

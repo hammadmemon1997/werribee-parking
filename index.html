@@ -21,6 +21,13 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 
 /* HEADER */
 .hdr{position:sticky;top:0;z-index:200;background:rgba(250,247,242,.93);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:12px 18px;display:flex;align-items:center;justify-content:space-between;padding-top:max(12px,env(safe-area-inset-top))}
+
+/* MODE SELECTOR */
+.mode-bar{display:flex;gap:6px;margin-bottom:14px;background:var(--surface2);border-radius:16px;padding:5px;border:1px solid var(--border)}
+.mode-btn{flex:1;border:none;border-radius:12px;padding:8px 4px;font-size:10px;font-family:'DM Mono',monospace;cursor:pointer;background:transparent;color:var(--muted);transition:.2s;display:flex;flex-direction:column;align-items:center;gap:3px;line-height:1}
+.mode-btn .mi{font-size:18px}
+.mode-btn.active{background:#fff;color:var(--accent);box-shadow:0 1px 6px rgba(0,0,0,.1);font-weight:600}
+.mode-btn:active{transform:scale(.94)}
 .logo{font-family:'Syne',sans-serif;font-size:17px;font-weight:800;letter-spacing:-.5px}.logo span{color:var(--accent)}
 .hdr-r{display:flex;align-items:center;gap:8px}
 .wpill{background:var(--surface2);border:1px solid var(--border);border-radius:20px;padding:5px 11px;font-size:12px;font-family:'DM Mono',monospace}
@@ -274,6 +281,15 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <!-- STATION CHIPS -->
   <div class="lbl">WERRIBEE LINE</div>
   <div class="chips" id="chips"></div>
+
+  <!-- COMMUTE MODE -->
+  <div class="lbl">HOW ARE YOU COMMUTING?</div>
+  <div class="mode-bar" id="mode-bar">
+    <button class="mode-btn active" id="mode-drive" onclick="setMode('drive')"><span class="mi">🚗</span>DRIVING</button>
+    <button class="mode-btn" id="mode-cycle" onclick="setMode('cycle')"><span class="mi">🚲</span>CYCLING</button>
+    <button class="mode-btn" id="mode-walk" onclick="setMode('walk')"><span class="mi">🚶</span>WALKING</button>
+    <button class="mode-btn" id="mode-wfh" onclick="setMode('wfh')"><span class="mi">🏠</span>WFH</button>
+  </div>
 
   <!-- COMMUTE SCORE -->
   <div id="score-wrap"></div>
@@ -710,47 +726,140 @@ function renderWeekly(st,wd){
 }
 
 // ── STATION RENDER ────────────────────────────────────────────────────────────
+// ── COMMUTE MODE ──────────────────────────────────────────────────────────────
+let commuteMode = ls('commuteMode', 'drive'); // drive | cycle | walk | wfh
+
+function setMode(m) {
+  commuteMode = m;
+  lsSet('commuteMode', m);
+  ['drive','cycle','walk','wfh'].forEach(x => {
+    document.getElementById('mode-'+x)?.classList.toggle('active', x===m);
+  });
+  // Re-render score and WFH card with new mode
+  const now = new Date(), h = now.getHours(), dow = now.getDay(), isW = dow===0||dow===6;
+  const st = STATIONS.find(s=>s.id===selStation)||STATIONS[0];
+  const base = isW ? st.wknd : st.base;
+  const pct = Math.min(99, Math.max(1, base[h] ?? 50));
+  const wd = weather ? wDelta(weather.code, weather.precip, weather.windGusts, weather.cloudCover, weather.apparentTemp) : {d:0,l:'—',i:'🌤',labels:[],icons:[]};
+  const dd = (disruptions.length > 0 || gtfsAlerts.length > 0) ? 14 : 0;
+  renderScore(pct, wd, dd, 0);
+  renderWFH(pct, wd, dd);
+  // Show/hide parking-specific UI
+  const hideParking = m === 'wfh' || m === 'walk' || m === 'cycle';
+  document.getElementById('verdict-wrap').style.opacity = hideParking ? '0.4' : '1';
+}
+
+function initMode() {
+  // Restore saved mode
+  ['drive','cycle','walk','wfh'].forEach(x => {
+    document.getElementById('mode-'+x)?.classList.toggle('active', x===commuteMode);
+  });
+}
+
 // ── COMMUTE SCORE ENGINE ──────────────────────────────────────────────────────
 function commuteScore(pct, wd, dd, ri) {
-  // Score = 0 (easy) to 100 (nightmare). Higher = worse commute.
+  const mode = commuteMode;
+
+  // WFH mode — always green
+  if (mode === 'wfh') {
+    return { score: 0, factors: [{cls:'good', icon:'🏠', text:'Working from home'}] };
+  }
+
   let score = 0;
   const factors = [];
 
-  // Parking pressure (40 points max)
-  const parkPoints = Math.round(pct * 0.4);
-  score += parkPoints;
-  if (pct >= 90) factors.push({cls:'bad', icon:'🅿️', text:`Lot ${pct}% full`});
-  else if (pct >= 70) factors.push({cls:'warn', icon:'🅿️', text:`Lot ${pct}% full`});
-  else factors.push({cls:'good', icon:'🅿️', text:`Parking OK (${pct}%)`});
+  if (mode === 'drive') {
+    // Parking pressure (40pts)
+    score += Math.round(pct * 0.4);
+    if (pct >= 90) factors.push({cls:'bad', icon:'🅿️', text:`Lot ${pct}% full`});
+    else if (pct >= 70) factors.push({cls:'warn', icon:'🅿️', text:`Lot ${pct}% full`});
+    else factors.push({cls:'good', icon:'🅿️', text:`Parking OK (${pct}%)`});
 
-  // Disruptions (25 points)
-  if (dd >= 14) { score += 25; factors.push({cls:'bad', icon:'🚌', text:'Bus replacements'}); }
-  else if (dd > 0) { score += 12; factors.push({cls:'warn', icon:'⚠️', text:'Service disruption'}); }
-  else factors.push({cls:'good', icon:'🚂', text:'Trains running normal'});
+    // Disruptions (25pts)
+    if (dd >= 14) { score += 25; factors.push({cls:'bad', icon:'🚌', text:'Bus replacements active'}); }
+    else factors.push({cls:'good', icon:'🚂', text:'Trains running normal'});
 
-  // Weather (20 points)
-  if (wd && wd.d >= 14) { score += 20; factors.push({cls:'bad', icon:'🌧️', text:`Heavy rain (${weather?.precip||0}mm)`}); }
-  else if (wd && wd.d >= 8) { score += 12; factors.push({cls:'warn', icon:'🌦️', text:'Rain expected'}); }
-  else if (wd && wd.d <= -4) { score += 0; factors.push({cls:'good', icon:'☀️', text:'Fine weather'}); }
-  else if (wd) factors.push({cls:'good', icon:'🌤', text:'Mild conditions'});
+    // Weather (20pts)
+    if (wd && wd.d >= 14) { score += 20; factors.push({cls:'bad', icon:'🌧️', text:`Heavy rain (${weather?.precip||0}mm)`}); }
+    else if (wd && wd.d >= 8) { score += 10; factors.push({cls:'warn', icon:'🌦️', text:'Rain expected'}); }
+    else factors.push({cls:'good', icon:'☀️', text:'Good driving weather'});
 
-  // Road incidents (10 points)
-  if (ri >= 8) { score += 10; factors.push({cls:'bad', icon:'🚗', text:'Road incidents nearby'}); }
-  else if (ri >= 4) { score += 5; factors.push({cls:'warn', icon:'🚗', text:'Minor road incident'}); }
+    // Road incidents (15pts)
+    if (ri >= 8) { score += 15; factors.push({cls:'bad', icon:'🚗', text:'Road incidents nearby'}); }
+    else if (ri >= 4) { score += 7; factors.push({cls:'warn', icon:'🚗', text:'Minor road incident'}); }
+  }
 
-  // Wind (5 points)
-  if (weather && weather.windGusts > 50) { score += 5; factors.push({cls:'warn', icon:'💨', text:`Gusts ${weather.windGusts}km/h`}); }
+  else if (mode === 'cycle') {
+    // Weather is primary (50pts)
+    if (wd && wd.d >= 14) { score += 50; factors.push({cls:'bad', icon:'🌧️', text:'Heavy rain — dangerous'}); }
+    else if (wd && wd.d >= 8) { score += 30; factors.push({cls:'warn', icon:'🌦️', text:'Rain — slippery roads'}); }
+    else factors.push({cls:'good', icon:'☀️', text:'Good cycling weather'});
 
-  score = Math.min(100, Math.round(score));
-  return {score, factors};
+    // Wind (30pts)
+    const gusts = weather?.windGusts ?? 0;
+    if (gusts > 55) { score += 30; factors.push({cls:'bad', icon:'💨', text:`Dangerous gusts ${gusts}km/h`}); }
+    else if (gusts > 35) { score += 15; factors.push({cls:'warn', icon:'💨', text:`Strong wind ${gusts}km/h`}); }
+    else factors.push({cls:'good', icon:'🌬️', text:`Light wind ${gusts}km/h`});
+
+    // Temp (20pts)
+    const feels = weather?.apparentTemp ?? 15;
+    if (feels < 5) { score += 20; factors.push({cls:'bad', icon:'🥶', text:`Feels like ${feels}°C`}); }
+    else if (feels > 35) { score += 20; factors.push({cls:'bad', icon:'🥵', text:`Feels like ${feels}°C`}); }
+    else if (feels >= 15 && feels <= 25) factors.push({cls:'good', icon:'🌡️', text:`Perfect temp ${feels}°C`});
+    else factors.push({cls:'warn', icon:'🌡️', text:`Feels like ${feels}°C`});
+  }
+
+  else if (mode === 'walk') {
+    // Rain (40pts)
+    if (wd && wd.d >= 14) { score += 40; factors.push({cls:'bad', icon:'🌧️', text:'Heavy rain — take cover'}); }
+    else if (wd && wd.d >= 8) { score += 20; factors.push({cls:'warn', icon:'🌦️', text:'Bring an umbrella'}); }
+    else factors.push({cls:'good', icon:'☀️', text:'Nice walking weather'});
+
+    // Feels-like temp (35pts)
+    const feels = weather?.apparentTemp ?? 15;
+    if (feels < 5) { score += 35; factors.push({cls:'bad', icon:'🥶', text:`Very cold: ${feels}°C`}); }
+    else if (feels > 35) { score += 35; factors.push({cls:'bad', icon:'🥵', text:`Extreme heat: ${feels}°C`}); }
+    else if (feels >= 15 && feels <= 26) factors.push({cls:'good', icon:'🌡️', text:`Comfortable ${feels}°C`});
+    else factors.push({cls:'warn', icon:'🌡️', text:`Feels ${feels}°C — dress for it`});
+
+    // Disruptions (25pts) — walkers still care about trains
+    if (dd >= 14) { score += 25; factors.push({cls:'warn', icon:'🚌', text:'Bus replacements (crowded platform)'}); }
+    else factors.push({cls:'good', icon:'🚂', text:'Normal service'});
+  }
+
+  return { score: Math.min(100, Math.round(score)), factors };
 }
 
 function getScoreLabel(score) {
-  if (score >= 85) return {headline:'Stay Home 🏠', advice:'Seriously rough one today. WFH if you can — parking full, disruptions active.', color:'#dc2626'};
-  if (score >= 70) return {headline:'Risky Morning ⚠️', advice:'Leave early or expect delays. Consider alternatives.', color:'#ea580c'};
-  if (score >= 50) return {headline:'Moderate Commute 🟡', advice:'Manageable but not great. Leave a bit earlier than usual.', color:'#d97706'};
-  if (score >= 30) return {headline:'Good to Go ✅', advice:'Pretty smooth this morning. Normal leave time should be fine.', color:'#16a34a'};
-  return {headline:'Easy Commute 🎉', advice:'Great conditions today! Plenty of parking, no disruptions.', color:'#2563eb'};
+  const mode = commuteMode;
+  if (mode === 'wfh') return {headline:'Enjoy your WFH day 🏠', advice:'Smart choice. Check back tomorrow for conditions.', color:'#2563eb'};
+
+  const modeLabels = {
+    drive: [
+      [85,'Stay Home 🏠','Seriously rough one — parking full, disruptions active. WFH if you can.','#dc2626'],
+      [70,'Risky Morning ⚠️','Leave early or expect delays. Consider alternatives.','#ea580c'],
+      [50,'Moderate Drive 🟡','Manageable but not great. Leave a bit earlier than usual.','#d97706'],
+      [30,'Good to Drive ✅','Pretty smooth this morning. Normal leave time should be fine.','#16a34a'],
+      [0,'Easy Commute 🎉','Great conditions — plenty of parking, no disruptions.','#2563eb'],
+    ],
+    cycle: [
+      [75,'Don\'t Ride Today 🛑','Dangerous conditions — rain, wind or extreme temp. Take the train.','#dc2626'],
+      [50,'Ride with Caution ⚠️','Challenging conditions. Wear appropriate gear.','#ea580c'],
+      [30,'Okay to Ride 🟡','Manageable. Take it easy and watch the road.','#d97706'],
+      [0,'Great Ride Day 🚲','Excellent cycling conditions. Enjoy the commute!','#16a34a'],
+    ],
+    walk: [
+      [75,'Tough Walk Today 🛑','Heavy rain or extreme temp. Grab an umbrella or get a lift.','#dc2626'],
+      [50,'Dress for It ⚠️','Not ideal — bring a jacket and umbrella.','#ea580c'],
+      [30,'Should Be Fine 🟡','A bit cool or cloudy but walkable.','#d97706'],
+      [0,'Perfect Walking Day 🚶','Get out there — weather is great!','#16a34a'],
+    ],
+  };
+  const levels = modeLabels[mode] || modeLabels.drive;
+  for (const [threshold, headline, advice, color] of levels) {
+    if (score >= threshold) return {headline, advice, color};
+  }
+  return {headline:'Good to Go ✅', advice:'Conditions look fine.', color:'#16a34a'};
 }
 
 function renderScore(pct, wd, dd, ri) {
@@ -790,40 +899,93 @@ function renderScore(pct, wd, dd, ri) {
 }
 
 function renderWFH(pct, wd, dd) {
-  const isRain = wd && wd.d >= 8;
-  const hasDisruption = dd >= 14;
-  const lotFull = pct >= 80;
-  const wfhScore = (isRain?1:0) + (hasDisruption?1:0) + (lotFull?1:0);
-
+  const mode = commuteMode;
   let card = '';
-  if (wfhScore >= 2) {
-    const reasons = [];
-    if (lotFull) reasons.push('lot nearly full');
-    if (hasDisruption) reasons.push('bus replacements');
-    if (isRain) reasons.push('rain expected');
-    card = `<div class="wfh-card" style="background:#fef2f2;border-color:rgba(220,38,38,.2)">
-      <div class="wfh-icon">🏠</div>
+
+  if (mode === 'wfh') {
+    card = `<div class="wfh-card" style="background:#eff6ff;border-color:rgba(37,99,235,.2)">
+      <div class="wfh-icon">💻</div>
       <div class="wfh-text">
-        <strong style="color:#dc2626">WFH Day? Might be worth it.</strong>
-        <span style="color:#b91c1c">Today has ${reasons.join(' + ')}. If you can work from home, today's a good day.</span>
+        <strong style="color:#1d4ed8">WFH mode active.</strong>
+        <span style="color:#1e40af">No commute today — parking and train data shown for reference only.</span>
       </div>
     </div>`;
-  } else if (wfhScore === 1 && pct >= 65) {
-    card = `<div class="wfh-card" style="background:#fffbeb;border-color:rgba(217,119,6,.2)">
-      <div class="wfh-icon">🤔</div>
-      <div class="wfh-text">
-        <strong style="color:#b45309">Borderline morning.</strong>
-        <span style="color:#92400e">Not terrible but not great. Leave 10–15 min early if you're driving.</span>
-      </div>
-    </div>`;
+  } else if (mode === 'cycle') {
+    const gusts = weather?.windGusts ?? 0;
+    const isRain = wd && wd.d >= 8;
+    const badWind = gusts > 35;
+    if (isRain || badWind) {
+      card = `<div class="wfh-card" style="background:#fef2f2;border-color:rgba(220,38,38,.2)">
+        <div class="wfh-icon">🚲</div>
+        <div class="wfh-text">
+          <strong style="color:#dc2626">Tough ride today.</strong>
+          <span style="color:#b91c1c">${isRain ? 'Rain' : ''}${isRain && badWind ? ' + ' : ''}${badWind ? `gusts ${gusts}km/h` : ''} — consider taking the train instead.</span>
+        </div>
+      </div>`;
+    } else {
+      card = `<div class="wfh-card" style="background:#f0fdf4;border-color:rgba(22,163,74,.2)">
+        <div class="wfh-icon">🚲</div>
+        <div class="wfh-text">
+          <strong style="color:#15803d">Good day to ride!</strong>
+          <span style="color:#166534">Weather looks favourable. Stay hydrated and enjoy the commute.</span>
+        </div>
+      </div>`;
+    }
+  } else if (mode === 'walk') {
+    const feels = weather?.apparentTemp ?? 15;
+    const isRain = wd && wd.d >= 8;
+    if (isRain || feels < 5 || feels > 35) {
+      card = `<div class="wfh-card" style="background:#fffbeb;border-color:rgba(217,119,6,.2)">
+        <div class="wfh-icon">🌂</div>
+        <div class="wfh-text">
+          <strong style="color:#b45309">Pack for the weather.</strong>
+          <span style="color:#92400e">${isRain ? 'Rain on the way — bring a waterproof jacket.' : feels < 5 ? `Very cold (${feels}°C) — dress in layers.` : `Very hot (${feels}°C) — stay hydrated.`}</span>
+        </div>
+      </div>`;
+    } else {
+      card = `<div class="wfh-card" style="background:#f0fdf4;border-color:rgba(22,163,74,.2)">
+        <div class="wfh-icon">🚶</div>
+        <div class="wfh-text">
+          <strong style="color:#15803d">Nice walking conditions.</strong>
+          <span style="color:#166534">Comfortable ${feels}°C — enjoy the walk to the station.</span>
+        </div>
+      </div>`;
+    }
   } else {
-    card = `<div class="wfh-card" style="background:#f0fdf4;border-color:rgba(22,163,74,.2)">
-      <div class="wfh-icon">🚗</div>
-      <div class="wfh-text">
-        <strong style="color:#15803d">Good commute day.</strong>
-        <span style="color:#166534">Conditions look normal. Drive in with confidence.</span>
-      </div>
-    </div>`;
+    // Drive mode
+    const isRain = wd && wd.d >= 8;
+    const hasDisruption = dd >= 14;
+    const lotFull = pct >= 80;
+    const wfhScore = (isRain?1:0) + (hasDisruption?1:0) + (lotFull?1:0);
+    if (wfhScore >= 2) {
+      const reasons = [];
+      if (lotFull) reasons.push('lot nearly full');
+      if (hasDisruption) reasons.push('bus replacements');
+      if (isRain) reasons.push('rain expected');
+      card = `<div class="wfh-card" style="background:#fef2f2;border-color:rgba(220,38,38,.2)">
+        <div class="wfh-icon">🏠</div>
+        <div class="wfh-text">
+          <strong style="color:#dc2626">WFH Day? Might be worth it.</strong>
+          <span style="color:#b91c1c">Today has ${reasons.join(' + ')}. If you can work from home, today's a good day.</span>
+        </div>
+      </div>`;
+    } else if (wfhScore === 1 && pct >= 65) {
+      card = `<div class="wfh-card" style="background:#fffbeb;border-color:rgba(217,119,6,.2)">
+        <div class="wfh-icon">🤔</div>
+        <div class="wfh-text">
+          <strong style="color:#b45309">Borderline morning.</strong>
+          <span style="color:#92400e">Not terrible but not great. Leave 10–15 min early if you're driving.</span>
+        </div>
+      </div>`;
+    } else {
+      card = `<div class="wfh-card" style="background:#f0fdf4;border-color:rgba(22,163,74,.2)">
+        <div class="wfh-icon">🚗</div>
+        <div class="wfh-text">
+          <strong style="color:#15803d">Good commute day.</strong>
+          <span style="color:#166534">Conditions look normal. Drive in with confidence.</span>
+        </div>
+      </div>`;
+    }
   }
   document.getElementById('wfh-wrap').innerHTML = card;
 }
@@ -1309,7 +1471,7 @@ if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(
 const _sp = new URLSearchParams(window.location.search).get('station');
 if (_sp && STATIONS.find(s=>s.id===_sp)) { selStation=_sp; lsSet('selStation',_sp); }
 
-refresh();
+refresh().then(()=>initMode());
 setInterval(refresh,10*60*1000);
 </script>
 </body>

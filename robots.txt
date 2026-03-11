@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://werribee-parking.vercel.app/sitemap.xml
