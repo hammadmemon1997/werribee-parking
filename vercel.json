@@ -2,8 +2,13 @@
   "buildCommand": "",
   "outputDirectory": ".",
   "routes": [
+    { "src": "/sw.js", "dest": "/sw.js", "headers": { "Service-Worker-Allowed": "/", "Cache-Control": "no-cache" } },
+    { "src": "/manifest.json", "dest": "/manifest.json" },
     { "src": "/sitemap.xml", "dest": "/sitemap.xml" },
     { "src": "/robots.txt", "dest": "/robots.txt" },
+    { "src": "/icon-192.png", "dest": "/icon-192.png" },
+    { "src": "/icon-512.png", "dest": "/icon-512.png" },
+    { "src": "/api/(.*)", "dest": "/api/$1" },
     { "src": "/stations", "dest": "/stations/index.html" },
     { "src": "/werribee", "dest": "/werribee/index.html" },
     { "src": "/hoppers", "dest": "/hoppers/index.html" },
