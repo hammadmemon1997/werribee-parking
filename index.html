@@ -4,9 +4,13 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover"/>
 <title>ParkWest — Melbourne Commuter</title>
-<meta name="theme-color" content="#faf7f2"/>
+<meta name="theme-color" content="#faf7f2" id="theme-meta"/>
 <meta name="apple-mobile-web-app-capable" content="yes"/>
 <meta name="apple-mobile-web-app-status-bar-style" content="default"/>
+<meta name="apple-mobile-web-app-title" content="ParkWest"/>
+<meta name="description" content="Real-time parking availability for Melbourne's Werribee line. Free commuter app."/>
+<link rel="manifest" href="/manifest.json"/>
+<link rel="apple-touch-icon" href="/icon-192.png"/>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
 <link href="https://fonts.googleapis.com/css2?family=DM+Mono:wght@400;500&family=Syne:wght@700;800&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -15,8 +19,15 @@
   --text:#1a1208; --muted:#8a7d6b; --accent:#2563eb;
   --red:#dc2626; --orange:#ea580c; --amber:#d97706; --green:#16a34a;
 }
+.dark{
+  --bg:#0f1117; --surface:#1a1d27; --surface2:#242736; --border:rgba(255,255,255,0.08);
+  --text:#f0ece6; --muted:#6b7280; --accent:#3b82f6;
+}
+.dark body::before{background:radial-gradient(ellipse at 20% 0%,rgba(59,130,246,.06) 0%,transparent 55%),radial-gradient(ellipse at 80% 100%,rgba(99,102,241,.04) 0%,transparent 50%)}
+.dark .timer-card{background:#162032}
+.dark .hdr{background:rgba(15,17,23,.93)}
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
-body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:'DM Sans',sans-serif;min-height:100vh;overflow-x:hidden;transition:background .3s,color .3s}
 body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse at 20% 0%,rgba(255,220,150,.1) 0%,transparent 55%),radial-gradient(ellipse at 80% 100%,rgba(200,220,255,.07) 0%,transparent 50%);pointer-events:none;z-index:0}
 
 /* HEADER */
@@ -230,6 +241,66 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
 .footer{text-align:center;font-family:'DM Mono',monospace;font-size:9px;color:#c4b9a8;letter-spacing:2px;padding:18px 0 8px}
 
 @keyframes fu{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+
+/* ── ONBOARDING ─────────────────────────────────────────────── */
+.ob-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:500;display:flex;align-items:flex-end;animation:fadeIn .3s}
+.ob-sheet{background:var(--surface);border-radius:28px 28px 0 0;padding:28px 24px 40px;max-width:480px;width:100%;margin:0 auto;animation:slideUp .35s cubic-bezier(.34,1.56,.64,1)}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.ob-dot-row{display:flex;gap:6px;justify-content:center;margin-bottom:24px}
+.ob-dot{width:8px;height:8px;border-radius:50%;background:var(--surface2);transition:.3s}
+.ob-dot.active{background:var(--accent);width:24px;border-radius:4px}
+.ob-icon{font-size:52px;text-align:center;margin-bottom:14px}
+.ob-title{font-family:'Syne',sans-serif;font-size:24px;font-weight:800;text-align:center;margin-bottom:8px}
+.ob-sub{font-size:13px;color:var(--muted);text-align:center;line-height:1.6;margin-bottom:24px}
+.ob-btn{width:100%;padding:14px;border-radius:14px;background:var(--accent);color:#fff;border:none;font-size:15px;font-weight:700;font-family:'Syne',sans-serif;cursor:pointer;transition:.15s}
+.ob-btn:active{transform:scale(.97)}
+.ob-skip{display:block;text-align:center;margin-top:12px;font-size:12px;color:var(--muted);cursor:pointer;padding:4px}
+.ob-suburb-input{width:100%;padding:13px 16px;border-radius:14px;border:1.5px solid var(--border);background:var(--surface2);font-size:14px;font-family:'DM Sans',sans-serif;color:var(--text);margin-bottom:10px;outline:none}
+.ob-suburb-input:focus{border-color:var(--accent)}
+.ob-station-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:16px;max-height:240px;overflow-y:auto}
+.ob-st-btn{padding:10px 8px;border-radius:12px;border:1.5px solid var(--border);background:var(--surface2);font-size:11px;font-family:'DM Mono',monospace;cursor:pointer;text-align:center;color:var(--text);transition:.15s}
+.ob-st-btn.sel{border-color:var(--accent);background:rgba(37,99,235,.08);color:var(--accent);font-weight:600}
+
+/* ── PWA INSTALL BANNER ─────────────────────────────────────── */
+.pwa-banner{position:fixed;bottom:0;left:0;right:0;z-index:400;padding:0 12px 12px;max-width:480px;margin:0 auto;animation:slideUp .4s cubic-bezier(.34,1.56,.64,1)}
+.pwa-inner{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:16px;display:flex;align-items:center;gap:12px;box-shadow:0 8px 32px rgba(0,0,0,.15)}
+.pwa-icon{width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,#2563eb,#7c3aed);display:flex;align-items:center;justify-content:center;font-size:22px;flex-shrink:0}
+.pwa-text strong{font-size:13px;font-weight:700;display:block}
+.pwa-text span{font-size:11px;color:var(--muted)}
+.pwa-actions{display:flex;gap:6px;margin-left:auto;flex-shrink:0}
+.pwa-add{background:var(--accent);color:#fff;border:none;border-radius:10px;padding:8px 14px;font-size:12px;font-weight:700;cursor:pointer;font-family:'DM Sans',sans-serif}
+.pwa-dismiss{background:var(--surface2);color:var(--muted);border:none;border-radius:10px;padding:8px 10px;font-size:12px;cursor:pointer}
+
+/* ── PERSONAL LEAVE TIME ────────────────────────────────────── */
+.leave-card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:16px;margin-bottom:12px;display:flex;align-items:center;gap:14px}
+.leave-icon{font-size:28px;flex-shrink:0}
+.leave-main{flex:1;min-width:0}
+.leave-time{font-family:'Syne',sans-serif;font-size:28px;font-weight:800;line-height:1;color:var(--accent)}
+.leave-sub{font-size:11px;color:var(--muted);margin-top:3px}
+.leave-edit{background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:6px 11px;font-size:11px;font-family:'DM Mono',monospace;color:var(--muted);cursor:pointer;flex-shrink:0}
+
+/* ── HEATMAP ────────────────────────────────────────────────── */
+.heat-card{background:var(--surface);border:1.5px solid var(--border);border-radius:20px;padding:18px;margin-bottom:10px}
+.heat-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-top:10px}
+.heat-cell{aspect-ratio:1;border-radius:6px;cursor:default;position:relative}
+.heat-cell:hover .heat-tip{display:block}
+.heat-tip{display:none;position:absolute;bottom:calc(100% + 4px);left:50%;transform:translateX(-50%);background:#1e3a5f;color:#fff;font-size:9px;padding:3px 7px;border-radius:6px;white-space:nowrap;z-index:10;font-family:'DM Mono',monospace}
+.heat-day-lbl{font-family:'DM Mono',monospace;font-size:8px;text-align:center;color:var(--muted);letter-spacing:.5px}
+.heat-legend{display:flex;align-items:center;gap:6px;margin-top:8px;justify-content:flex-end}
+.heat-legend-cell{width:12px;height:12px;border-radius:3px}
+.heat-legend span{font-size:9px;color:var(--muted);font-family:'DM Mono',monospace}
+
+/* ── HOLIDAY CARD ───────────────────────────────────────────── */
+.holiday-card{border-radius:16px;padding:14px 16px;margin-bottom:12px;border:1.5px solid;display:flex;align-items:center;gap:12px}
+
+/* ── PROFILE SETUP CARD ─────────────────────────────────────── */
+.profile-card{background:var(--surface);border:1.5px solid var(--border);border-radius:18px;padding:16px;margin-bottom:12px}
+.profile-row{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+.profile-row:last-child{margin-bottom:0}
+.profile-lbl{font-family:'DM Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--muted);min-width:80px}
+.profile-val{font-size:13px;font-weight:600;flex:1}
+.profile-edit-btn{font-size:11px;color:var(--accent);cursor:pointer;font-family:'DM Mono',monospace}
 </style>
 </head>
 <body>
@@ -238,6 +309,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="logo">Park<span>West</span></div>
   <div class="hdr-r">
     <div class="wpill" id="wpill">— °C</div>
+    <button class="rbtn" id="darkbtn" onclick="toggleDark()" title="Toggle dark mode">🌙</button>
     <button class="rbtn" id="rbtn" onclick="refresh()">↻</button>
   </div>
 </div>
@@ -282,6 +354,32 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
   <div class="lbl">WERRIBEE LINE</div>
   <div class="chips" id="chips"></div>
 
+  <!-- ONBOARDING OVERLAY -->
+  <div id="ob-overlay" style="display:none"></div>
+
+  <!-- PWA INSTALL BANNER -->
+  <div id="pwa-banner" style="display:none">
+    <div class="pwa-banner">
+      <div class="pwa-inner">
+        <div class="pwa-icon">🅿️</div>
+        <div class="pwa-text">
+          <strong>Add ParkWest to Home Screen</strong>
+          <span>One tap away every morning</span>
+        </div>
+        <div class="pwa-actions">
+          <button class="pwa-add" onclick="installPWA()">Add</button>
+          <button class="pwa-dismiss" onclick="dismissPWA()">✕</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- HOLIDAY BANNER -->
+  <div id="holiday-wrap"></div>
+
+  <!-- PERSONAL LEAVE TIME -->
+  <div id="leave-wrap"></div>
+
   <!-- COMMUTE MODE -->
   <div class="lbl">HOW ARE YOU COMMUTING?</div>
   <div class="mode-bar" id="mode-bar">
@@ -320,6 +418,7 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
     <button class="tbtn" id="tab-chart" onclick="toggleTab('chart')"><span class="ti">📊</span>Hourly</button>
     <button class="tbtn" id="tab-network" onclick="toggleTab('network')"><span class="ti">🗺️</span>Network</button>
     <button class="tbtn" id="tab-trains" onclick="toggleTab('trains')"><span class="ti">🚂</span>Trains</button>
+    <button class="tbtn" id="tab-heat" onclick="toggleTab('heat')"><span class="ti">🗓</span>History</button>
   </div>
 
   <!-- ═══ PARKING LOT MAP ═══ -->
@@ -403,6 +502,32 @@ body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellips
       <div id="train-service-status">
         <div style="font-size:12px;color:var(--muted)">Loading service status...</div>
       </div>
+    </div>
+  </div>
+
+  <!-- HISTORY HEATMAP -->
+  <div id="panel-heat" style="display:none">
+    <div class="heat-card">
+      <div class="lbl" style="margin:0 0 3px">PARKING HISTORY — LAST 12 WEEKS</div>
+      <div style="font-size:11px;color:var(--muted);margin-bottom:4px">Each cell = one day · darker = more full</div>
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:4px;margin-bottom:4px">
+        <div class="heat-day-lbl">M</div><div class="heat-day-lbl">T</div><div class="heat-day-lbl">W</div>
+        <div class="heat-day-lbl">T</div><div class="heat-day-lbl">F</div><div class="heat-day-lbl">S</div><div class="heat-day-lbl">S</div>
+      </div>
+      <div class="heat-grid" id="heat-grid"></div>
+      <div class="heat-legend">
+        <span>Low</span>
+        <div class="heat-legend-cell" style="background:#dcfce7"></div>
+        <div class="heat-legend-cell" style="background:#86efac"></div>
+        <div class="heat-legend-cell" style="background:#f59e0b"></div>
+        <div class="heat-legend-cell" style="background:#ef4444"></div>
+        <div class="heat-legend-cell" style="background:#7f1d1d"></div>
+        <span>High</span>
+      </div>
+    </div>
+    <div class="heat-card">
+      <div class="lbl" style="margin:0 0 8px">YOUR COMMUTE STATS</div>
+      <div id="commute-stats"></div>
     </div>
   </div>
 
@@ -726,6 +851,323 @@ function renderWeekly(st,wd){
 }
 
 // ── STATION RENDER ────────────────────────────────────────────────────────────
+// ── DARK MODE ────────────────────────────────────────────────────────────────
+let darkMode = ls('darkMode', window.matchMedia('(prefers-color-scheme: dark)').matches);
+function applyDark() {
+  document.documentElement.classList.toggle('dark', darkMode);
+  document.getElementById('darkbtn').textContent = darkMode ? '☀️' : '🌙';
+  document.getElementById('theme-meta').content = darkMode ? '#0f1117' : '#faf7f2';
+}
+function toggleDark() { darkMode = !darkMode; lsSet('darkMode', darkMode); applyDark(); }
+
+// ── PUBLIC HOLIDAYS (VIC) ────────────────────────────────────────────────────
+const VIC_HOLIDAYS = {
+  '2026-01-01': "New Year's Day",
+  '2026-01-26': 'Australia Day',
+  '2026-03-09': 'Labour Day',
+  '2026-04-03': 'Good Friday',
+  '2026-04-04': 'Easter Saturday',
+  '2026-04-05': 'Easter Sunday',
+  '2026-04-06': 'Easter Monday',
+  '2026-04-25': 'Anzac Day',
+  '2026-06-08': "King's Birthday",
+  '2026-09-25': 'AFL Grand Final Friday',
+  '2026-11-03': 'Melbourne Cup Day',
+  '2026-12-25': 'Christmas Day',
+  '2026-12-26': 'Boxing Day',
+  '2027-01-01': "New Year's Day",
+  '2027-01-26': 'Australia Day',
+};
+
+function checkHoliday() {
+  const now = new Date();
+  const todayKey = now.toISOString().slice(0,10);
+  // Also check tomorrow
+  const tom = new Date(now); tom.setDate(tom.getDate()+1);
+  const tomKey = tom.toISOString().slice(0,10);
+  const todayName = VIC_HOLIDAYS[todayKey];
+  const tomName = VIC_HOLIDAYS[tomKey];
+
+  let html = '';
+  if (todayName) {
+    html = `<div class="holiday-card" style="background:#f0fdf4;border-color:rgba(22,163,74,.25)">
+      <div style="font-size:24px">🎉</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#15803d">Happy ${todayName}!</div>
+        <div style="font-size:11px;color:#166534">Public holiday — parking typically <strong>20–40% lighter</strong> than usual today.</div>
+      </div>
+    </div>`;
+  } else if (tomName) {
+    html = `<div class="holiday-card" style="background:#eff6ff;border-color:rgba(37,99,235,.2)">
+      <div style="font-size:24px">📅</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#1d4ed8">Tomorrow: ${tomName}</div>
+        <div style="font-size:11px;color:#1e40af">Public holiday tomorrow — expect <strong>lighter traffic & parking</strong> in the morning.</div>
+      </div>
+    </div>`;
+  }
+  // Check if next Monday is a holiday (long weekend alert)
+  const nextMon = new Date(now);
+  const daysToMon = (8 - now.getDay()) % 7 || 7;
+  nextMon.setDate(nextMon.getDate() + daysToMon);
+  const monKey = nextMon.toISOString().slice(0,10);
+  const monName = VIC_HOLIDAYS[monKey];
+  if (!todayName && !tomName && monName && daysToMon <= 3) {
+    html = `<div class="holiday-card" style="background:#faf5ff;border-color:rgba(124,58,237,.2)">
+      <div style="font-size:24px">🏖️</div>
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#7c3aed">Long Weekend Ahead!</div>
+        <div style="font-size:11px;color:#6d28d9">Monday is ${monName} — expect <strong>lighter parking Friday afternoon</strong> as people leave early.</div>
+      </div>
+    </div>`;
+  }
+  document.getElementById('holiday-wrap').innerHTML = html;
+}
+
+// ── PERSONAL LEAVE TIME ──────────────────────────────────────────────────────
+// Drive times from suburb to each station zone (minutes)
+const SUBURB_DRIVE = {
+  'Point Cook':     {werribee:18,hoppers:14,williams:8,aircraft:10,laverton:18,default:20},
+  'Wyndham Vale':   {werribee:12,hoppers:10,williams:15,aircraft:18,laverton:22,default:18},
+  'Tarneit':        {werribee:15,hoppers:8,williams:12,aircraft:16,laverton:20,default:16},
+  'Manor Lakes':    {werribee:10,hoppers:12,williams:16,aircraft:20,laverton:24,default:18},
+  'Truganina':      {werribee:20,hoppers:12,williams:10,aircraft:12,laverton:16,default:15},
+  'Hoppers Crossing':{werribee:15,hoppers:5,williams:10,aircraft:14,laverton:18,default:12},
+  'Werribee':       {werribee:5,hoppers:15,williams:20,aircraft:24,laverton:28,default:10},
+  'Laverton':       {laverton:5,westona:5,altona:8,seaholme:10,newport:12,default:10},
+  'Altona':         {altona:5,seaholme:7,westona:8,laverton:10,newport:14,default:10},
+  'Williamstown':   {newport:8,seaholme:10,spotswood:12,yarraville:14,default:12},
+  'Newport':        {newport:5,spotswood:8,yarraville:10,default:10},
+  'Footscray':      {footscray:5,yarraville:5,seddon:5,default:8},
+  'Other':          {default:15},
+};
+const WALK_TO_PLATFORM = 5; // minutes to walk from car to platform
+const BUFFER = 5; // safety buffer
+
+function getPersonalLeaveTime() {
+  const suburb = ls('homeSuburb', null);
+  const trainTime = ls('trainTime', '07:52');
+  if (!suburb) return null;
+
+  const [hh, mm] = trainTime.split(':').map(Number);
+  const trainMins = hh * 60 + mm;
+  const drives = SUBURB_DRIVE[suburb] || SUBURB_DRIVE['Other'];
+  const driveMin = drives[selStation] ?? drives.default ?? 15;
+  const leaveMins = trainMins - driveMin - WALK_TO_PLATFORM - BUFFER;
+  const lh = Math.floor(leaveMins / 60), lm = leaveMins % 60;
+  return { suburb, driveMin, leaveTime: `${String(lh).padStart(2,'0')}:${String(lm).padStart(2,'0')}`, trainTime };
+}
+
+function renderPersonalLeave() {
+  const data = getPersonalLeaveTime();
+  const wrap = document.getElementById('leave-wrap');
+  if (!data) {
+    wrap.innerHTML = `<div class="leave-card" style="cursor:pointer" onclick="showSuburbPicker()">
+      <div class="leave-icon">📍</div>
+      <div class="leave-main">
+        <div style="font-size:13px;font-weight:600">Set your home suburb</div>
+        <div style="font-size:11px;color:var(--muted);margin-top:2px">Get a personalised leave time each morning</div>
+      </div>
+      <button class="leave-edit">Set up →</button>
+    </div>`;
+    return;
+  }
+  const now = new Date(), nowMins = now.getHours()*60+now.getMinutes();
+  const [lh,lm] = data.leaveTime.split(':').map(Number);
+  const leaveMinsAbs = lh*60+lm;
+  const diff = leaveMinsAbs - nowMins;
+  let urgency = '', urgencyColor = 'var(--accent)';
+  if (diff < 0) { urgency = 'You should have left already!'; urgencyColor = '#dc2626'; }
+  else if (diff < 10) { urgency = `Leave in ${diff} min — hurry!`; urgencyColor = '#dc2626'; }
+  else if (diff < 20) { urgency = `Leave in ${diff} min`; urgencyColor = '#d97706'; }
+  else { urgency = `${diff} min until you need to leave`; urgencyColor = '#16a34a'; }
+
+  wrap.innerHTML = `<div class="leave-card">
+    <div class="leave-icon">🏠</div>
+    <div class="leave-main">
+      <div class="leave-time" style="color:${urgencyColor}">${data.leaveTime}</div>
+      <div class="leave-sub">${urgency} · ${data.driveMin} min drive from ${data.suburb}</div>
+    </div>
+    <button class="leave-edit" onclick="showSuburbPicker()">Change</button>
+  </div>`;
+}
+
+function showSuburbPicker() {
+  const suburbs = Object.keys(SUBURB_DRIVE);
+  const current = ls('homeSuburb', '');
+  const html = `<div class="ob-overlay" onclick="closeSuburbPicker(event)">
+    <div class="ob-sheet">
+      <div style="font-family:'Syne',sans-serif;font-size:20px;font-weight:800;margin-bottom:6px">Your Home Suburb</div>
+      <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Used to calculate your personalised leave time</div>
+      <div class="ob-station-grid">
+        ${suburbs.map(s=>`<button class="ob-st-btn ${s===current?'sel':''}" onclick="setSuburb('${s}')">${s}</button>`).join('')}
+      </div>
+      <button class="ob-btn" onclick="closeSuburbPicker()">Done</button>
+    </div>
+  </div>`;
+  document.getElementById('ob-overlay').innerHTML = html;
+  document.getElementById('ob-overlay').style.display = 'flex';
+}
+
+function setSuburb(s) {
+  lsSet('homeSuburb', s);
+  document.querySelectorAll('.ob-st-btn').forEach(b => b.classList.toggle('sel', b.textContent===s));
+  renderPersonalLeave();
+}
+function closeSuburbPicker(e) {
+  if (!e || e.target === e.currentTarget) {
+    document.getElementById('ob-overlay').style.display = 'none';
+    document.getElementById('ob-overlay').innerHTML = '';
+  }
+}
+
+// ── HISTORY HEATMAP ──────────────────────────────────────────────────────────
+function renderHeatmap() {
+  const st = STATIONS.find(s=>s.id===selStation)||STATIONS[0];
+  const history = ls('pct_history', {});
+  const stHistory = history[st.id] || {};
+  const cells = [];
+  const today = new Date();
+  // Go back 12 weeks (84 days), align to Monday
+  const start = new Date(today);
+  start.setDate(start.getDate() - 83);
+  // Align to Monday
+  const dow = start.getDay();
+  const toMon = dow === 0 ? 1 : dow === 1 ? 0 : -(dow-1);
+  start.setDate(start.getDate() + toMon);
+
+  for (let i = 0; i < 84; i++) {
+    const d = new Date(start); d.setDate(start.getDate() + i);
+    const key = d.toISOString().slice(0,10);
+    const pct = stHistory[key] ?? null;
+    const isFuture = d > today;
+    let bg = 'var(--surface2)', tip = key;
+    if (isFuture) { bg = 'transparent'; }
+    else if (pct === null) { bg = 'var(--surface2)'; tip = `${key}: no data`; }
+    else if (pct < 30) { bg = '#dcfce7'; tip = `${key}: ${pct}% — Easy`; }
+    else if (pct < 55) { bg = '#86efac'; tip = `${key}: ${pct}% — Good`; }
+    else if (pct < 75) { bg = '#f59e0b'; tip = `${key}: ${pct}% — Moderate`; }
+    else if (pct < 90) { bg = '#ef4444'; tip = `${key}: ${pct}% — Risky`; }
+    else { bg = '#7f1d1d'; tip = `${key}: ${pct}% — Full`; }
+    cells.push(`<div class="heat-cell" style="background:${bg}" title="${tip}"><div class="heat-tip">${tip}</div></div>`);
+  }
+  document.getElementById('heat-grid').innerHTML = cells.join('');
+
+  // Stats
+  const vals = Object.values(stHistory).filter(v=>typeof v==='number');
+  const days = vals.length;
+  const avg = days ? Math.round(vals.reduce((a,b)=>a+b,0)/days) : null;
+  const worst = days ? Math.max(...vals) : null;
+  const best = days ? Math.min(...vals) : null;
+  const roughDays = vals.filter(v=>v>=75).length;
+
+  document.getElementById('commute-stats').innerHTML = days === 0
+    ? `<div style="color:var(--muted);font-size:12px;text-align:center;padding:12px">Check in each morning to build your history</div>`
+    : `<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+        <div class="scard"><div class="slbl">DAYS TRACKED</div><div class="sval">${days}</div></div>
+        <div class="scard"><div class="slbl">AVG FULLNESS</div><div class="sval" style="color:${col(avg)}">${avg}%</div></div>
+        <div class="scard"><div class="slbl">BEST DAY</div><div class="sval" style="color:#16a34a">${best}%</div></div>
+        <div class="scard"><div class="slbl">ROUGH DAYS</div><div class="sval" style="color:#dc2626">${roughDays}</div><div class="ssub">${Math.round(roughDays/days*100)}% of commutes</div></div>
+      </div>`;
+}
+
+function saveTodayPct(stationId, pct) {
+  const today = new Date().toISOString().slice(0,10);
+  const history = ls('pct_history', {});
+  if (!history[stationId]) history[stationId] = {};
+  history[stationId][today] = pct;
+  lsSet('pct_history', history);
+}
+
+// ── ONBOARDING ───────────────────────────────────────────────────────────────
+const OB_STEPS = [
+  { icon:'🚂', title:'Welcome to ParkWest', sub:'Real-time parking levels for Melbourne\'s Werribee line — so you never circle the car park again.' },
+  { icon:'📍', title:'Pick your station', sub:'Choose the station you commute from. You can change this anytime.', type:'station' },
+  { icon:'🏠', title:'Where do you live?', sub:'We\'ll calculate your personalised leave time each morning.', type:'suburb' },
+];
+let obStep = 0;
+
+function showOnboarding() {
+  obStep = 0;
+  renderObStep();
+}
+
+function renderObStep() {
+  const step = OB_STEPS[obStep];
+  const dots = OB_STEPS.map((_,i)=>`<div class="ob-dot ${i===obStep?'active':''}"></div>`).join('');
+  let body = '';
+  if (step.type === 'station') {
+    const stBtns = STATIONS.map(s=>`<button class="ob-st-btn ${s.id===selStation?'sel':''}" onclick="obSelectStation('${s.id}')">${s.name}<span style="display:block;font-size:9px;opacity:.5">Zone ${s.zone}</span></button>`).join('');
+    body = `<div class="ob-station-grid">${stBtns}</div>`;
+  } else if (step.type === 'suburb') {
+    const saved = ls('homeSuburb','');
+    const opts = Object.keys(SUBURB_DRIVE).map(s=>`<button class="ob-st-btn ${s===saved?'sel':''}" onclick="obSelectSuburb('${s}')">${s}</button>`).join('');
+    body = `<div class="ob-station-grid">${opts}</div>`;
+  }
+  const isLast = obStep === OB_STEPS.length - 1;
+  document.getElementById('ob-overlay').style.display = 'flex';
+  document.getElementById('ob-overlay').innerHTML = `
+    <div class="ob-overlay">
+      <div class="ob-sheet">
+        <div class="ob-dot-row">${dots}</div>
+        <div class="ob-icon">${step.icon}</div>
+        <div class="ob-title">${step.title}</div>
+        <div class="ob-sub">${step.sub}</div>
+        ${body}
+        <button class="ob-btn" onclick="obNext()">${isLast ? "Let's go! 🚀" : 'Next →'}</button>
+        ${obStep > 0 ? '' : '<span class="ob-skip" onclick="finishOnboarding()">Skip setup</span>'}
+      </div>
+    </div>`;
+}
+
+function obSelectStation(id) {
+  selStation = id; lsSet('selStation', id);
+  document.querySelectorAll('.ob-st-btn').forEach(b => {
+    const st = STATIONS.find(s=>s.name===b.firstChild?.textContent||b.textContent.trim().startsWith(STATIONS.find(x=>x.id===id)?.name));
+    b.classList.toggle('sel', b.getAttribute('onclick')?.includes(id));
+  });
+}
+function obSelectSuburb(s) {
+  lsSet('homeSuburb', s);
+  document.querySelectorAll('.ob-st-btn').forEach(b => b.classList.toggle('sel', b.textContent.trim()===s));
+}
+function obNext() {
+  if (obStep < OB_STEPS.length - 1) { obStep++; renderObStep(); }
+  else finishOnboarding();
+}
+function finishOnboarding() {
+  lsSet('onboarded', true);
+  document.getElementById('ob-overlay').style.display = 'none';
+  document.getElementById('ob-overlay').innerHTML = '';
+  renderPersonalLeave();
+}
+
+// ── PWA INSTALL ──────────────────────────────────────────────────────────────
+let deferredInstallPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  deferredInstallPrompt = e;
+  if (!ls('pwa_dismissed', false)) {
+    setTimeout(() => document.getElementById('pwa-banner').style.display = 'block', 3000);
+  }
+});
+function installPWA() {
+  if (deferredInstallPrompt) {
+    deferredInstallPrompt.prompt();
+    deferredInstallPrompt.userChoice.then(() => {
+      deferredInstallPrompt = null;
+      document.getElementById('pwa-banner').style.display = 'none';
+    });
+  } else {
+    showToast('On iPhone: tap Share → Add to Home Screen 📱');
+    document.getElementById('pwa-banner').style.display = 'none';
+  }
+}
+function dismissPWA() {
+  lsSet('pwa_dismissed', true);
+  document.getElementById('pwa-banner').style.display = 'none';
+}
+
 // ── COMMUTE MODE ──────────────────────────────────────────────────────────────
 let commuteMode = ls('commuteMode', 'drive'); // drive | cycle | walk | wfh
 
@@ -1039,6 +1481,7 @@ function renderStation(wd,dd,ri=0){
   const cd=reps.reduce((a,r)=>a+(r.type==='full'?6:r.type==='spaces'?-5:0),0);
   const pct=Math.min(99,Math.max(1,(base[h]??50)+wd.d+dd+cd));
   currentPct=pct;
+  saveTodayPct(st.id, pct); // record for heatmap history
   const v=verdict(pct),c=v.c;
 
   // Commute Score + WFH card
@@ -1135,7 +1578,7 @@ function renderNetwork(wd,dd){
 }
 
 // ── TABS ──────────────────────────────────────────────────────────────────────
-const TABS=['lot','alt','plan','week','chart','network','trains','report'];
+const TABS=['lot','alt','plan','week','chart','network','trains','heat','report'];
 function toggleTab(id){
   const isOpen=activeTab===id;
   TABS.forEach(t=>{
@@ -1148,6 +1591,7 @@ function toggleTab(id){
     if(p)p.style.display='block';if(b)b.classList.add('active');
     activeTab=id;
     if(id==='trains') startTrainRefresh();
+    if(id==='heat') renderHeatmap();
     setTimeout(()=>p?.scrollIntoView({behavior:'smooth',block:'nearest'}),50);
   } else activeTab=null;
 }
@@ -1467,12 +1911,25 @@ async function refresh(){
 
 if('serviceWorker' in navigator)navigator.serviceWorker.getRegistrations().then(r=>r.forEach(s=>s.unregister()));
 
+// Apply dark mode immediately to avoid flash
+applyDark();
+
 // Handle ?station= deep link from SEO pages
 const _sp = new URLSearchParams(window.location.search).get('station');
 if (_sp && STATIONS.find(s=>s.id===_sp)) { selStation=_sp; lsSet('selStation',_sp); }
 
-refresh().then(()=>initMode());
-setInterval(refresh,10*60*1000);
+// Show onboarding for first-time users
+if (!ls('onboarded', false)) {
+  window.addEventListener('load', () => setTimeout(showOnboarding, 800));
+}
+
+checkHoliday();
+renderPersonalLeave();
+
+refresh().then(() => initMode());
+setInterval(refresh, 10*60*1000);
+// Refresh personal leave time every minute
+setInterval(renderPersonalLeave, 60000);
 </script>
 </body>
 </html>
