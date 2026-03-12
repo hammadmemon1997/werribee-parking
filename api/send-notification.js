@@ -1,8 +1,9 @@
 // Vercel Edge Function — sends a Web Push notification
 export const config = { runtime: 'edge' };
 
-const VAPID_PUBLIC = 'BP-LVffIcZxUCle6TsiMqsvOKQIDsaMrr4y3t9EgEFXL5Eqq0xIv98DIK0x52U3BGAwUjaKsgsAclUlhnpzoTE8';
-const VAPID_PRIVATE = 'REDACTED_ROTATE_THIS_KEY';
+// Keys loaded from Vercel environment variables (never hardcode secrets)
+const VAPID_PUBLIC = process.env.VAPID_PUBLIC_KEY;
+const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY;
 const VAPID_EMAIL = 'mailto:support@parkwest.app';
 
 // Sign a JWT for VAPID
